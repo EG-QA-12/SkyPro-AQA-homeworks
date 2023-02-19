@@ -1,3 +1,2 @@
-def input (user_name):
-    print("Привет, " + user_name + "!")
-input ("Евгений") 
+user_name = input("What's your name? ")
+print("Hi " + user_name + "!")
