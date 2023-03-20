@@ -1,15 +1,16 @@
 class User:
     age=0
 
-    def __init__(self,name):
+    def __init__(self, name):
         print("я создался")
         self.username = name
 
-    def sayname (self):
+    def sayName (self):
             print("меня зовут", self.username)
             
-    def sayage(self):
+    def sayAge(self):
          print(self.age)
          
     def setAge(self,newAge):
          self.age = newAge
+         
