@@ -14,3 +14,11 @@ class User:
     def setAge(self,newAge):
          self.age = newAge
          
+    def addCard(self, card):
+         self.card = card
+    
+    def getCard(self):
+         return self.card
+
+    
+         

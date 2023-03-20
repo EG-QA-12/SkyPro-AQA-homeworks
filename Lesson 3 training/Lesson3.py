@@ -10,4 +10,5 @@ alex.sayAge()
 
 card = Card("4353 1234 5678 8765", "11/28", "Alex F")
 
-card.pay(1000)
+alex.addCard(card)
+alex.getCard().pay(1000)
