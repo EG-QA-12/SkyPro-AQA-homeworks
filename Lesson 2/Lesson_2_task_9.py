@@ -7,12 +7,4 @@ temp = var_1
 var_1 = var_2
 var_2 = temp
 
-var_1 = 37
-var_2 = 99
-
-# меняем местами значения переменных
-temp = var_1
-var_1 = var_2
-var_2 = temp
-
 print(var_1, var_2)  # выводим обновленные переменные на экран
