@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 def month_to_season(month: int) -> str:
     if month in [12, 1, 2]:
         return 'Зима'
@@ -11,7 +11,7 @@ def month_to_season(month: int) -> str:
     else:
         return 'Неверный номер месяца'
 season = month_to_season(2)
-=======
+
 def month_to_season(month: int) -> str:
     if month in [12, 1, 2]:
         return 'Зима'
@@ -24,5 +24,5 @@ def month_to_season(month: int) -> str:
     else:
         return 'Неверный номер месяца'
 season = month_to_season(2)
->>>>>>> 44f8754237d5a2bc37d9c2959aec693ad55799ff
+
 print(season) # Выведет 'Зима'
