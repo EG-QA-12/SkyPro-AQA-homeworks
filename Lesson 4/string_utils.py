@@ -60,3 +60,12 @@ def starts_with(self, string: str, symbol: str) -> bool:
     return string.startswith(symbol)
 
 def end_with(self, string: str, symbol: str) -> bool:
+    """
+    Возвращает `True`, если строка заканчивается заданным символом и `False` - если нет \n 
+    Параметры: \n 
+        `string` - строка для обработки \n
+        `symbol` - искомый символ \n
+    Пример 1: `end_with("SkyPro", "o") -> True`
+    Пример 2: `end_with("SkyPro", "y") -> False`
+    """
+    return string.endswith(symbol)
