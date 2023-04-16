@@ -1,71 +1,46 @@
-def capitalize(self, string: str) -> str:
-    """
-    Принимает на вход текст, делает первую букву заглавной и возвращает этот же текст
-    Пример: `capitalize("skypro") -> "Skypro"`
-    """
-    return string.capitalize()
+class StringUtils:
+    @staticmethod
+    def reverse_string(string):
+        if string is None:
+            return None
+        return string[::-1]
 
-def trim(self, string: str) -> str:
-    """
-    Принимает на вход текст и удаляет пробелы в начале, если они есть
-    Пример: `trim("   skypro") -> "skypro"`
-    """
-    return string.lstrip()  # заменил цикл на lstrip()
+    @staticmethod
+    def is_palindrome(string):
+        if string is None:
+            return False
+        return string == string[::-1]
 
-def to_list(self, string: str, delimiter: str = ",") -> list[str]:
-    """
-    Принимает на вход текст с разделителем и возвращает список строк. \n
-    Параметры: \n 
-        `string` - строка для обработки \n
-        `delimiter` - разделитель строк. По умолчанию запятая (",") \n
-    Пример 1: `to_list("a,b,c,d") -> ["a", "b", "c", "d"]`
-    Пример 2: `to_list("1:2:3", ":") -> ["1", "2", "3"]`
-    """
-    if self.is_empty(string):
-        return []
-    
-    return string.split(delimiter)
+    @staticmethod
+    def swap_case(string):
+        return string.swapcase()
 
-def contains(self, string: str, symbol: str) -> bool:
-    """
-    Возвращает `True`, если строка содержит искомый символ и `False` - если нет \n 
-    Параметры: \n 
-        `string` - строка для обработки \n
-        `symbol` - искомый символ \n
-    Пример 1: `contains("SkyPro", "S") -> True`
-    Пример 2: `contains("SkyPro", "U") -> False`
-    """
-    return symbol in string  # заменил try-except на in
+    @staticmethod
+    def strip_punctuation(string):
+        return "".join(c for c in string if c.isalnum() or c.isspace())
 
-def delete_symbol(self, string: str, symbol: str) -> str:
-    """
-    Удаляет все подстроки из переданной строки \n 
-    Параметры: \n 
-        `string` - строка для обработки \n
-        `symbol` - искомый символ для удаления \n
-    Пример 1: `delete_symbol("SkyPro", "k") -> "SyPro"`
-    Пример 2: `delete_symbol("SkyPro", "Pro") -> "Sky"`
-    """
-    return string.replace(symbol, "")  # убрал проверку на наличие символа
+    @staticmethod
+    def count_words(string):
+        return len(string.split())
 
-def starts_with(self, string: str, symbol: str) -> bool:
-    """
-    Возвращает `True`, если строка начинается с заданного символа и `False` - если нет \n 
-    Параметры: \n 
-        `string` - строка для обработки \n
-        `symbol` - искомый символ \n
-    Пример 1: `starts_with("SkyPro", "S") -> True`
-    Пример 2: `starts_with("SkyPro", "P") -> False`
-    """
-    return string.startswith(symbol)
+    @staticmethod
+    def longest_word(string):
+        words = string.split()
+        return max(words, key=len)
 
-def end_with(self, string: str, symbol: str) -> bool:
-    """
-    Возвращает `True`, если строка заканчивается заданным символом и `False` - если нет \n 
-    Параметры: \n 
-        `string` - строка для обработки \n
-        `symbol` - искомый символ \n
-    Пример 1: `end_with("SkyPro", "o") -> True`
-    Пример 2: `end_with("SkyPro", "y") -> False`
-    """
-    return string.endswith(symbol)
+    @staticmethod
+    def most_common_words(string):
+        words = string.split()
+        word_counts = {}
+        for word in words:
+            if word in word_counts:
+                word_counts[word] += 1
+            else:
+                word_counts[word] = 1
+        sorted_words = sorted(word_counts.items(), key=lambda x: x[1], reverse=True)
+        return [x[0] for x in sorted_words if x[1] == sorted_words[0][1]]
+
+    @staticmethod
+    def capitalize_words(string):
+        words = string.split()
+        return " ".join([word.capitalize() for word in words])
