@@ -59,4 +59,4 @@ def starts_with(self, string: str, symbol: str) -> bool:
     """
     return string.startswith(symbol)
 
-def end_with
+def end_with(self, string: str, symbol: str) -> bool:
