@@ -46,10 +46,11 @@ class TestStringUtils:
         assert StringUtils.reverse_string(" ") == " "
 
     def test_reverse_string_none(self):
-        assert StringUtils.reverse_string(None) == None
+        assert StringUtils.reverse_string(None) is None
 
     def test_is_palindrome_empty(self):
         assert StringUtils.is_palindrome("") == False
 
     def test_is_palindrome_space(self):
-        assert StringUtils.is_palindrome
+        assert StringUtils.is_palindrome(" ") == False
+
