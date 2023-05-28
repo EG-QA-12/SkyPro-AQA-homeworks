@@ -29,5 +29,5 @@ print("Размер списка кнопок Delete:", len(delete_buttons))
 
 # Закрываем веб-драйвер
 driver.quit()
-
+sleep(1)
 
