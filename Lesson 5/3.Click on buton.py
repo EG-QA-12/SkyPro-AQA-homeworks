@@ -7,6 +7,6 @@ from webdriver_manager.core.utils import ChromeType
 
 driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()))
 driver.maximize_window()
-driver.get("http://the-internet.herokuapp.com/add_remove_elements/")
+driver.get("https://ya.ru")
 
 sleep(5) 
