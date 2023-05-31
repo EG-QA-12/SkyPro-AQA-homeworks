@@ -1,7 +1,7 @@
 Задание 2. Локаторы Ozon
 
-1) Локатор кнопки Войти - <span class="z4c">Войти</span> 
-2) Локатор кнопки Заказы - <span class="z4c">Заказы</span>
-3) Локатор ссылки OZON Job (в футере) - <img loading="lazy" fetchpriority="low" src="https://ir.ozone.ru/s3/cms/12/tdb/group_357672.png" alt="Ozon Job" class="c4s c9-a">
-4) Локатор выбора валюты (верхний левый угол страницы) - <span class="a2-e4">BYN</span>
-5) Локатор выпадашки Везде (в поисковой строке) - <span title="Везде" class="vv tsBodyM"> Везде </span>
+1) Локатор кнопки Войти - < содержимому ('//span[text()="Войти"]') > 
+2) Локатор кнопки Заказы - <('//span[text()="Заказы"]')>
+3) Локатор ссылки OZON Job (в футере) - < ('img[alt="Ozon Job"]') либо ('img[src="https://ir.ozone.ru/s3/cms/12/tdb/group_357672.png"]')>
+4) Локатор выбора валюты (верхний левый угол страницы) - <(By.XPATH, '//span[text()="BYN"]') либо (By.CSS_SELECTOR, 'span.a2-e4')>
+5) Локатор выпадашки Везде (в поисковой строке) - <(By.CSS_SELECTOR, 'span[title="Везде"]') либо (By.XPATH, '//span[text()="Везде"]') либо (By.CLASS_NAME, 'vv')>
