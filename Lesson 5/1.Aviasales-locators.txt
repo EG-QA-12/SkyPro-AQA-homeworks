@@ -2,13 +2,9 @@
 Задание 1. Локаторы Aviasales
 
 1) Локатор логотипа <('span[data-test-id="logo"]')>
-2) Локатор поля Откуда - <("#origin") либо  ("[data-test-id='origin-autocomplete-field']") либо  ("[placeholder='Откуда']")
- >
-
-
-
-Локатор поля Куда - <input aria-autocomplete="list" aria-labelledby="destination-label" autocomplete="off" id="destination" placeholder="Куда" class="autocomplete__input" type="text" data-test-id="destination-autocomplete-field" spellcheck="false" value="">
-Локатор поля Когда - <div class="trip-duration__input-wrapper --departure" data-test-id="departure-date-field"><input class="trip-duration__date-input --active" placeholder="Когда" readonly="" data-test-id="departure-date-input" value=""></div>
+2) Локатор поля Откуда - <("#origin") либо  ("[data-test-id='origin-autocomplete-field']") либо  ("[placeholder='Откуда']")>
+3) Локатор поля Куда - <Локатор по id:("destination") либо  по атрибуту class:("autocomplete__input") либо по атрибуту placeholder:("[placeholder='Куда']")>
+4) Локатор поля Когда - <div class="trip-duration__input-wrapper --departure" data-test-id="departure-date-field"><input class="trip-duration__date-input --active" placeholder="Когда" readonly="" data-test-id="departure-date-input" value=""></div>
 
 3)Локатор поля Обратно - <div class="trip-duration__input-wrapper --return" data-test-id="return-date-field"><input class="trip-duration__date-input" placeholder="Обратно" readonly="" data-test-id="return-date-input" value=""></div>
 
