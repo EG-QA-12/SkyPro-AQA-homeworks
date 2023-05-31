@@ -1,0 +1,13 @@
+
+Задание 1. Локаторы Aviasales
+
+1) Локатор логотипа <('span[data-test-id="logo"]')>
+2) Локатор поля Откуда - <("#origin") либо  ("[data-test-id='origin-autocomplete-field']") либо  ("[placeholder='Откуда']")>
+3) Локатор поля Куда - <Локатор по id:("destination") либо  по атрибуту class:("autocomplete__input") либо по атрибуту placeholder:("[placeholder='Куда']")>
+4) Локатор поля Когда - <div class="trip-duration__input-wrapper --departure" data-test-id="departure-date-field"><input class="trip-duration__date-input --active" placeholder="Когда" readonly="" data-test-id="departure-date-input" value=""></div>
+
+3)Локатор поля Обратно - <div class="trip-duration__input-wrapper --return" data-test-id="return-date-field"><input class="trip-duration__date-input" placeholder="Обратно" readonly="" data-test-id="return-date-input" value=""></div>
+
+4)Локатор чек-бокса "Открыть Ostrovok.ru в новой вкладке" - <label class="of_input_checkbox__label" for="hotel_checkbooks">Открыть Ostrovok.ru в новой вкладке</label>
+
+5)Локатор кнопки Найти билеты - <button type="submit" class="h__cQ6neS4ccCunOu9Ydn0k h__tkvB9amX28GXeWxPcrad h__eEClvAD7BnPrQbwBW5zC form-submit --on-home" data-test-id="form-submit"><div class="h__wr9OcknDPAtMpjta7a24 h__pWd6FeazwBmNIpomSjsp h__YQHxt19vOcGsOro8j0pF form-submit__label" data-test-id="text">Найти билеты</div></button>
