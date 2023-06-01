@@ -12,6 +12,7 @@ drivers = [
 ]
 
 def test_me():
+    titles = []
     for driver in drivers:
         # Открытие страницы Яндекса
         driver.get("https://ya.ru")
@@ -20,20 +21,19 @@ def test_me():
         # ...
         sleep(5)
 
-    for driver in drivers:
         # Получение заголовка текущей страницы
         current_title = driver.title
-        print(current_title)
+        titles.append(current_title)
 
         # Закрытие веб-драйвера
         driver.quit()
 
+    for title in titles:
+        print(title)
+
 # Вызов функции для тестирования
 test_me()
 
-print(current_title)
-        # Закрытие веб-драйвера
-drivers.quit()
 
 
 
