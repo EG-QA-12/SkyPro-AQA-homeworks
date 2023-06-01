@@ -15,11 +15,11 @@ def test_me():
     titles = []
     for driver in drivers:
         # Открытие страницы Яндекса
-        driver.get("https://ya.ru")
+        driver.get("https://rzd.ru")
 
         # Дополнительные действия на странице, если нужно
         # ...
-        sleep(5)
+        sleep(1)
 
         # Получение заголовка текущей страницы
         current_title = driver.title
