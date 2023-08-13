@@ -43,12 +43,13 @@ def test_cart_counter ():
         print(counter)
 
       #перейти в корзину 
-    browser.get("https://www.labirint.ru/cart/")
-                                  
+    browser.get("https://www.labirint.ru/cart/")                      
     #проверить счетсчик товаров. Должен быть равен числу нажатий
-     #получить текущее значение 
+    #получить текущее значение 
+    txt =  browser.find_element(By.CSS_SELECTOR, 'a[data-event-label="myCart"]').find_element(By.CSS_SELECTOR, 'b').text
+  
      #сравнить с counter
-
+    assert counter ==int(txt)
     
-    sleep(5)
-    browser.quit()
+sleep(5)
+  browser.quit()
