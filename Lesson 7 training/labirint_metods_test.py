@@ -9,8 +9,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 browser = webdriver.Chrome()
-url ='https://www.labirint.ru/'
-searchTerm ='python'
+url = 'https://www.labirint.ru/'
+searchTerm = 'python'
 cookie = {
     "name": "cookie_policy",
     "value": "1"
@@ -45,9 +45,11 @@ def go_to_cart():
     browser.get("https://www.labirint.ru/cart/")           
 
 def get_cart_counter():
-    # Примените нужные методы для получения количества товаров в корзине
-    # и возвращайте это значение
-    pass
+    counter_element = browser.find_element(By.CSS_SELECTOR, ".cart-count")
+    return counter_element.get_attribute("data-quantity")
+
+def get_title():
+    return browser.title
 
 def close_driver():
     browser.quit()
@@ -69,8 +71,9 @@ def test_empty_search():
 
     assert txt == 'Мы ничего не нашли по вашему запросу! Что делать?'
 
-test_cart_counter()
-test_empty_search()
+    if __name__ == "__main__":
+    test_cart_counter()
+    test_empty_search()
 
 
   
