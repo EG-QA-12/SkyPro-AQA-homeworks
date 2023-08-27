@@ -14,6 +14,7 @@ from Pages.CartPage import CartPage
 
 def test_cart_counter():
     browser = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()))
+
     main_page = MainPage(browser)
     main_page.set_cookie_policy()
     main_page.search('python')
@@ -24,9 +25,19 @@ def test_cart_counter():
 
     cart_page = CartPage(browser)
     cart_page.get()
+    as_is = cart_page.get_counter()
 
+    assert as_is == to_be
 
-sleep (5)
+    browser.quit()
 
-
+def test_empty_search_result():
+    browser = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()))
  
+    main_page = MainPage(browser)
+    main_page.set_cookie_policy()
+    main_page.search("no book search term")
+
+    result_page = ResultPage(browser)
+    result_page.get_empty_result_message()
+    
