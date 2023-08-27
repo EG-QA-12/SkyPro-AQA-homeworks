@@ -39,5 +39,7 @@ def test_empty_search_result():
     main_page.search("no book search term")
 
     result_page = ResultPage(browser)
-    result_page.get_empty_result_message()
+    msg = result_page.get_empty_result_message()
     
+    assert msg == 'Мы ничего не нашли по вашему запросу! Что делать?'
+    browser.quit
