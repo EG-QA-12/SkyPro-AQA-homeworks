@@ -42,4 +42,4 @@ def test_empty_search_result():
     msg = result_page.get_empty_result_message()
     
     assert msg == 'Мы ничего не нашли по вашему запросу! Что делать?'
-    browser.quit
+    browser.quit()
