@@ -12,19 +12,18 @@ from Pages.MainPage import MainPage
 from Pages.ResultPage import ResultPage
 from Pages.CartPage import CartPage
 
-def test_cart_counter ():
+def test_cart_counter():
     browser = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()))
-
-    MainPage = MainPage(browser)
-    MainPage.set_cookie_policy()
-    MainPage.search ('python')
+    main_page = MainPage(browser)
+    main_page.set_cookie_policy()
+    main_page.search('python')
 
     result_page = ResultPage(browser)
     result_page.switch_to_table()
     result_page.add_books()
 
-    CartPage = CartPage (browser)
-    CartPage.get ()
+    cart_page = CartPage(browser)
+    cart_page.get()
 
 
 sleep (5)
