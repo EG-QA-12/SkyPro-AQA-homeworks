@@ -37,7 +37,7 @@ def test_calculator(driver):
             break
 
     # Прокручиваем список кнопок и нажимаем на кнопку "+"
-    plus_button = WebDriverWait(driver, 10).until(
+    plus_button = WebDriverWait(driver, 5).until(
         EC.element_to_be_clickable((By.XPATH, "//span[@class='operator btn btn-outline-success'][text()='+']")))
     plus_button.click()
 
@@ -49,15 +49,14 @@ def test_calculator(driver):
             break
 
     # Нажать на кнопку "="
-    equals_button = WebDriverWait(driver, 10).until(
+    equals_button = WebDriverWait(driver, 5).until(
         EC.element_to_be_clickable((By.XPATH, "//span[@class='btn btn-outline-warning'][text()='=']")))
     equals_button.click()
 
-    # Получить результат после нажатия "="
-    wait = WebDriverWait(driver, 45)
-    result_element = wait.until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, "div.screen")))
-    result = result_element.text
+    # Добавить ожидание перед извлечением результата
+    WebDriverWait(driver, 45).until(
+        EC.text_to_be_present_in_element((By.CSS_SELECTOR, "div.screen"), "15"))
 
-    # Проверить результат
-    assert result == "15"
+    # Проверка результата
+    result_element = driver.find_element(By.CSS_SELECTOR, "div.screen")
+    result = result_element.text.strip() 
