@@ -26,7 +26,7 @@ def test_calculator(driver):
     # Вводим значение 45 в поле #delay
     calculator_page.enter_delay_value("45")
 
-    # Находим все элементы с классом "btn-outline-primary"
+    # Находим все элементы с классом "btn-outline-primary" 
     buttons = driver.find_elements(By.CSS_SELECTOR, "span.btn-outline-primary")
 
     # Проходимся по каждому элементу и нажимаем на тот, у которого текст "7"
