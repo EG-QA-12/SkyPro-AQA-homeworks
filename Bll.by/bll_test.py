@@ -1,6 +1,9 @@
-
+import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
 
 class MainPage:
     def __init__(self, driver):
@@ -34,7 +37,7 @@ class MainPage:
         self.driver.find_element(*self.search_input).clear()
         self.driver.find_element(*self.search_input).send_keys(query)
 
-    def run_test():
+def run_test():
     # Создание экземпляра драйвера Selenium (в данном случае используется Firefox)
     driver = webdriver.Firefox()
 
