@@ -880,3 +880,28 @@ Read port: 49685
 DevTools listening on ws://127.0.0.1:51583/devtools/browser/79815834-9637-4745-b2a2-87f82b870504
 1698169867739	Marionette	INFO	Stopped listening on port 49685
 Dynamically enable window occlusion 1
+1698241543405	geckodriver	INFO	Listening on 127.0.0.1:51564
+1698241546456	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51565" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofilenKfaRO"
+1698241583297	geckodriver	INFO	Listening on 127.0.0.1:51627
+1698241586324	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "51628" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofilela5w0u"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698241586638	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698241586700	Marionette	INFO	Listening on port 51640
+WebDriver BiDi listening on ws://127.0.0.1:51628
+Read port: 51640
+1698241586857	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:51628/devtools/browser/6fb90db9-cf85-4213-b6ca-4354dd0c7557
+console.error: ({})
+1698241616670	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
+1698241618847	Marionette	INFO	Stopped listening on port 51640
+Dynamically enable window occlusion 1
+console.warn: services.settings: main/websites-with-shared-credential-backends sync interrupted by shutdown
+console.warn: services.settings: main/cookie-banner-rules-list sync interrupted by shutdown
+console.warn: services.settings: main/language-dictionaries sync interrupted by shutdown
+console.warn: services.settings: main/password-recipes sync interrupted by shutdown
+console.warn: services.settings: main/password-rules sync interrupted by shutdown
+console.warn: services.settings: main/translations-identification-models sync interrupted by shutdown
+console.warn: services.settings: main/translations-wasm sync interrupted by shutdown
+console.warn: services.settings: main/search-config sync interrupted by shutdown
