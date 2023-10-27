@@ -1073,3 +1073,380 @@ console.error: ({})
 console.error: ({})
 1698249451424	Marionette	INFO	Stopped listening on port 61710
 Dynamically enable window occlusion 1
+1698303596939	geckodriver	INFO	Listening on 127.0.0.1:55579
+1698303600025	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55580" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileQXf7RU"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698303600497	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698303600931	Marionette	INFO	Listening on port 55592
+WebDriver BiDi listening on ws://127.0.0.1:55580
+Read port: 55592
+1698303601238	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55580/devtools/browser/c20e7adc-68f5-4023-8e88-3b6c497b0ce6
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+1698303609306	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698303610087	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+1698303616644	Marionette	INFO	Stopped listening on port 55592
+Dynamically enable window occlusion 1
+1698303885542	geckodriver	INFO	Listening on 127.0.0.1:55714
+1698303888619	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55715" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileGbMs8j"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698303888988	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698303889069	Marionette	INFO	Listening on port 55724
+WebDriver BiDi listening on ws://127.0.0.1:55715
+Read port: 55724
+1698303889281	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55715/devtools/browser/4ce131ea-ace9-476e-a4ba-4d741a94b965
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+console.error: ({})
+1698303895514	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698303896087	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+1698303902328	Marionette	INFO	Stopped listening on port 55724
+Dynamically enable window occlusion 1
+1698304052517	geckodriver	INFO	Listening on 127.0.0.1:55832
+1698304055566	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55833" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileiXofAM"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698304056027	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698304056099	Marionette	INFO	Listening on port 55842
+WebDriver BiDi listening on ws://127.0.0.1:55833
+Read port: 55842
+1698304056345	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55833/devtools/browser/89de091c-6431-417b-9d4c-9477214b4add
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+1698304067620	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698304068518	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+1698304074822	Marionette	INFO	Stopped listening on port 55842
+Dynamically enable window occlusion 1
+1698304082616	geckodriver	INFO	Listening on 127.0.0.1:55910
+1698304085661	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "55911" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofile3HCDd5"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698304085987	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698304086063	Marionette	INFO	Listening on port 55919
+WebDriver BiDi listening on ws://127.0.0.1:55911
+Read port: 55919
+1698304086256	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:55911/devtools/browser/4d956991-669e-4d1a-afc0-f7e61101d0f1
+1698304090804	Marionette	INFO	Stopped listening on port 55919
+Dynamically enable window occlusion 1
+1698326842990	geckodriver	INFO	Listening on 127.0.0.1:52678
+1698326846061	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "52679" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofilehYwHm6"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698326846391	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698326846456	Marionette	INFO	Listening on port 60153
+WebDriver BiDi listening on ws://127.0.0.1:52679
+Read port: 60153
+1698326846612	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:52679/devtools/browser/15288b3c-7005-415a-9f51-6fef46ed4eca
+1698326848556	Marionette	INFO	Stopped listening on port 60153
+Dynamically enable window occlusion 1
+1698326883634	geckodriver	INFO	Listening on 127.0.0.1:59544
+1698326886698	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "59545" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofile8zEC8l"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698326887024	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698326887093	Marionette	INFO	Listening on port 49875
+WebDriver BiDi listening on ws://127.0.0.1:59545
+Read port: 49875
+1698326887244	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:59545/devtools/browser/878258e5-2a6f-4b06-ae08-3e37834d504c
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+1698326894140	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698326894637	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://expert.bll.by."
+console.error: ({})
+1698326901390	Marionette	INFO	Stopped listening on port 49875
+Dynamically enable window occlusion 1
+1698327324401	geckodriver	INFO	Listening on 127.0.0.1:63009
+1698327327445	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "63010" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofilexq6OCa"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698327327694	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698327327749	Marionette	INFO	Listening on port 59479
+WebDriver BiDi listening on ws://127.0.0.1:63010
+Read port: 59479
+1698327327888	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:63010/devtools/browser/c84bb6f4-c136-4419-a1bf-5e1bc4875709
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+1698327335395	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698327336118	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://expert.bll.by."
+console.error: ({})
+1698327353035	Marionette	INFO	Stopped listening on port 59479
+Dynamically enable window occlusion 1
+1698329024615	geckodriver	INFO	Listening on 127.0.0.1:49711
+1698329027689	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "49712" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileLLRgw6"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698329028009	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698329028072	Marionette	INFO	Listening on port 49721
+WebDriver BiDi listening on ws://127.0.0.1:49712
+Read port: 49721
+1698329028224	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:49712/devtools/browser/8bffc393-1707-4362-9b57-64294ed5a8fe
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+1698329034742	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698329035338	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+1698329042010	Marionette	INFO	Stopped listening on port 49721
+Dynamically enable window occlusion 1
+1698330761313	geckodriver	INFO	Listening on 127.0.0.1:65074
+1698330764364	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "65075" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileW4V8wL"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698330764700	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698330764770	Marionette	INFO	Listening on port 65086
+WebDriver BiDi listening on ws://127.0.0.1:65075
+Read port: 65086
+1698330764931	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:65075/devtools/browser/5b23de6a-7097-4252-ab72-5a972f09c4b4
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+1698330775403	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698330776453	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+1698330783319	Marionette	INFO	Stopped listening on port 65086
+Dynamically enable window occlusion 1
+1698330882416	geckodriver	INFO	Listening on 127.0.0.1:62974
+1698330885472	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "62975" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileTEgesk"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698330885724	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698330885777	Marionette	INFO	Listening on port 62984
+WebDriver BiDi listening on ws://127.0.0.1:62975
+Read port: 62984
+1698330885912	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:62975/devtools/browser/13c6c8b8-7a8c-4807-b731-ce8134655231
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+1698330893857	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698330894460	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+1698330900649	Marionette	INFO	Stopped listening on port 62984
+Dynamically enable window occlusion 1
+1698330976981	geckodriver	INFO	Listening on 127.0.0.1:60109
+1698330980036	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "60110" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileAYffgo"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698330980292	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698330980346	Marionette	INFO	Listening on port 60124
+WebDriver BiDi listening on ws://127.0.0.1:60110
+Read port: 60124
+1698330980474	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:60110/devtools/browser/e8d4f24a-e089-4d53-b613-d498bc163078
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+1698330986985	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698330987670	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+1698330993905	Marionette	INFO	Stopped listening on port 60124
+Dynamically enable window occlusion 1
+1698331096794	geckodriver	INFO	Listening on 127.0.0.1:63845
+1698331099848	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "63846" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofilePrHrOd"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698331100090	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698331100143	Marionette	INFO	Listening on port 63856
+WebDriver BiDi listening on ws://127.0.0.1:63846
+Read port: 63856
+1698331100273	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:63846/devtools/browser/5f90137a-f2cc-4094-a68b-92d172f3a9d8
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+1698331107791	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698331108718	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+1698331114950	Marionette	INFO	Stopped listening on port 63856
+Dynamically enable window occlusion 1
+1698411086274	geckodriver	INFO	Listening on 127.0.0.1:57410
+1698411089313	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "57411" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofilej3v5Ao"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698411089690	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698411089767	Marionette	INFO	Listening on port 57430
+WebDriver BiDi listening on ws://127.0.0.1:57411
+Read port: 57430
+1698411089928	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:57411/devtools/browser/f89aa2d3-63ea-4034-9715-1fc3f1ac9bad
+1698411091956	Marionette	INFO	Stopped listening on port 57430
+Dynamically enable window occlusion 1
+1698412513676	geckodriver	INFO	Listening on 127.0.0.1:58726
+1698412516714	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "58727" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofilejvP4q4"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698412517048	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698412517113	Marionette	INFO	Listening on port 58742
+WebDriver BiDi listening on ws://127.0.0.1:58727
+Read port: 58742
+1698412517265	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:58727/devtools/browser/3645d42a-f647-4d62-ba45-af82929aac6f
+1698412519127	Marionette	INFO	Stopped listening on port 58742
+Dynamically enable window occlusion 1
+1698412569347	geckodriver	INFO	Listening on 127.0.0.1:59020
+1698412572389	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "59021" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileeB33QL"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698412572731	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698412572794	Marionette	INFO	Listening on port 59044
+WebDriver BiDi listening on ws://127.0.0.1:59021
+Read port: 59044
+1698412572949	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:59021/devtools/browser/71f39aeb-fe15-4ded-b510-379cbdef9f69
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+1698412579643	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698412580353	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+1698412586924	Marionette	INFO	Stopped listening on port 59044
+Dynamically enable window occlusion 1
+1698416253837	geckodriver	INFO	Listening on 127.0.0.1:50526
+1698416256877	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "50527" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileh9b7Tn"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698416257199	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698416257263	Marionette	INFO	Listening on port 50548
+WebDriver BiDi listening on ws://127.0.0.1:50527
+Read port: 50548
+1698416257425	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:50527/devtools/browser/e7b938f3-0aea-4843-8ca8-3b66037efc42
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+1698416262924	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698416263514	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+1698416269896	Marionette	INFO	Stopped listening on port 50548
+Dynamically enable window occlusion 1
+1698418186053	geckodriver	INFO	Listening on 127.0.0.1:54362
+1698418189099	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "54363" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofile0TRErU"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698418189450	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698418189516	Marionette	INFO	Listening on port 54375
+WebDriver BiDi listening on ws://127.0.0.1:54363
+Read port: 54375
+1698418189663	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:54363/devtools/browser/57b05a83-8afa-4521-b0b8-a177b7c2840e
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698418200671	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+1698418204564	Marionette	INFO	Stopped listening on port 54375
+console.error: ({})
+Dynamically enable window occlusion 1
+1698418235626	geckodriver	INFO	Listening on 127.0.0.1:54577
+1698418238676	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "54578" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileHpCCIY"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698418238916	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698418238970	Marionette	INFO	Listening on port 54590
+WebDriver BiDi listening on ws://127.0.0.1:54578
+Read port: 54590
+1698418239102	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:54578/devtools/browser/422cd0cd-7dc6-47a9-a6e2-b1335d24dc01
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698418245036	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+1698418247497	Marionette	INFO	Stopped listening on port 54590
+console.error: ({})
+Dynamically enable window occlusion 1
+1698418364382	geckodriver	INFO	Listening on 127.0.0.1:54894
+1698418367418	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "54895" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileGb48lq"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698418367664	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698418367720	Marionette	INFO	Listening on port 54907
+WebDriver BiDi listening on ws://127.0.0.1:54895
+Read port: 54907
+1698418367853	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:54895/devtools/browser/75ae7077-d0a5-4542-8fed-6e8b9a3e36d3
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+1698418374962	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698418375415	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+1698418381952	Marionette	INFO	Stopped listening on port 54907
+Dynamically enable window occlusion 1
