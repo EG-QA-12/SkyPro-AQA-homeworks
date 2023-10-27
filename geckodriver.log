@@ -1450,3 +1450,53 @@ console.error: ({})
 console.error: ({})
 1698418381952	Marionette	INFO	Stopped listening on port 54907
 Dynamically enable window occlusion 1
+1698419861816	geckodriver	INFO	Listening on 127.0.0.1:58693
+1698419864866	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "58694" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileKExL98"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698419865203	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698419865269	Marionette	INFO	Listening on port 58706
+WebDriver BiDi listening on ws://127.0.0.1:58694
+Read port: 58706
+1698419865439	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:58694/devtools/browser/8882b971-82b6-40e7-83a1-e0e83dd08604
+1698419870726	Marionette	INFO	Stopped listening on port 58706
+console.error: ({})
+Dynamically enable window occlusion 1
+1698419886943	geckodriver	INFO	Listening on 127.0.0.1:58763
+1698419889986	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "58764" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileEjXGNu"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698419890223	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698419890277	Marionette	INFO	Listening on port 58778
+WebDriver BiDi listening on ws://127.0.0.1:58764
+Read port: 58778
+1698419890416	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:58764/devtools/browser/431b5a7c-749a-4fe3-ac3e-4f909e0de6e4
+console.error: ({})
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://ca.bll.by."
+console.warn: LoginRecipes: "Falling back to a synchronous message for: https://bll.by."
+1698419898238	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+JavaScript error: https://expert.bll.by/js/interface.js, line 153: TypeError: menuBtn is null
+1698419899140	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+console.error: ({})
+console.error: ({})
+1698419905732	Marionette	INFO	Stopped listening on port 58778
+Dynamically enable window occlusion 1
+1698419919040	geckodriver	INFO	Listening on 127.0.0.1:58890
+1698419922073	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "58891" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileeMnzDF"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1698419922315	Marionette	INFO	Marionette enabled
+Dynamically enable window occlusion 0
+1698419922371	Marionette	INFO	Listening on port 58903
+WebDriver BiDi listening on ws://127.0.0.1:58891
+Read port: 58903
+1698419922502	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:58891/devtools/browser/65cac438-51c9-4cc9-8a2d-707a46f27adb
+1698419925903	Marionette	INFO	Stopped listening on port 58903
+console.error: ({})
+Dynamically enable window occlusion 1
