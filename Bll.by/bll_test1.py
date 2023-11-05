@@ -1,5 +1,6 @@
 import time
 import random
+import re
 import unittest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -42,7 +43,8 @@ class MainPage:
     def count_matching_results(self, query, search_results):
         match_count = 0
         for result in search_results:
-            if query in result.text:
+            result_text = result.text.lower()  # приводим текст результата к нижнему регистру для удобства сопоставления
+            if re.search(query.lower(), result_text):
                 match_count += 1
         return match_count
     
@@ -52,7 +54,7 @@ class TestScenario(unittest.TestCase):
         self.driver.get("https://bll.by/")
 
     def test_steps(self):
-        main_page = MainPage(self.driver)
+        self.main_page = MainPage(self.driver)
 
         # Шаг 1
         # Ничего не нужно делать, тест автоматически открывает главную страницу
@@ -61,32 +63,32 @@ class TestScenario(unittest.TestCase):
         self.driver.get("https://ca.bll.by/login?return=https%3A%2F%2Fbll.by")
 
         # Шаг 3
-        main_page.enter_login("usrtest16")
+        self.main_page.enter_login("usrtest16")
 
         # Шаг 4
-        main_page.enter_password("pwdtest16")
+        self.main_page.enter_password("pwdtest16")
 
         # Шаг 5
-        main_page.click_login_button()
+        self.main_page.click_login_button()
 
         # Шаг 6
-        main_page.click_all_questions_button()
+        self.main_page.click_all_questions_button()
 
         # Шаг 7
-        main_page.enter_search_query("Пенсион")
+        self.main_page.enter_search_query("Пенсионер")
         time.sleep(5)
 
         # Шаг 8
-        main_page.click_random_object()
+        self.main_page.click_random_object()
         time.sleep(5)
 
         # Добавьте здесь ожидание результата шага 8, если требуется
 
         # Шаг 9
-        search_results = main_page.get_search_results()
+        search_results = self.main_page.get_search_results()
 
         # Шаг 10
-        match_count = main_page.count_matching_results("Пенсион", search_results)
+        match_count = self.main_page.count_matching_results(r"\bпенсионер", search_results)
         if match_count >= 1:
             print("Тест пройден. Найдено {} совпадений.".format(match_count))
         else:
@@ -98,3 +100,4 @@ class TestScenario(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

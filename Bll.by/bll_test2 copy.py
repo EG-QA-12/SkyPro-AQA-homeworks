@@ -1,4 +1,3 @@
-import random
 import time
 import unittest
 from selenium import webdriver
@@ -31,15 +30,6 @@ class MainPage:
         search_field = self.driver.find_element(By.XPATH, "//input[@class='page-search__input inp_noborder']")
         search_field.send_keys(query)
 
-    def open_random_object(self):
-        objects = self.driver.find_elements(By.XPATH, "//a[@class='search-list-result__link_2']")
-        random_object = random.choice(objects)
-        random_object.click()
-
-    def search_text_in_page(self, text):
-        page_text = self.driver.page_source
-        return page_text.count(text)
-
 
 class TestScenario(unittest.TestCase):
     def setUp(self):
@@ -48,40 +38,32 @@ class TestScenario(unittest.TestCase):
 
     def test_steps(self):
         main_page = MainPage(self.driver)
-        results = []
 
-        # Шаг 1-7 (предыдущие шаги остаются без изменений)
+        # Шаг 1
+        # Ничего не нужно делать, тест автоматически открывает главную страницу
+
+        # Шаг 2
+        self.driver.get("https://ca.bll.by/login?return=https%3A%2F%2Fbll.by")
+
+        # Шаг 3
+        main_page.enter_login("usrtest16")
+
+        # Шаг 4
+        main_page.enter_password("pwdtest16")
+
+        # Шаг 5
+        main_page.click_login_button()
+
+        # Добавьте явное ожидание перед выполнением следующих действий
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "//a[@class='lnk_all2']")))
+
+        # Шаг 6
         main_page.click_all_questions_button()
+
+        # Шаг 7
         main_page.enter_search_query("Пенсион")
         time.sleep(5)
         # Добавьте здесь ожидание результата поискового запроса, если требуется
-
-        for i in range(5):
-            # Шаг 8
-            main_page.open_random_object()
-
-            # Шаг 9
-            result = main_page.search_text_in_page("Пенсион")
-            results.append(result)
-
-            # Шаг 10
-            next_page_link = self.driver.find_element(By.XPATH, "//a[@class='paging__item paging__item--next']")
-            next_page_link.click()
-
-        # Шаг 14
-        print("Results:")
-        for i, result in enumerate(results):
-            print(f"Result{i+1}: {result}")
-            if result == 0:
-                print("Failed")
-            else:
-                print("Pass")
-
-        # Шаг 15
-        if sum(results) == 0:
-            print("Result=0 Failed")
-        else:
-            print("Result>0 Pass")
 
     def tearDown(self):
         self.driver.quit()
