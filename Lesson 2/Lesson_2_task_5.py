@@ -1,5 +1,5 @@
-
-def month_to_season(month: int) -> str:
+def month_to_season():
+    month = int(input("Введите номер месяца: "))
     if month in [12, 1, 2]:
         return 'Зима'
     elif month in [3, 4, 5]:
@@ -10,6 +10,7 @@ def month_to_season(month: int) -> str:
         return 'Осень'
     else:
         return 'Неверный номер месяца'
-season = month_to_season(2)
 
-print(season) # Выведет 'Зима'
+# Пример использования функции:
+season = month_to_season()
+print(season)
