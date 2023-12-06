@@ -17,6 +17,6 @@ def is_year_leap(year):
     else:
         return False             # если нет, то год не високосный
 
-year = 2024                      # передаем год 2024 в функцию is_year_leap
+year = int(input())                  # передаем год 2024 в функцию is_year_leap
 is_leap = is_year_leap(year)     # сохраняем результат выполнения функции в переменной is_leap
 print(f"год {year}: {is_leap}")
