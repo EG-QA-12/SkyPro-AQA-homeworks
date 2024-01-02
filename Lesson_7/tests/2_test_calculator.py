@@ -3,7 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from calculator_page import CalculatorPage
+from pages.calculator_page import CalculatorPage
 import time
 
 # Фикстура для инициализации и завершения браузера
