@@ -1,6 +1,5 @@
 # test_purchase.py
 import pytest
-import re
 from selenium import webdriver
 from shopping_page import LoginPage, ProductsPage, CheckoutPage, PersonalInfoPage, OverviewPage
 
@@ -40,9 +39,4 @@ def test_complete_purchase(browser):
 
     assert "Total: $58.29" in total_amount, f"Expected 'Total: $58.29' to be in {total_amount}"
 
-
     overview_page.complete_purchase()
-
-    # Шаг 8: Проверка успешного завершения заказа (можно добавить дополнительные шаги)
-
-    # Шаг 9: Закрытие браузера (выполняется автоматически благодаря фикстуре)
