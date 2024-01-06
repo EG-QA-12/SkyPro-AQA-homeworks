@@ -33,16 +33,16 @@ class TestForm:
         setup.open_page("https://bonigarcia.dev/selenium-webdriver-java/data-types.html")
 
         # Steps 2-11: Fill the form
-        setup.fill_form("First name", "Иван")
-        setup.fill_form("Last name", "Петров")
-        setup.fill_form("Address", "Ленина, 55-3")
-        setup.fill_form("Zip code", "")
-        setup.fill_form("City", "Москва")
-        setup.fill_form("Country", "Россия")
-        setup.fill_form("Email", "test@skypro.com")
-        setup.fill_form("Phone number", "+7985899998787")
-        setup.fill_form("Job position", "QA")
-        setup.fill_form("Company", "SkyPro")
+        setup.fill_form("first name", "Иван")
+        setup.fill_form("last name", "Петров")
+        setup.fill_form("address", "Ленина, 55-3")
+        setup.fill_form("zip code", "")
+        setup.fill_form("city", "Москва")
+        setup.fill_form("country", "Россия")
+        setup.fill_form("email", "test@skypro.com")
+        setup.fill_form("phone number", "+7985899998787")
+        setup.fill_form("job position", "QA")
+        setup.fill_form("company", "SkyPro")
 
         # Step 12: Click the Submit button
         setup.submit_form()
