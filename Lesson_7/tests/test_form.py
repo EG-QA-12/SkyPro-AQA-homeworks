@@ -5,7 +5,7 @@ Module for TestForm class testing the form filling functionality.
 import pytest
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-from pages.form_page import FormPage
+import pages.form_page
 
 
 class TestForm:
@@ -21,7 +21,7 @@ class TestForm:
         driver = webdriver.Firefox()
         driver.maximize_window()
         wait = WebDriverWait(driver, 10)
-        page = FormPage(driver, wait)
+        page = pages.form_page.FormPage(driver, wait)
         yield page
         driver.quit()
 
@@ -33,15 +33,15 @@ class TestForm:
         setup.open_page("https://bonigarcia.dev/selenium-webdriver-java/data-types.html")
 
         # Steps 2-11: Fill the form
-        setup.fill_form("first name", "Иван")
-        setup.fill_form("last name", "Петров")
+        setup.fill_form("first_name", "Иван")
+        setup.fill_form("last_name", "Петров")
         setup.fill_form("address", "Ленина, 55-3")
-        setup.fill_form("zip code", "")
+        setup.fill_form("zip_code", "")
         setup.fill_form("city", "Москва")
         setup.fill_form("country", "Россия")
         setup.fill_form("email", "test@skypro.com")
-        setup.fill_form("phone number", "+7985899998787")
-        setup.fill_form("job position", "QA")
+        setup.fill_form("phone", "+7985899998787")
+        setup.fill_form("job_position", "QA")
         setup.fill_form("company", "SkyPro")
 
         # Step 12: Click the Submit button

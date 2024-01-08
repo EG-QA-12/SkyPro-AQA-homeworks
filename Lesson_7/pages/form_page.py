@@ -5,6 +5,7 @@ Module for FormPage class representing a web page with a form.
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
+
 class FormPage:
     """
     Class representing a web page with a form.
