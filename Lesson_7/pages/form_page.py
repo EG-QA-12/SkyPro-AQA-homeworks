@@ -1,10 +1,9 @@
 """
-Module for FormPage class representing a web page with a form.
+Module for FormPage class representing a web page with a form. From page form_page
 """
 
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-
+from selenium.webdriver.common.by import By as SeleniumBy
+from selenium.webdriver.support import expected_conditions as SeleniumEC
 
 class FormPage:
     """
@@ -15,20 +14,20 @@ class FormPage:
         self.driver = driver
         self.wait = wait
         self.form_fields = {
-            "first_name": (By.CSS_SELECTOR, "input[type='text'][class='form-control'][name='first-name']"),
-            "last_name": (By.CSS_SELECTOR, "input[type='text'][class='form-control'][name='last-name']"),
-            "address": (By.CSS_SELECTOR, "input[type='text'][class='form-control'][name='address']"),
-            "zip_code": (By.CSS_SELECTOR, "input[type='text'][class='form-control'][name='zip-code']"),
-            "city": (By.CSS_SELECTOR, "input[type='text'][class='form-control'][name='city']"),
-            "country": (By.CSS_SELECTOR, "input[type='text'][class='form-control'][name='country']"),
-            "email": (By.CSS_SELECTOR, "input[type='email'][class='form-control'][name='e-mail']"),
-            "phone": (By.CSS_SELECTOR, "input[type='text'][class='form-control'][name='phone']"),
-            "job_position": (By.CSS_SELECTOR, "input[type='text'][class='form-control'][name='job-position']"),
-            "company": (By.CSS_SELECTOR, "input[type='text'][class='form-control'][name='company']"),
+            "first_name": (SeleniumBy.CSS_SELECTOR, "input[type='text'][name='first-name']"),
+            "last_name": (SeleniumBy.CSS_SELECTOR, "input[type='text'][name='last-name']"),
+            "address": (SeleniumBy.CSS_SELECTOR, "input[type='text'][name='address']"),
+            "zip_code": (SeleniumBy.CSS_SELECTOR, "input[type='text'][name='zip-code']"),
+            "city": (SeleniumBy.CSS_SELECTOR, "input[type='text'][name='city']"),
+            "country": (SeleniumBy.CSS_SELECTOR, "input[type='text'][name='country']"),
+            "email": (SeleniumBy.CSS_SELECTOR, "input[type='email'][name='e-mail']"),
+            "phone": (SeleniumBy.CSS_SELECTOR, "input[type='text'][name='phone']"),
+            "job_position": (SeleniumBy.CSS_SELECTOR, "input[type='text'][name='job-position']"),
+            "company": (SeleniumBy.CSS_SELECTOR, "input[type='text'][name='company']"),
         }
-        self.submit_button = (By.XPATH, "//button[@type='submit']")
-        self.zip_code_alert = (By.ID, "zip-code")
-        self.success_alerts = (By.CSS_SELECTOR, "div.alert.py-2.alert-success")
+        self.submit_button = (SeleniumBy.XPATH, "//button[@type='submit']")
+        self.zip_code_alert = (SeleniumBy.ID, "zip-code")
+        self.success_alerts = (SeleniumBy.CSS_SELECTOR, "div.alert.py-2.alert-success")
 
     def open_page(self, url):
         """Open the web page with the given URL."""
@@ -44,19 +43,26 @@ class FormPage:
         """
         field_locator = self.form_fields.get(field_name.lower())
         if field_locator:
-            self.wait.until(EC.visibility_of_element_located(field_locator)).send_keys(value)
+            self.wait.until(SeleniumEC.visibility_of_element_located(field_locator)) \
+                .send_keys(value)
 
     def submit_form(self):
         """Submit the form on the web page."""
-        submit_button = self.wait.until(EC.element_to_be_clickable(self.submit_button))
+        submit_button = self.wait.until(SeleniumEC.element_to_be_clickable(self.submit_button))
         submit_button.click()
 
     def get_zip_code_highlight_color(self):
         """Get the background color of the zip code alert."""
-        zip_code_alert = self.wait.until(EC.visibility_of_element_located(self.zip_code_alert))
+        zip_code_alert = self.wait.until(
+            SeleniumEC.visibility_of_element_located(self.zip_code_alert)
+        )
         return zip_code_alert.value_of_css_property("background-color")
 
-    def get_other_fields_highlight_colors(self):
-        """Get the background colors of all success alerts."""
-        success_alerts = self.wait.until(EC.visibility_of_all_elements_located(self.success_alerts))
-        return [alert.value_of_css_property("background-color") for alert in success_alerts]
+    def get_field_highlight_color(self, field_id):
+        """Get the background color of the specified form field."""
+        field_locator = (
+            SeleniumBy.XPATH,
+            f"//div[@class='alert py-2 alert-success' and @id='{field_id}']"
+        )
+        field = self.wait.until(SeleniumEC.visibility_of_element_located(field_locator))
+        return field.value_of_css_property("background-color")

@@ -1,12 +1,11 @@
 """
-Module for TestForm class testing the form filling functionality.
+Module for TestForm class testing the form filling functionality. From page test_form
 """
 
 import pytest
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-import pages.form_page
-
+from pages.form_page import FormPage  # Fix import
 
 class TestForm:
     """
@@ -21,7 +20,7 @@ class TestForm:
         driver = webdriver.Firefox()
         driver.maximize_window()
         wait = WebDriverWait(driver, 10)
-        page = pages.form_page.FormPage(driver, wait)
+        page = FormPage(driver, wait)  # Use FormPage directly
         yield page
         driver.quit()
 
@@ -49,6 +48,12 @@ class TestForm:
 
         # Step 13: Verify field highlighting
         assert setup.get_zip_code_highlight_color() == 'rgb(248, 215, 218)'
-        other_fields_colors = setup.get_other_fields_highlight_colors()
-        for color in other_fields_colors:
-            assert color == 'rgb(209, 231, 221)'
+        assert setup.get_field_highlight_color("first-name") == 'rgb(209, 231, 221)'
+        assert setup.get_field_highlight_color("last-name") == 'rgb(209, 231, 221)'
+        assert setup.get_field_highlight_color("address") == 'rgb(209, 231, 221)'
+        assert setup.get_field_highlight_color("city") == 'rgb(209, 231, 221)'
+        assert setup.get_field_highlight_color("country") == 'rgb(209, 231, 221)'
+        assert setup.get_field_highlight_color("e-mail") == 'rgb(209, 231, 221)'
+        assert setup.get_field_highlight_color("phone") == 'rgb(209, 231, 221)'
+        assert setup.get_field_highlight_color("job-position") == 'rgb(209, 231, 221)'
+        assert setup.get_field_highlight_color("company") == 'rgb(209, 231, 221)'
