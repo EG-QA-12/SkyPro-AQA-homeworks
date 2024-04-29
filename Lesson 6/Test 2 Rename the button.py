@@ -4,15 +4,13 @@ from webdriver_manager.chrome import ChromeDriverManager, ChromeType
 from selenium.webdriver.common.by import By
 
 # Создаем экземпляр драйвера
-driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()))
+driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager().install()))
 driver.maximize_window()
 
 # Шаг 1: Переходим на сайт
 driver.get("http://uitestingplayground.com/textinput")
 
 # Шаг 2: Вводим текст "SkyPro" в поле ввода
-
-#input_field = driver.find_element(By.CSS_SELECTOR, "input.form-control[type='text'][placeholder='MyButton'][id='newButtonName']")
 input_field = driver.find_element(By.ID, "newButtonName")
 input_field.send_keys("SkyPro")
 
@@ -26,10 +24,3 @@ print(button_text)
 
 # Закрываем браузер
 driver.quit()
-
-
-
-
-
-
-

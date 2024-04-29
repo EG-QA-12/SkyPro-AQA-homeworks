@@ -1,15 +1,17 @@
-from time import sleep
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromiumService
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.utils import ChromeType
+from webdriver_manager.chrome import ChromeDriverManager, ChromeType
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-driver = webdriver.Chrome(service=ChromiumService(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install()))
+# Установка и загрузка последней версии ChromeDriver
+driver_path = ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install()
+
+# Создание экземпляра веб-драйвера
+driver = webdriver.Chrome(service=ChromiumService(driver_path))
 driver.maximize_window()
+
 # Запуск скрипта 3 раза
 for i in range(3):
     driver.get("http://uitestingplayground.com/dynamicid")

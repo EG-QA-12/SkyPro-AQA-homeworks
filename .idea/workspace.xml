@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2e472877-faeb-4f1e-baff-252f4f8f2ad6" name="Changes" comment="update lessons">
+      <change afterPath="$PROJECT_DIR$/.idea/SkyPro-AQA-homeworks.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson 5/geckodriver.log" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson 6/task 2.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson 6/task 3.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson 8 training/CompanyApi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson 8/CompanyApi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson 8/test_x_clients.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Обучение/3.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Обучение/4.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Обучение/5.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Обучение/address.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Обучение/mailing.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Обучение/smartphone.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Обучение/user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson 4/test_string_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 4/test_string_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson 5/3.1 Test_click on the button (chrome).py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 5/3.1 Test_click on the button (chrome).py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson 5/4.1 Test_click on the button without ID.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 5/4.1 Test_click on the button without ID.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson 5/4.2 Test_click on the button without ID.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 5/4.2 Test_click on the button without ID.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson 6/Test 2 Rename the button.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 6/Test 2 Rename the button.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson 6/Test 3 Wait for the picture.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 6/Test 3 Wait for the picture.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson 8 training/test_x_clients.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 8 training/test_x_clients.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Обучение/1.py" beforeDir="false" afterPath="$PROJECT_DIR$/Обучение/1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Обучение/2.py" beforeDir="false" afterPath="$PROJECT_DIR$/Обучение/2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Обучение/example.py" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;EG-QA-12&quot;
+  }
+}</component>
+  <component name="GitToolBoxStore">
+    <option name="projectConfigVersion" value="5" />
+  </component>
+  <component name="GithubPullRequestsUISettings">
+    <option name="selectedUrlAndAccountId">
+      <UrlAndAccount>
+        <option name="accountId" value="1578b554-41c7-4a7a-b183-aa5f734a2c02" />
+        <option name="url" value="https://github.com/EG-QA-12/SkyPro-AQA-homeworks.git" />
+      </UrlAndAccount>
+    </option>
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2bwccInSADLIbz0eQhdSTuv2Efv" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "D:/!!! Test/SkyPro-AQA-homeworks",
+    "settings.editor.selected.configurable": "configurable.group.language"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\!!! Test\SkyPro-AQA-homeworks\Lesson 8" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\!!! Test\SkyPro-AQA-homeworks" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.4.2 Test_click on the button without ID">
+    <configuration name="3.1 Test_click on the button (chrome)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SkyPro-AQA-homeworks" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson 5" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Lesson 5/3.1 Test_click on the button (chrome).py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="3.2 Test_click on the button (firefox)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SkyPro-AQA-homeworks" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson 5" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Lesson 5/3.2 Test_click on the button (firefox).py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="4.1 Test_click on the button without ID" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SkyPro-AQA-homeworks" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson 5" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Lesson 5/4.1 Test_click on the button without ID.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="4.2 Test_click on the button without ID" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SkyPro-AQA-homeworks" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson 5" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Lesson 5/4.2 Test_click on the button without ID.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Lesson_3_task_3" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="SkyPro-AQA-homeworks" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson 3" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Lesson 3/Lesson_3_task_3.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.4.2 Test_click on the button without ID" />
+        <item itemvalue="Python.4.1 Test_click on the button without ID" />
+        <item itemvalue="Python.3.1 Test_click on the button (chrome)" />
+        <item itemvalue="Python.3.2 Test_click on the button (firefox)" />
+        <item itemvalue="Python.Lesson_3_task_3" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2e472877-faeb-4f1e-baff-252f4f8f2ad6" name="Changes" comment="" />
+      <created>1707129659882</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1707129659882</updated>
+    </task>
+    <task id="LOCAL-00001" summary="update lessons">
+      <option name="closed" value="true" />
+      <created>1707130080601</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1707130080601</updated>
+    </task>
+    <task id="LOCAL-00002" summary="update lessons">
+      <option name="closed" value="true" />
+      <created>1712691810490</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1712691810490</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="update lessons" />
+    <option name="LAST_COMMIT_MESSAGE" value="update lessons" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Lesson 8 training/test_x_clients.py</url>
+          <line>68</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Lesson 4 training/calculator_test.py</url>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Lesson 5/3.2 Test_click on the button (firefox).py</url>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

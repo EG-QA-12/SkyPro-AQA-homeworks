@@ -1,107 +1,89 @@
-"""
-Module Description: This module contains tests for simple HTTP requests using the requests library.
-"""
 import requests
+from CompanyApi import CompanyApi
 
-base_url = "https://x-clients-be.onrender.com"
+api  = CompanyApi("https://x-clients-be.onrender.com")
 
-def get_company_list(params_to_add = None):
+def test_get_companies():
+    body = api.get_company_list()
+    assert len(body) > 0
+
+def test_get_active_companies():
+    #1. Получить список всех компаний
+    full_list = api.get_company_list()
+    my_params = {'active': 'true'}
+
+    # 2. Получить список активных компаний
+    filter_list = api.get_company_list(params_to_add=my_params)
+
+    # 3. Проверить ,что список 1> списка 2
+    assert len(full_list) > len(filter_list)
+
+def get_company_list(params_to_add=None):
     resp = requests.get(base_url + '/company', params=params_to_add)
+    return resp.json()
+
+def get_token(self, user='michaelangelo', password='party-dude'):
+    creds = {
+        "username": user,
+        "password": password
+    }
+
+    resp = requests.post(self.url + '/auth/login', json=creds)
+    return resp.json()["userToken"]
+
+
+def create_company(name, description):
+    token = get_token(user='leonardo', password='leads')
+    my_headers = {"x-client-token": token}
+    company_data = {"name": name, "description": description}
+    resp = requests.post(base_url + '/company', json=company_data, headers=my_headers)
     return resp.json()
 
 
 
-def test_get_companies():
-    resp = requests.get(base_url + '/company')
-    body = resp.json()
-
-    assert resp.status_code == 200
-    assert len(body) > 0  # ==x
-
-
-def test_get_active_companies():
-    #1. Получить список всех компаний
-    resp = get_company_list
-    full_list = resp.json()
-
-    #2. Получить список активных компаний
-    my_params = {
-        'active' : 'true',
-        'abc' : '123'
-        }
-
-    resp = get_company_list (params=my_params)
-    filter_list = resp.json()
-
-    #3. Проверить, что список 1 > списка 2
-    assert len(full_list) > len(filter_list) # ==x
-
 def test_get_active_companies2():
-        # 1. Получить список всех компаний
-        resp = get_company_list
-        full_list = resp.json()
-
-        # 2. Получить список активных компаний
-        resp = get_company_list (params_to_add={'active': 'true'})
-        filter_list = resp.json()
-
-        # 3. Проверить, что список 1 > списка 2
-        assert len(full_list) > len(filter_list)
-
-
+    full_list = get_company_list()
+    filter_list = get_company_list(params_to_add={'active': 'true'})
+    assert len(full_list) > len(filter_list)
 
 def test_add_new():
-    # получить количество компаний
-    resp = get_company_list
-    body = resp.json()
+    body = api.get_company_list()
     len_before = len(body)
-
-    # создать новую компанию
-    # получить количество компаний
-    resp = get_company_list
-    body = resp.json()
+    new_company_name = "Autotest"
+    new_company_description = "Descr"
+    create_company(new_company_name, new_company_description)
+    body = api.get_company_list()
     len_after = len(body)
-    # проверить, что +1
-    # 
-
-
-
-    resp = requests.get(base_url + '/company?active=true')
-    body = resp.json()
-    assert resp.status_code == 200
-    assert len(body) > 0  # ==x
-
+    assert len_after - len_before == 1
+    assert body[-1]["name"] == new_company_name
+    assert body[-1]["description"] == new_company_description
 
 def test_auth():
     creds = {
         "username": "leonardo",
         "password": "leads"
     }
-
     resp = requests.post(base_url + '/auth/login', json=creds)
-    token = resp.json()["userToken"]
     assert resp.status_code == 201
-    print(token)  # Indent this line properly
-
+    assert "userToken" in resp.json()
 
 def test_create_company():
-    creds = {
-        "username": "leonardo",
-        "password": "leads"
+    company_name = "Python"
+    company_description = "Requests"
+    result = api.create_company(company_name, company_description)
+    assert result["name"] == company_name
+    assert result["description"] == company_description
+    assert "id" in result
 
-    }
-    company = {
-        "name": "python",
-        "description": "requests"
-    }
+def test_get_one_company():
+    company_name = 'VS Code'
+    company_description = 'IDE'
+    result = api.create_company(company_name, company_description)
+    new_id = result["id"]
 
-    # авторизация
-    resp = requests.post(base_url + '/auth/login', json=creds)
-    token = resp.json()["userToken"]
+    new_company = api.get_company(new_id)
 
-    # создание
-    my_headers = {}
-    my_headers["x-client-token"] = token
-
-    resp = requests.post(base_url + '/company', json=company, headers=my_headers)
-    assert resp.status_code == 201
+    assert new_company["id"] == new_id
+    assert new_company["name"] == company_name
+    assert new_company["description"] == company_description
+    assert new_company["isActive"] == True
