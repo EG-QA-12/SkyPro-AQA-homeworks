@@ -1,22 +1,36 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
 
-driver = webdriver.Chrome()
+# Открываем файл chromedriver.log на запись
+f = open('chromedriver.log', 'w')
 
-# Инициализация веб-драйвера
-driver.get("http://the-internet.herokuapp.com/inputs")
+# Создаем экземпляр ChromeService с указанием log_output
+service = ChromeService(executable_path=ChromeDriverManager().install(), log_output=f)
 
-# Находим поле ввода
-input_field = driver.find_element(By.CSS_SELECTOR, "input[type='number']")
+driver = webdriver.Chrome(service=service)
+driver.maximize_window()
 
-# Вводим текст "1000" в поле ввода
-input_field.send_keys("1000")
+driver.get("http://the-internet.herokuapp.com/login")
 
-# Очищаем поле ввода
-input_field.clear()
+# Используем явное ожидание для уверенности, что элементы доступны для взаимодействия
+wait = WebDriverWait(driver, 10)
 
-# Вводим текст "999" в то же самое поле ввода
-input_field.send_keys("999")
+username = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "input#username")))
+password = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "input#password")))
+login = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "button.radius")))
 
-# Закрываем веб-драйвер
+username.send_keys("tomsmith")
+password.send_keys("SuperSecretPassword!")
+login.click()
+
+# Добавляем проверку успешного входа в систему
+wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".flash.success")))
+
 driver.quit()
+
+# Закрываем файл chromedriver.log
+f.close()
