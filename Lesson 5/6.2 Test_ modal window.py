@@ -5,7 +5,13 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.firefox.service import Service as GeckoService
 from webdriver_manager.firefox import GeckoDriverManager
 
-driver = webdriver.Firefox(service=GeckoService(executable_path=GeckoDriverManager().install()))
+# Открываем файл geckodriver.log на запись
+f = open('geckodriver.log', 'w')
+
+# Создаем экземпляр GeckoService с указанием log_output
+service = GeckoService(executable_path=GeckoDriverManager().install(), log_output=f)
+
+driver = webdriver.Firefox(service=service)
 
 # Инициализация веб-драйвера
 driver.get("http://the-internet.herokuapp.com/entry_ad")
@@ -23,3 +29,6 @@ close_button.click()
 
 # Закрываем веб-драйвер
 driver.quit()
+
+# Закрываем файл geckodriver.log
+f.close()
