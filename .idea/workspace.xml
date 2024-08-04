@@ -5,10 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2e472877-faeb-4f1e-baff-252f4f8f2ad6" name="Changes" comment="update lessons">
+      <change afterPath="$PROJECT_DIR$/.idea/git_toolbox_blame.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/Lesson 5/chromedriver.log" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/Lesson_8/EmployeesApi.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/Lesson_8/test_employees_negative.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/Lesson_8/test_employees_positive.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Обучение/123.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lesson 4/string_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 4/string_utils.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lesson 5/geckodriver.log" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 5/geckodriver.log" afterDir="false" />
