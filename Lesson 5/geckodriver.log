@@ -12,3 +12,31 @@ DevTools listening on ws://127.0.0.1:56859/devtools/browser/6032b0f6-98bc-4975-9
 console.warn: LoginRecipes: "Falling back to a synchronous message for: http://the-internet.herokuapp.com."
 1715615433497	Marionette	INFO	Stopped listening on port 56868
 Dynamically enable window occlusion 1
+1719744806947	geckodriver	INFO	Listening on 127.0.0.1:64442
+1719744809949	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "64443" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofilerqzwMN"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+Dynamically enable window occlusion 0
+1719744810283	Marionette	INFO	Marionette enabled
+1719744810377	Marionette	INFO	Listening on port 64463
+WebDriver BiDi listening on ws://127.0.0.1:64443
+Read port: 64463
+1719744810524	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:64443/devtools/browser/e651444a-015c-478e-bfc8-85e7b6830353
+1719744840298	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
+1719744851705	Marionette	INFO	Stopped listening on port 64463
+Dynamically enable window occlusion 1
+1719744977375	geckodriver	INFO	Listening on 127.0.0.1:64783
+1719744980376	mozrunner::runner	INFO	Running command: "C:\\Program Files\\Mozilla Firefox\\firefox.exe" "--marionette" "--remote-debugging-port" "64784" "--remote-allow-hosts" "localhost" "-no-remote" "-profile" "C:\\Users\\LENOVO\\AppData\\Local\\Temp\\rust_mozprofileQwSNWo"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+Dynamically enable window occlusion 0
+1719744980695	Marionette	INFO	Marionette enabled
+1719744980790	Marionette	INFO	Listening on port 64796
+WebDriver BiDi listening on ws://127.0.0.1:64784
+Read port: 64796
+1719744980933	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+DevTools listening on ws://127.0.0.1:64784/devtools/browser/99abb771-2c5a-44f3-a476-cdf0127895e6
+1719745010708	addons.xpi	ERROR	System addon update list error SyntaxError: XMLHttpRequest.open: 'http://%(server)s/dummy-system-addons.xml' is not a valid URL.
+1719745020281	Marionette	INFO	Stopped listening on port 64796
+Dynamically enable window occlusion 1
