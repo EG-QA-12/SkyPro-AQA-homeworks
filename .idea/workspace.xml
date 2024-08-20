@@ -5,28 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2e472877-faeb-4f1e-baff-252f4f8f2ad6" name="Changes" comment="update lessons">
-      <change afterPath="$PROJECT_DIR$/Lesson 5 training/labirint(chrome).py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson 5 training/labirint(edge).py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson 5 training/labirint(firefox).py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/pages/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/pages/calculator_page.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/pages/form_page.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/pages/home_page.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/pages/shopping_page.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/pages/test_purchase.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/shopping_page.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/test_purchase.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/test_site_cart.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/tests/test_calculator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/tests/test_form.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/tests/test_site_cart.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lesson 5 training/labirint.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 5 training/labirint.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lesson 5/3.2 Test_click on the button (firefox).py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 5/3.2 Test_click on the button (firefox).py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lesson 5/4.2 Test_click on the button without ID.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 5/4.2 Test_click on the button without ID.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lesson 5/geckodriver.log" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 5/geckodriver.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lesson 6/Test 1 Pressing the button.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 6/Test 1 Pressing the button.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lesson_7/tests/test_form.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson_7/tests/test_form.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson 8/empl.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 8/empl.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson 8/test_impl.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 8/test_impl.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,21 +52,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/!!! Test/SkyPro-AQA-homeworks/Lesson_7(1)&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.language&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "D:/!!! Test/SkyPro-AQA-homeworks",
+    "settings.editor.selected.configurable": "configurable.group.language"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\!!! Test\SkyPro-AQA-homeworks\Lesson_7(1)" />
       <recent name="D:\!!! Test\SkyPro-AQA-homeworks" />
+      <recent name="D:\!!! Test\SkyPro-AQA-homeworks\Lesson_7(1)" />
       <recent name="D:\!!! Test\SkyPro-AQA-homeworks\Lesson 5 training" />
       <recent name="D:\!!! Test\SkyPro-AQA-homeworks\Lesson_8" />
       <recent name="D:\!!! Test\SkyPro-AQA-homeworks\Lesson 8" />
@@ -94,20 +75,20 @@
       <recent name="D:\!!! Test\SkyPro-AQA-homeworks" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.pytest in test_site_cart.py">
-    <configuration name="pytest in test_form.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python tests.pytest in test_impl.py">
+    <configuration name="pytest in test_impl.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="SkyPro-AQA-homeworks" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson_7/tests" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson 8" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="_new_keywords" value="&quot;&quot;" />
       <option name="_new_parameters" value="&quot;&quot;" />
       <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;$PROJECT_DIR$/Lesson_7/tests/test_form.py&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/Lesson 8/test_impl.py&quot;" />
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
@@ -177,11 +158,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python tests.pytest in test_impl.py" />
         <item itemvalue="Python tests.pytest in test_site_cart.py" />
         <item itemvalue="Python tests.pytest in test_site_cart.py (1)" />
         <item itemvalue="Python tests.pytest in test_purchase.py (1)" />
         <item itemvalue="Python tests.pytest in test_purchase.py" />
-        <item itemvalue="Python tests.pytest in test_form.py" />
       </list>
     </recent_temporary>
   </component>
@@ -242,7 +223,15 @@
       <option name="project" value="LOCAL" />
       <updated>1720304472206</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="update lessons">
+      <option name="closed" value="true" />
+      <created>1724186911252</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1724186911252</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">

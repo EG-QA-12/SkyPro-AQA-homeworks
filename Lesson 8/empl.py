@@ -1,5 +1,9 @@
 import requests
 
+"""
+Модуль для взаимодействия с API управления сотрудниками и компаниями.
+"""
+
 class Company:
     """
     Класс для взаимодействия с API управления сотрудниками и компаниями.
@@ -26,7 +30,7 @@ class Company:
             'username': user,
             'password': password
         }
-        resp = requests.post(f"{self.url}/auth/login", json=creds)
+        resp = requests.post(f"{self.url}/auth/login", json=creds, timeout=10)
         resp.raise_for_status()  # Проверка успешности запроса
         self.headers = {
             "x-client-token": resp.json()["userToken"]
@@ -47,7 +51,12 @@ class Company:
         if not self.headers:
             self.get_token()
 
-        resp = requests.post(f"{self.url}/company", json=company, headers=self.headers)
+        resp = requests.post(
+            f"{self.url}/company",
+            json=company,
+            headers=self.headers,
+            timeout=10
+        )
         resp.raise_for_status()
         return resp.json()
 
@@ -61,7 +70,12 @@ class Company:
         my_params = {
             "company": company_id
         }
-        resp = requests.get(f"{self.url}/employee", params=my_params, headers=self.headers)
+        resp = requests.get(
+            f"{self.url}/employee",
+            params=my_params,
+            headers=self.headers,
+            timeout=10
+        )
         resp.raise_for_status()
         return resp.json()
 
@@ -72,11 +86,16 @@ class Company:
         :param employee_id: ID сотрудника
         :return: Данные сотрудника
         """
-        resp = requests.get(f"{self.url}/employee/{employee_id}", headers=self.headers)
+        resp = requests.get(
+            f"{self.url}/employee/{employee_id}",
+            headers=self.headers,
+            timeout=10
+        )
         resp.raise_for_status()
         return resp.json()
 
-    def add_new_employee(self, company_id, name, last_name, email="test@test.ru", phone="89999999999", birthdate="2024-08-13T14:05:19.766Z"):
+    def add_new_employee(self, company_id, name, last_name, email="test@test.ru",
+                         phone="89999999999", birthdate="2024-08-13T14:05:19.766Z"):
         """
         Добавление нового сотрудника.
 
@@ -100,7 +119,12 @@ class Company:
             "isActive": True
         }
 
-        resp = requests.post(f"{self.url}/employee", headers=self.headers, json=employee)
+        resp = requests.post(
+            f"{self.url}/employee",
+            headers=self.headers,
+            json=employee,
+            timeout=10
+        )
         resp.raise_for_status()
         return resp.json()
 
@@ -119,6 +143,11 @@ class Company:
             "isActive": True
         }
 
-        resp = requests.patch(f"{self.url}/employee/{employee_id}", headers=self.headers, json=user_info)
+        resp = requests.patch(
+            f"{self.url}/employee/{employee_id}",
+            headers=self.headers,
+            json=user_info,
+            timeout=10
+        )
         resp.raise_for_status()
         return resp.json()
