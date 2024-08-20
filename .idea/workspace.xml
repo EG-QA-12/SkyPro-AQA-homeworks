@@ -5,17 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2e472877-faeb-4f1e-baff-252f4f8f2ad6" name="Changes" comment="update lessons">
-      <change afterPath="$PROJECT_DIR$/.idea/git_toolbox_blame.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson 5/chromedriver.log" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_8/EmployeesApi.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_8/test_employees_negative.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Lesson_8/test_employees_positive.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Обучение/123.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson 5 training/labirint(chrome).py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson 5 training/labirint(edge).py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson 5 training/labirint(firefox).py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/pages/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/pages/calculator_page.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/pages/form_page.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/pages/home_page.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/pages/shopping_page.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/pages/test_purchase.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/shopping_page.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/test_purchase.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/test_site_cart.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/tests/test_calculator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/tests/test_form.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Lesson_7(1)/tests/test_site_cart.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lesson 4/string_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 4/string_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson 5 training/labirint.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 5 training/labirint.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson 5/3.2 Test_click on the button (firefox).py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 5/3.2 Test_click on the button (firefox).py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson 5/4.2 Test_click on the button without ID.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 5/4.2 Test_click on the button without ID.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Lesson 5/geckodriver.log" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 5/geckodriver.log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lesson 6/task 2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Lesson 6/task 3.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson 6/Test 1 Pressing the button.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson 6/Test 1 Pressing the button.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Lesson_7/tests/test_form.py" beforeDir="false" afterPath="$PROJECT_DIR$/Lesson_7/tests/test_form.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -67,133 +78,110 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/!!! Test/Студенты&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/!!! Test/SkyPro-AQA-homeworks/Lesson_7(1)&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;configurable.group.language&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="D:\!!! Test\SkyPro-AQA-homeworks\Lesson_8" />
+      <recent name="D:\!!! Test\SkyPro-AQA-homeworks\Lesson_7(1)" />
       <recent name="D:\!!! Test\SkyPro-AQA-homeworks" />
+      <recent name="D:\!!! Test\SkyPro-AQA-homeworks\Lesson 5 training" />
+      <recent name="D:\!!! Test\SkyPro-AQA-homeworks\Lesson_8" />
       <recent name="D:\!!! Test\SkyPro-AQA-homeworks\Lesson 8" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\!!! Test\SkyPro-AQA-homeworks" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.Test 1 Pressing the button">
-    <configuration name="Lesson_2 _task_6" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python tests.pytest in test_site_cart.py">
+    <configuration name="pytest in test_form.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="SkyPro-AQA-homeworks" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson 2" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson_7/tests" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Lesson 2/Lesson_2 _task_6.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/Lesson_7/tests/test_form.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Test 1 Pressing the button" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest in test_purchase.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="SkyPro-AQA-homeworks" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson 6" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson_7/pages" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Lesson 6/Test 1 Pressing the button.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/Lesson_7/pages/test_purchase.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="Test 3 Wait for the picture" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest in test_purchase.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="SkyPro-AQA-homeworks" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson 6" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson_7(1)" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Lesson 6/Test 3 Wait for the picture.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/Lesson_7(1)/test_purchase.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="task 2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest in test_site_cart.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="SkyPro-AQA-homeworks" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson 6" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson_7(1)" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Lesson 6/task 2.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/Lesson_7(1)/test_site_cart.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
-    <configuration name="task 3" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="pytest in test_site_cart.py" type="tests" factoryName="py.test" temporary="true" nameIsGenerated="true">
       <module name="SkyPro-AQA-homeworks" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson 6" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Lesson_7/tests" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Lesson 6/task 3.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
+      <option name="_new_keywords" value="&quot;&quot;" />
+      <option name="_new_parameters" value="&quot;&quot;" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;$PROJECT_DIR$/Lesson_7/tests/test_site_cart.py&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.Test 1 Pressing the button" />
-        <item itemvalue="Python.Lesson_2 _task_6" />
-        <item itemvalue="Python.Test 3 Wait for the picture" />
-        <item itemvalue="Python.task 3" />
-        <item itemvalue="Python.task 2" />
+        <item itemvalue="Python tests.pytest in test_site_cart.py" />
+        <item itemvalue="Python tests.pytest in test_site_cart.py (1)" />
+        <item itemvalue="Python tests.pytest in test_purchase.py (1)" />
+        <item itemvalue="Python tests.pytest in test_purchase.py" />
+        <item itemvalue="Python tests.pytest in test_form.py" />
       </list>
     </recent_temporary>
   </component>
@@ -291,6 +279,20 @@
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Lesson 6/Test 2 Rename the button.py</url>
           <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Lesson 5/3.1 Test_click on the button (chrome).py</url>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Lesson_7/pages/form_page.py</url>
+          <line>4</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Lesson_7/pages/form_page.py</url>
+          <line>62</line>
+          <option name="timeStamp" value="8" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
