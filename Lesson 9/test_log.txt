@@ -1,0 +1,78 @@
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:54 Testing database connection
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:59 Testing teacher creation
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:59 Testing teacher creation
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:78 Testing invalid ID
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:78 Testing invalid ID
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:78 Testing invalid ID
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:89 Testing invalid email
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:89 Testing invalid email
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:89 Testing invalid email
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:89 Testing invalid email
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:89 Testing invalid email
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:89 Testing invalid email
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:89 Testing invalid email
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:100 Testing invalid group_id
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:100 Testing invalid group_id
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:100 Testing invalid group_id
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:100 Testing invalid group_id
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:110 Testing teacher update
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:110 Testing teacher update
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:132 Testing update of non-existent teacher
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:141 Testing teacher deletion
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:141 Testing teacher deletion
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:155 Testing deletion of non-existent teacher
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:162 Testing batch operations performance
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:183 Testing transaction rollback
+INFO     root:test_teacher_table.py:32 Cleaning up test data
+INFO     root:test_teacher_table.py:29 Setting up test environment
+INFO     root:test_teacher_table.py:194 Testing special characters handling
+INFO     root:test_teacher_table.py:32 Cleaning up test data
