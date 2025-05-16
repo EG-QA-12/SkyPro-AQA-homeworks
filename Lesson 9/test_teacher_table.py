@@ -4,15 +4,15 @@ import logging
 import time
 import pytest
 import allure
-from TeacherTable import TeacherTable
-from config import (
-    DB_HOST, DB_PORT, DB_NAME,
-    DB_USER, DB_PASSWORD
-)
+from db import get_db_connection
 from test_data import (
-    TEST_TEACHERS, INVALID_EMAILS,
-    INVALID_IDS, INVALID_GROUP_IDS
+    INVALID_EMAILS,
+    INVALID_IDS
 )
+from faker import Faker
+from faker_data import generate_teacher
+
+fake = Faker('ru_RU')
 
 # Настройка логирования
 logging.basicConfig(
@@ -41,24 +41,25 @@ class TestTeacher:
     @pytest.fixture
     @allure.title("Создание подключения к БД")
     def db(self):
-        """Фикстура для создания подключения к БД."""
-        with allure.step("Создание подключения к базе данных"):
-            connection_string = (
-                f"postgresql://{DB_USER}:{DB_PASSWORD}@"
-                f"{DB_HOST}:{DB_PORT}/{DB_NAME}"
-            )
-            connection = TeacherTable(connection_string)
+        """Фикстура для создания подключения к БД через отдельный модуль."""
+        with allure.step("Создание подключения к базе данных через db.py"):
+            connection = get_db_connection()
             allure.attach(
-                connection_string,
-                name="Connection String",
+                str(connection),
+                name="DB Connection",
                 attachment_type=allure.attachment_type.TEXT
             )
             return connection
 
-    @pytest.fixture(params=TEST_TEACHERS)
+    @pytest.fixture(params=[generate_teacher() for _ in range(3)])
     def test_teacher_data(self, request):
-        """Параметризованная фикстура с тестовыми данными."""
+        """Параметризованная фикстура с тестовыми данными через Faker."""
         return request.param
+
+    @pytest.fixture
+    def faker_teacher(self):
+        """Фикстура для генерации случайного учителя через Faker."""
+        return generate_teacher()
 
     @allure.story("Подключение к базе данных")
     @allure.title("Тест подключения к базе данных")
@@ -89,23 +90,23 @@ class TestTeacher:
     @allure.story("Валидация ID учителя")
     @pytest.mark.parametrize('invalid_id', INVALID_IDS)
     def test_add_teacher_with_invalid_id(self, db, invalid_id):
-        with allure.step("Проверка добавления с некорректным ID:"):
+        with allure.step("Проверка добавления с некорректным ID (Faker):"):
             with pytest.raises(ValueError):
                 db.add_teacher(
                     teacher_id=invalid_id,
-                    email='test@test.com',
-                    group_id=345
+                    email=generate_teacher()['email'],
+                    group_id=generate_teacher()['group_id']
                 )
 
     @allure.story("Валидация email учителя")
     @pytest.mark.parametrize('invalid_email', INVALID_EMAILS)
     def test_add_teacher_with_invalid_email(self, db, invalid_email):
-        with allure.step("Проверка добавления с некорректным email:"):
+        with allure.step("Проверка добавления с некорректным email (Faker):"):
             with pytest.raises(ValueError) as exc_info:
                 db.add_teacher(
-                    teacher_id=12133,
+                    teacher_id=generate_teacher()['teacher_id'],
                     email=invalid_email,
-                    group_id=345
+                    group_id=generate_teacher()['group_id']
                 )
             allure.attach(
                 str(exc_info.value),
@@ -114,13 +115,17 @@ class TestTeacher:
             )
 
     @allure.story("Валидация group_id учителя")
-    @pytest.mark.parametrize('invalid_group_id', INVALID_GROUP_IDS)
+    @pytest.mark.parametrize('invalid_group_id', [
+        None, 0, -1, -100, 'abc', fake.random_number(digits=10)
+    ])
     def test_add_teacher_with_invalid_group_id(self, db, invalid_group_id):
-        with allure.step("Проверка добавления с некорректным group_id:"):
+        with allure.step(
+            "Проверка добавления с некорректным group_id (Faker):"
+        ):
             with pytest.raises(ValueError):
                 db.add_teacher(
-                    teacher_id=12133,
-                    email='test@test.com',
+                    teacher_id=generate_teacher()['teacher_id'],
+                    email=generate_teacher()['email'],
                     group_id=invalid_group_id
                 )
 
@@ -149,12 +154,18 @@ class TestTeacher:
         with allure.step("Очистка тестовых данных"):
             db.delete(test_teacher_data['teacher_id'])
 
-    @allure.story("Обновление учителя")
-    @pytest.mark.parametrize('teacher_id,email,group_id', [
-        (20001, 'update1@mail.com', 401),
-        (20002, 'update2@mail.com', 402),
-    ])
-    @allure.title('Параметрический тест обновления учителя')
+    @pytest.mark.parametrize(
+        'teacher_id,email,group_id',
+        [
+            (
+                generate_teacher()['teacher_id'],
+                generate_teacher()['email'],
+                generate_teacher()['group_id']
+            )
+            for _ in range(2)
+        ]
+    )
+    @allure.title('Параметрический тест обновления учителя (Faker)')
     def test_update_teacher_param(self, db, teacher_id, email, group_id):
         with allure.step(f'Добавляем учителя {teacher_id}'):
             db.add_teacher(
@@ -201,12 +212,18 @@ class TestTeacher:
             db.delete(test_teacher_data['teacher_id'])
             assert len(db.get_teacher()) == len(list_before)
 
-    @allure.story("Удаление учителя")
-    @pytest.mark.parametrize('teacher_id,email,group_id', [
-        (30001, 'delete1@mail.com', 501),
-        (30002, 'delete2@mail.com', 502),
-    ])
-    @allure.title('Параметрический тест удаления учителя')
+    @pytest.mark.parametrize(
+        'teacher_id,email,group_id',
+        [
+            (
+                generate_teacher()['teacher_id'],
+                generate_teacher()['email'],
+                generate_teacher()['group_id']
+            )
+            for _ in range(2)
+        ]
+    )
+    @allure.title('Параметрический тест удаления учителя (Faker)')
     def test_delete_teacher_param(self, db, teacher_id, email, group_id):
         with allure.step(f'Добавление учителя {teacher_id}'):
             db.add_teacher(
@@ -279,22 +296,15 @@ class TestTeacher:
             final_count = len(db.get_teacher())
             assert initial_count == final_count
 
-    @allure.story("Массовое добавление и удаление учителей")
-    @allure.title("Тест большого объема данных (1000 записей)")
+    @allure.story("Массовое добавление и удаление учителей (Faker)")
+    @allure.title("Тест большого объема данных (1000 записей, Faker)")
     def test_big_data(self, db):
-        teachers = [
-            {
-                'teacher_id': i,
-                'email': f'big{i}@mail.com',
-                'group_id': 999
-            }
-            for i in range(50000, 51000)
-        ]
+        teachers = [generate_teacher() for _ in range(1000)]
         try:
-            with allure.step("Массовое добавление учителей"):
+            with allure.step("Массовое добавление учителей (Faker)"):
                 for teacher in teachers:
                     db.add_teacher(**teacher)
-            with allure.step("Проверка наличия всех учителей"):
+            with allure.step("Проверка наличия всех учителей (Faker)"):
                 all_teachers = db.get_teacher()
                 for teacher in teachers:
                     assert (
@@ -332,3 +342,18 @@ class TestTeacher:
                 db.delete(special_chars_data['teacher_id'])
             except ValueError:
                 pass
+
+    @allure.story("Добавление учителя через Faker")
+    @allure.title("Добавление учителя с рандомными данными (Faker)")
+    def test_add_teacher_with_faker(db, faker_teacher):
+        with allure.step("Добавление учителя с помощью Faker"):
+            db.add_teacher(
+                teacher_id=faker_teacher['teacher_id'],
+                email=faker_teacher['email'],
+                group_id=faker_teacher['group_id']
+            )
+        with allure.step("Проверка добавления учителя (Faker)"):
+            teachers = db.get_teacher()
+            assert any(t[0] == faker_teacher['teacher_id'] for t in teachers)
+        with allure.step("Очистка тестовых данных (Faker)"):
+            db.delete(faker_teacher['teacher_id'])

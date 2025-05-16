@@ -5,3 +5,5 @@ testlog
 allure-results/
 *.pyc
 .idea/
+# Игнорировать все exe-файлы Python (если вдруг)
+*.exe
