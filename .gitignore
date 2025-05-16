@@ -1,0 +1,7 @@
+# Игнорировать кэш, виртуальное окружение и логи
+__pycache__/
+venv/
+testlog
+allure-results/
+*.pyc
+.idea/
