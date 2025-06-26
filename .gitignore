@@ -1,0 +1,203 @@
+# ====================================================
+# .gitignore для проекта автоматизации тестирования
+# ====================================================
+
+# КОНФИДЕНЦИАЛЬНЫЕ ДАННЫЕ - НИКОГДА НЕ КОММИТИТЬ!
+# ====================================================
+# Файлы с учетными данными
+auth_data/
+credentials/
+passwords/
+*.csv
+*.credentials
+.env
+.env.*
+config.ini
+secrets/
+
+# Файлы с куками и сессиями
+*_cookies.json
+*cookies*
+session_*
+auth_tokens*
+
+# Базы данных
+*.db
+*.sqlite
+*.sqlite3
+db/
+database/
+
+# ВРЕМЕННЫЕ И СИСТЕМНЫЕ ФАЙЛЫ
+# ====================================================
+# Python кэш
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+PYTHONPATH
+
+# Виртуальные окружения
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# ЛОГИ И ОТЧЕТЫ
+# ====================================================
+# Файлы логов
+logs/
+*.log
+*.log.*
+*debug.log
+*error.log
+*access.log
+pytest.log
+pytestdebug.log
+
+# Allure отчеты
+allure-results/
+allure-report/
+test-results/
+reports/
+*.html
+*.xml
+
+# Скриншоты и видео
+screenshots/
+video/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.webm
+
+# PLAYWRIGHT И БРАУЗЕРНЫЕ ДАННЫЕ
+# ====================================================
+# Playwright
+.playwright/
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Браузерные данные
+user-data-dir/
+browser-data/
+downloads/
+
+# IDE И РЕДАКТОРЫ
+# ====================================================
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
+.vscode/
+
+# ОПЕРАЦИОННАЯ СИСТЕМА
+# ====================================================
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ТЕСТОВЫЕ ДАННЫЕ (ОПЦИОНАЛЬНО)
+# ====================================================
+# Раскомментируйте если нужно исключить тестовые данные
+# test_data/
+# fixtures/
+# mocks/
+
+# ДОПОЛНИТЕЛЬНЫЕ НАСТРОЙКИ
+# ====================================================
+# Временные файлы
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+
+# Архивы
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# СУБПРОЕКТЫ С СОБСТВЕННЫМ GIT
+# ====================================================
+# auth_project имеет собственный репозиторий
+auth_project/
+
+# Комментарий для будущих разработчиков:
+# Если вам нужно добавить исключения для тестовых файлов,
+# используйте отрицание: !important_test_file.json
