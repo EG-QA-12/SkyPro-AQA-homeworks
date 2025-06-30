@@ -41,6 +41,7 @@ cookie_file_ids: List[str] = [path.name for path in cookie_files]
 if not cookie_files:
     pytest.skip("Не найдено ни одного файла с cookie для тестирования.", allow_module_level=True)
 
+
 @pytest.mark.parametrize("cookie_file_path", cookie_files, ids=cookie_file_ids)
 def test_login_with_cookie(page: Page, cookie_file_path: Path):
     """
