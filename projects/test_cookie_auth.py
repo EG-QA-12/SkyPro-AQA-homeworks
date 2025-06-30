@@ -5,6 +5,9 @@
 с помощью заранее сохраненных cookie-файлов.
 """
 
+# Настройка путей для импортов
+import setup_paths
+
 import logging
 from pathlib import Path
 import pytest
