@@ -2,8 +2,6 @@
 Тесты аутентификации через cookie.
 """
 
-# Настройка путей для импортов
-import setup_paths
 
 import pytest
 from pathlib import Path
