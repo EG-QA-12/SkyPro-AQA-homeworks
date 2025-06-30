@@ -80,8 +80,10 @@ def parse_auth_cookie(file_path: Path, required_domain: str) -> Dict[str, Any]:
     for cookie in cookies:
         if cookie['name'] == AUTH_COOKIE_NAME:
             # Проверяем домен
-            if required_domain not in cookie['domain']:
-                raise ValueError(f"Домен куки ({cookie['domain']}) не соответствует требуемому: {required_domain}")
+            # Допускаем как точный домен, так и поддомен с точкой в начале
+            cookie_domain = cookie['domain']
+            if cookie_domain != required_domain and cookie_domain != f".{required_domain.split('.', 1)[-1]}":
+                raise ValueError(f"Домен куки ({cookie_domain}) не соответствует требуемому: {required_domain}")
             
             # Форматируем куку для Playwright
             return {
