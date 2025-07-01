@@ -18,7 +18,7 @@ import os
 # Импортируем утилиты из корневой директории
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from utils.cookie_constants import COOKIE_NAME
-from allure_utils import ui_test
+from framework.utils.reporting.allure_utils import ui_test
 from framework.utils.auth_utils import save_cookie, load_cookie
 
 

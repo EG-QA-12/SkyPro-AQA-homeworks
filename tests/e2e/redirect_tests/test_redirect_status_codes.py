@@ -19,7 +19,7 @@ import allure
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from allure_utils import ui_test, AllureReporter
+from framework.utils.reporting.allure_utils import ui_test, AllureReporter
 
 
 # --- DATA --------------------------------------------------------------------
