@@ -1,0 +1,58 @@
+{
+  "default_browser": "chromium",
+  "headless": true,
+  "browser_args": {
+    "chromium": [
+      "--disable-dev-shm-usage",
+      "--no-sandbox",
+      "--disable-gpu",
+      "--disable-web-security",
+      "--allow-running-insecure-content",
+      "--disable-features=VizDisplayCompositor"
+    ],
+    "firefox": [
+      "--width=1920",
+      "--height=1080"
+    ],
+    "webkit": []
+  },
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "locale": "ru-RU",
+  "timezone": "Europe/Minsk",
+  "permissions": ["geolocation", "camera", "microphone"],
+  "timeout": {
+    "navigation": 30000,
+    "action": 10000,
+    "element": 5000
+  },
+  "retry": {
+    "count": 3,
+    "delay": 1000
+  },
+  "video": {
+    "enabled": false,
+    "path": "test-results/videos/"
+  },
+  "screenshots": {
+    "enabled": true,
+    "path": "test-results/screenshots/",
+    "on_failure": true
+  },
+  "trace": {
+    "enabled": false,
+    "path": "test-results/traces/"
+  },
+  "mobile_devices": {
+    "iPhone 13": {
+      "viewport": {"width": 390, "height": 844},
+      "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15"
+    },
+    "Samsung Galaxy S21": {
+      "viewport": {"width": 384, "height": 854},
+      "user_agent": "Mozilla/5.0 (Linux; Android 11; SM-G991B) AppleWebKit/537.36"
+    }
+  }
+}

@@ -29,33 +29,33 @@ def _is_headless_run() -> bool:
 
 
 @pytest.fixture(autouse=True, scope="session")
-def _patch_urls_for_allow_session(monkeypatch: pytest.MonkeyPatch) -> Generator[None, None, None]:
+def _patch_urls_for_allow_session() -> Generator[None, None, None]:
     """Патчит `Page.goto` и `requests.Session.request` один раз за сессию."""
     if not _is_headless_run():
         yield  # ничего не делаем, пропускаем
         return
 
+    from pytest import MonkeyPatch
+    mp = MonkeyPatch()
+
     # --- Patch Playwright Page.goto ---------------------------------------
     original_goto = Page.goto  # type: ignore[attr-defined]
-
     def patched_goto(self: Page, url: str, *args, **kwargs):  # type: ignore[override]
         return original_goto(self, ensure_allow_session_param(url), *args, **kwargs)
-
-    monkeypatch.setattr(Page, "goto", patched_goto, raising=True)
+    mp.setattr(Page, "goto", patched_goto, raising=True)
 
     # --- Patch requests ----------------------------------------------------
     original_request = requests.Session.request  # type: ignore[assignment]
-
     def patched_request(self: requests.Session, method: str, url: str, *args, **kwargs):  # type: ignore[override]
         return original_request(self, method, ensure_allow_session_param(url), *args, **kwargs)
+    mp.setattr(requests.Session, "request", patched_request, raising=True)
 
-    monkeypatch.setattr(requests.Session, "request", patched_request, raising=True)
-
-    print("🛡️  allow-session=1 параметр будет автоматически подставляться во все URL (headless run).")
-
+    print(
+        "🛡️  allow-session=1 параметр будет автоматически подставляться во все URL "
+        "(headless run)."
+    )
     try:
         yield
     finally:
-        # При финализации возвращаем методы в исходное состояние
-        monkeypatch.setattr(Page, "goto", original_goto, raising=True)
-        monkeypatch.setattr(requests.Session, "request", original_request, raising=True)
+        mp.undo()
+

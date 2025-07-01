@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Критичные дефекты",
+    "description": "Дефекты, блокирующие основную функциональность",
+    "messageRegex": ".*AssertionError.*|.*TimeoutError.*",
+    "traceRegex": ".*",
+    "matchedStatuses": ["failed"]
+  },
+  {
+    "name": "Проблемы авторизации",
+    "description": "Ошибки связанные с авторизацией пользователей",
+    "messageRegex": ".*auth.*|.*login.*|.*cookie.*",
+    "traceRegex": ".*auth_utils.*|.*secure_auth.*",
+    "matchedStatuses": ["failed", "broken"]
+  },
+  {
+    "name": "Инфраструктурные проблемы",
+    "description": "Проблемы с браузером, сетью или окружением",
+    "messageRegex": ".*ConnectionError.*|.*WebDriverException.*|.*TimeoutException.*",
+    "traceRegex": ".*selenium.*|.*playwright.*",
+    "matchedStatuses": ["broken"]
+  },
+  {
+    "name": "Тест данные",
+    "description": "Проблемы с тестовыми данными или настройками",
+    "messageRegex": ".*FileNotFoundError.*|.*KeyError.*|.*ConfigError.*",
+    "traceRegex": ".*config.*|.*fixture.*",
+    "matchedStatuses": ["broken"]
+  },
+  {
+    "name": "Медленные тесты",
+    "description": "Тесты выполняющиеся дольше ожидаемого времени",
+    "messageRegex": ".*slow.*|.*performance.*",
+    "traceRegex": ".*",
+    "matchedStatuses": ["passed"]
+  }
+]

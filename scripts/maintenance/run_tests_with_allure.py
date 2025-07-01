@@ -26,11 +26,19 @@ class TestRunner:
     
     def __init__(self):
         self.base_dir = Path(__file__).parent
-        self.projects = {
+        # Проекты с Allure отчетностью
+        self.allure_projects = {
             'auth_project': self.base_dir / 'auth_project',
-            'e2e_tests': self.base_dir / 'e2e_tests',
+            'e2e_tests': self.base_dir / 'e2e_tests'
+        }
+        
+        # Проекты без Allure (стандартный pytest)
+        self.standard_projects = {
             'integration_tests': self.base_dir / 'integration_tests'
         }
+        
+        # Все проекты для обратной совместимости
+        self.projects = {**self.allure_projects, **self.standard_projects}
     
     def run_project_tests(
         self, 
@@ -96,12 +104,14 @@ class TestRunner:
         else:
             print(f"❌ Тесты проекта {project_name} завершились с ошибками (код: {result.returncode})")
         
-        # Генерируем отчет если требуется
-        if generate_report:
+        # Генерируем отчет если требуется (только для проектов с Allure)
+        if generate_report and project_name in self.allure_projects:
             print(f"📊 Генерация Allure отчета для {project_name}...")
             report_path = AllureConfig.generate_report(project_name, open_browser)
             if report_path:
                 print(f"📋 Отчет сохранен в: {report_path}")
+        elif generate_report and project_name in self.standard_projects:
+            print(f"ℹ️ Проект {project_name} использует стандартный pytest (без Allure отчетов)")
         
         return success
     
