@@ -20,6 +20,7 @@ import sys as _sys
 # Add here only what is required by old tests.
 _SUBMODULES = [
     "cookie_constants",
+    "auth_utils",
 ]
 
 _current_module = _sys.modules[__name__]
