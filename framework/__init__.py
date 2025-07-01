@@ -16,7 +16,7 @@ __author__ = "Lead SDET Architect"
 
 # Импорты для удобства использования
 from .utils.auth_utils import save_cookie, load_cookie
-from .utils.allure_utils import AllureReporter, allure_test_case
+from .utils.reporting.allure_utils import AllureReporter, allure_test_case
 
 __all__ = [
     'save_cookie',
