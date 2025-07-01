@@ -15,10 +15,14 @@ from __future__ import annotations
 
 import os
 import logging
+import csv
 from pathlib import Path
 from typing import Dict, Optional, Any, List
 from dataclasses import dataclass, field
 from enum import Enum
+import sqlite3
+from dotenv import load_dotenv
+from framework.db_utils.database_manager import DatabaseManager  # Импорт нового менеджера
 
 try:
     from dotenv import load_dotenv
@@ -371,6 +375,74 @@ class SecretsManager:
             summary["auth_domain"] = self.get_optional_env("AUTH_DOMAIN", "не указан")
         
         return summary
+    
+    @classmethod
+    def load_users(cls) -> List[Dict]:
+        """Загружает пользователей из источника, заданного в USER_DATA_SOURCE."""
+        source = os.getenv("USER_DATA_SOURCE", "csv").lower()
+        
+        if source == "csv":
+            return cls.load_users_from_csv()
+        elif source == "sqlite":
+            return cls.load_users_from_sqlite()
+        else:
+            raise ValueError(f"Unknown user data source: {source}")
+
+    @classmethod
+    def load_users_from_sqlite(cls) -> List[Dict]:
+        """Загружает пользователей из SQLite БД."""
+        users = []
+        with DatabaseManager() as db:
+            # Получаем всех активных пользователей
+            cursor = db.conn.cursor()
+            cursor.execute("""
+                SELECT login, password, role, subscription, cookie_file
+                FROM users
+                WHERE is_active = 1
+            """)
+            
+            for row in cursor.fetchall():
+                # Форматируем в тот же вид, что и из CSV
+                users.append({
+                    "login": row[0],
+                    "password": row[1],
+                    "role": row[2],
+                    "subscription": row[3],
+                    "cookie_file": row[4]
+                })
+        return users
+
+    @classmethod
+    def load_users_from_csv(cls) -> List[Dict]:
+        """Загружает пользователей из CSV файла."""
+        users = []
+        with open('users.csv', newline='', encoding='utf-8') as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                # Определяем директорию cookies внутри корня проекта
+                project_root = Path(__file__).resolve().parent.parent
+                cookies_dir = project_root / "cookies"
+                cookies_dir.mkdir(exist_ok=True)
+
+                cookie_filename = f"{row['username'].split('@')[0]}_cookies.json"
+                cookie_path = cookies_dir / cookie_filename
+
+                users.append({
+                    "name": row["username"],
+                    "login": row["username"],
+                    "password": row["password"],
+                    "role": row.get("role", "user"),
+                    "cookie_file": str(cookie_path)
+                })
+        return users
+
+    @classmethod
+    def get_env(cls, key: str) -> str:
+        """Получает значение переменной окружения"""
+        value = os.getenv(key)
+        if not value:
+            raise ValueError(f"Missing required environment variable: {key}")
+        return value
 
 
 # Глобальный экземпляр менеджера секретов

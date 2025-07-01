@@ -17,7 +17,7 @@ pytestmark = pytest.mark.auth
 # Константы
 COOKIE_DIR = Path(os.getenv("COOKIE_DIR", "d:/Bll_tests/cookies"))
 TARGET_DOMAIN = "bll.by"
-LOGIN_URL = "https://ca.bll.by/login"
+
 
 # Получаем список файлов с cookie
 cookie_files = [file for file in COOKIE_DIR.glob("*_cookies.json")]

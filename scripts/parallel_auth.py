@@ -27,7 +27,7 @@ from playwright.async_api import async_playwright, Browser, Page, BrowserContext
 
 # Импортируем утилиты фреймворка для работы с cookies
 sys.path.append(str(Path(__file__).parent.parent))
-from framework.utils.auth_utils import save_user_cookie, load_user_cookie
+from framework.utils.auth_utils import save_user_cookie, load_user_cookie, get_auth_credentials
 from framework.utils.cookie_constants import COOKIE_NAME
 
 # ---------------------------------------------------------------------------
@@ -206,4 +206,3 @@ if __name__ == "__main__":
         asyncio.run(main(parsed_args))
     except KeyboardInterrupt:
         sys.exit("❌ Операция прервана пользователем")
-

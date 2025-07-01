@@ -11,6 +11,8 @@ from typing import Dict
 # Имя единственной авторизационной куки, используемой во всех тестах
 COOKIE_NAME: str = "test_joint_session"
 
+LOGIN_URL = "https://ca.bll.by/login"
+
 
 def joint_cookie(value: str, domain: str, path: str = "/") -> Dict[str, str]:
     """Создаёт словарь куки Playwright формата с именем `test_joint_session`.

@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 import os
 import time
+from config.secrets_manager import SecretsManager
 
 # Импортируем утилиты из корневой директории
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -25,31 +26,9 @@ from utils.cookie_constants import COOKIE_NAME, joint_cookie
 from framework.utils.reporting.allure_utils import ui_test
 from framework.utils.auth_utils import save_cookie, load_cookie
 
-
-# Тестовые пользователи с разными ролями
-TEST_USERS = [
-    {
-        "name": "Администратор", 
-        "login": "admin@bll.by",
-        "password": "admin123",
-        "cookie_file": "admin_cookies.json",
-        "expected_role": "Администратор"
-    },
-    {
-        "name": "Модератор",
-        "login": "moderator@bll.by", 
-        "password": "mod123",
-        "cookie_file": "moderator_cookies.json",
-        "expected_role": "Модератор"
-    },
-    {
-        "name": "Обычный пользователь",
-        "login": "user@bll.by",
-        "password": "user123", 
-        "cookie_file": "user_cookies.json",
-        "expected_role": "Пользователь"
-    }
-]
+# Загрузка тестовых пользователей из CSV
+USERS_CSV_PATH = Path("d:/Bll_tests/secrets/bulk_users.csv")
+TEST_USERS = SecretsManager.load_users_from_csv(USERS_CSV_PATH)
 
 
 @ui_test(
@@ -197,6 +176,16 @@ def test_visible_login_and_save_cookies(browser: Browser) -> None:
                     if auth_cookies:
                         print(f"   ✅ Авторизация успешна! Найдена кука: {COOKIE_NAME}")
                         print(f"   🔑 Значение куки: {auth_cookies[0]['value'][:50]}...")
+                        
+                        # Добавляем проверку видимости элемента после авторизации
+                        from playwright.sync_api import expect
+                        try:
+                            expect(page.locator("div.profile_ttl:has-text('Мой профиль')")).to_be_visible(timeout=5000)
+                            print("   ✅ Элемент 'div.profile_ttl' с текстом 'Мой профиль' виден, авторизация подтверждена UI.")
+                        except Exception as e:
+                            print(f"   ❌ Элемент 'div.profile_ttl' с текстом 'Мой профиль' не виден после авторизации: {e}")
+                            assert False, f"UI-элемент авторизации (Мой профиль) не найден для {user['name']}"
+
                     else:
                         print(f"   ❌ Кука {COOKIE_NAME} не найдена")
                         assert False, f"Авторизация не удалась для {user['name']}"
@@ -377,5 +366,5 @@ def manual_cleanup():
 
 if __name__ == "__main__":
     print("Для запуска демонстрации используйте:")
-    print("pytest -v -s test_visible_auth_demo.py::test_visible_login_and_save_cookies")
-    print("pytest -v -s test_visible_auth_demo.py::test_visible_auth_from_saved_cookies")
+    print("pytest -v -s test_ui_login_and_session_save.py::test_visible_login_and_save_cookies")
+    print("pytest -v -s test_ui_login_and_session_save.py::test_visible_auth_from_saved_cookies")

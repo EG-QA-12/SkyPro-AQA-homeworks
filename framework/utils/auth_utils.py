@@ -21,8 +21,9 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 import logging
 
-from .cookie_constants import COOKIE_NAME
+from .cookie_constants import COOKIE_NAME, LOGIN_URL
 from playwright.sync_api import BrowserContext
+from config.secrets_manager import SecretsManager
 
 logger = logging.getLogger(__name__)
 
@@ -89,18 +90,27 @@ def get_cookie_path(username: str) -> Path:
 def save_user_cookie(context: BrowserContext, username: str) -> None:
     """
     Сохраняет cookies пользователя с автоматическим определением пути.
-    
-    Эта функция упрощает сохранение cookies - не нужно думать о путях,
-    просто указываем имя пользователя.
+    Теперь использует данные из creds.env для авторизации перед сохранением cookie.
     
     Args:
-        context: Браузерный контекст Playwright с активной сессией
+        context: Браузерный контекст Playwright
         username: Имя пользователя для сохранения cookies
-        
+    
     Example:
         >>> save_user_cookie(context, "admin")
         # Cookies сохранятся в cookies/admin_cookies.json
     """
+    # Получаем учетные данные из creds.env
+    creds = get_auth_credentials()
+    
+    # Авторизуемся с этими учетными данными
+    page = context.new_page()
+    page.goto(LOGIN_URL)
+    page.fill("#username", creds["username"])
+    page.fill("#password", creds["password"])
+    page.click("#submit")
+    
+    # Сохраняем cookies
     cookie_path = get_cookie_path(username)
     save_cookie(context, str(cookie_path))
     logger.info(f"Cookies для пользователя '{username}' сохранены в {cookie_path}")
@@ -213,3 +223,10 @@ def list_available_cookies() -> List[str]:
     logger.debug(f"Найдены cookies для пользователей: {usernames}")
     return usernames
 
+
+def get_auth_credentials() -> dict:
+    """Получает учетные данные из creds.env через SecretsManager"""
+    return {
+        "username": SecretsManager.get_env("AUTH_USERNAME"),
+        "password": SecretsManager.get_env("AUTH_PASSWORD")
+    }
