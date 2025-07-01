@@ -1,0 +1,12 @@
+[tool.black]
+line-length = 100
+skip-string-normalization = true
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.ruff]
+line-length = 100
+select = ["F", "E", "W", "B"]
+ignore = ["E501"]
