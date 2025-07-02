@@ -6,17 +6,24 @@
 - fixtures: Переиспользуемые pytest фикстуры
 - app: Специфичный код приложения и page objects
 
-Для Junior QA-инженеров:
+Преимущества использования:
 Этот фреймворк позволяет писать тесты быстрее, используя готовые компоненты.
 Не нужно каждый раз писать код авторизации или настройки браузера заново.
+Все модули содержат подробную документацию и примеры использования.
 """
 
 __version__ = "1.0.0"
 __author__ = "Lead SDET Architect"
 
-# Импорты для удобства использования
-from .utils.auth_utils import save_cookie, load_cookie
-from .utils.reporting.allure_utils import AllureReporter, allure_test_case
+# Импорты для удобства использования (опциональны)
+try:
+    from .utils.auth_utils import save_cookie, load_cookie
+    from .utils.reporting.allure_utils import AllureReporter, allure_test_case
+except ModuleNotFoundError:
+    # Не устанавливаем тяжёлые зависимости, если они не нужны (playwright и т.д.)
+    save_cookie = load_cookie = None  # type: ignore
+    AllureReporter = allure_test_case = None  # type: ignore
+
 
 __all__ = [
     'save_cookie',
