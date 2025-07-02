@@ -17,6 +17,9 @@ pytestmark = pytest.mark.auth
 # Константы
 COOKIE_DIR = Path(os.getenv("COOKIE_DIR", "d:/Bll_tests/cookies"))
 TARGET_DOMAIN = "bll.by"
+# Используем базовый URL главной страницы, т.к. после установки куки
+# проверяем элементы, видимые в шапке сайта.
+LOGIN_URL = os.getenv("LOGIN_URL", "https://ca.bll.by")
 
 
 # Получаем список файлов с cookie
