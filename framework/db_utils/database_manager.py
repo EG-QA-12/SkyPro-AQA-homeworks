@@ -5,7 +5,8 @@
 import sqlite3
 from typing import Dict, Optional
 from pathlib import Path
-from . import db_config  # Импортируем модуль конфигурации
+# Используем единый конфигурационный модуль для пути к базе данных
+from config.db_settings import DEFAULT_DB_PATH
 
 class DatabaseManager:
     """Класс для управления базой данных пользователей."""
@@ -17,7 +18,8 @@ class DatabaseManager:
             db_path: Путь к файлу базы данных. Если не указан, используется путь по умолчанию.
         """
         # Если путь не передан, используем путь по умолчанию из конфигурации
-        self.db_path = Path(db_path) if db_path else db_config.DEFAULT_DB_PATH
+        # Если путь передан явно — используем его, иначе берём путь по умолчанию
+        self.db_path = Path(db_path) if db_path else DEFAULT_DB_PATH
         # Убедимся, что родительская директория существует
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.conn = sqlite3.connect(self.db_path)
