@@ -49,8 +49,11 @@ def test_login_with_cookie(page: Page, cookie_file_path: Path):
     # Устанавливаем куку
     page.context.add_cookies([auth_cookie])
     
-    # Перезагружаем страницу
-    page.reload(wait_until="networkidle")
+    # Переходим на главную страницу вместо перезагрузки страницы логина
+    page.goto("https://ca.bll.by", wait_until="networkidle")
+    
+    # Ждём появления меню пользователя
+    page.wait_for_selector(".user-menu", state="visible")
     
     # Проверяем элементы интерфейса
     assert page.is_visible(".user-menu"), "Не отображается меню пользователя"
