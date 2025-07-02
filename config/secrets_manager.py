@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 import sqlite3
 # from dotenv import load_dotenv
-from framework.db_utils.database_manager import DatabaseManager  # Импорт нового менеджера
+# Импорт DatabaseManager перенесен внутрь методов для избежания циклических импортов
 
 # try:
 #     from dotenv import load_dotenv
@@ -391,6 +391,9 @@ class SecretsManager:
     @classmethod
     def load_users_from_sqlite(cls) -> List[Dict]:
         """Загружает пользователей из SQLite БД."""
+        # Импорт внутри метода для избежания циклических импортов
+        from framework.db_utils.database_manager import DatabaseManager
+        
         users = []
         with DatabaseManager() as db:
             # Получаем всех активных пользователей

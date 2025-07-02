@@ -27,9 +27,6 @@ def browser_context_args(browser_context_args: dict) -> dict:
     Фикстура для передачи кастомных аргументов в контекст браузера.
     Добавляет User-Agent для headless режима.
     """
-    force_headed = os.getenv("FORCE_HEADED") == "1"
-    is_headless = False if force_headed else (os.getenv("HEADLESS", "1").lower() in ("1", "true", "yes", "on"))
-
     args = {
         **browser_context_args,
         "viewport": {"width": 1920, "height": 1080},
@@ -40,14 +37,11 @@ def browser_context_args(browser_context_args: dict) -> dict:
         "record_har_path": "test-results/network.har",
     }
 
-    if is_headless:
-        user_agent = (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/91.0.4472.124 Safari/537.36"
-        )
-        args["user_agent"] = user_agent
-        print(f"\n🚀 Запуск в headless-режиме с User-Agent: {user_agent}")
+    # The user_agent is now set by playwright itself when running in headless mode.
+    # We can add a print statement to confirm when tests are running headless.
+    # This can be checked using the 'headless' fixture provided by pytest-playwright.
+    # Example: def test_example(headless: bool): if headless: print("Running headless")
+
 
     return args
 

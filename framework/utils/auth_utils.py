@@ -25,7 +25,7 @@ import logging
 
 from .cookie_constants import COOKIE_NAME, LOGIN_URL
 from playwright.sync_api import BrowserContext
-from config.secrets_manager import SecretsManager
+# Импорт SecretsManager перенесен внутрь функций для избежания циклических импортов
 
 logger = logging.getLogger(__name__)
 
@@ -228,6 +228,9 @@ def list_available_cookies() -> List[str]:
 
 def get_auth_credentials() -> dict:
     """Получает учетные данные из creds.env через SecretsManager"""
+    # Локальный импорт для избежания циклических импортов
+    from config.secrets_manager import SecretsManager
+    
     # Создаем экземпляр SecretsManager чтобы избежать проблем с глобальной инициализацией
     secrets = SecretsManager()
     return {

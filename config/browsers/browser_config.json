@@ -1,6 +1,6 @@
 {
   "default_browser": "chromium",
-  "headless": true,
+  "headless": false,
   "browser_args": {
     "chromium": [
       "--disable-dev-shm-usage",

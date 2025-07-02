@@ -52,11 +52,19 @@ def test_login_with_cookie(page: Page, cookie_file_path: Path):
     # Переходим на главную страницу вместо перезагрузки страницы логина
     page.goto("https://ca.bll.by", wait_until="networkidle")
     
-    # Ждём появления меню пользователя
-    page.wait_for_selector(".user-menu", state="visible")
-    
+    # Wait for potential redirect or element state
+    page.wait_for_load_state('networkidle')
+
+    # Check for successful authorization
+    current_url = page.url
+    if current_url == 'https://ca.bll.by/user/profile':
+        assert True, "Редирект на профиль успешен"
+    else:
+        assert not page.is_visible('label[for="agree"]'), "Элемент 'label[for=\"agree\"]' видим, авторизация не удалась"
+
+    # Optionally, check for other elements if needed
     # Проверяем элементы интерфейса
-    assert page.is_visible(".user-menu"), "Не отображается меню пользователя"
+    assert page.is_visible('div.profile-top__ttl'), "Элемент 'Мои данные' не найден, авторизация не удалась"
     assert page.is_visible("#logout-btn"), "Не найдена кнопка выхода"
 
     # Сохраняем дополнительную отладку (URL, скрин, часть HTML)

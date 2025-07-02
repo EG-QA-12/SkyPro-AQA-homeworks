@@ -231,7 +231,7 @@ class SecretsSetup:
         
         print("\n4. 🔄 Обновите существующие тесты:")
         print("   Замените импорты:")
-        print("   from auth_utils import save_cookie, load_cookie")
+        print("   from framework.utils.auth_utils\1 save_cookie, load_cookie")
         print("   на:")
         print("   from secure_auth_utils import save_cookie, load_cookie")
         
