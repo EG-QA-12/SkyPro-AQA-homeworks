@@ -28,7 +28,7 @@ from framework.utils.auth_utils import save_cookie, load_cookie
 
 # Загрузка тестовых пользователей из CSV
 USERS_CSV_PATH = Path("d:/Bll_tests/secrets/bulk_users.csv")
-TEST_USERS = SecretsManager.load_users_from_csv(USERS_CSV_PATH)
+TEST_USERS = SecretsManager.load_users_from_csv()
 
 
 @ui_test(

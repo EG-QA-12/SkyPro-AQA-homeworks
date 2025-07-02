@@ -21,14 +21,14 @@ from typing import Dict, Optional, Any, List
 from dataclasses import dataclass, field
 from enum import Enum
 import sqlite3
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from framework.db_utils.database_manager import DatabaseManager  # Импорт нового менеджера
 
-try:
-    from dotenv import load_dotenv
-except ImportError:
-    load_dotenv = None
-    logging.warning("python-dotenv не установлен. Установите: pip install python-dotenv")
+# try:
+#     from dotenv import load_dotenv
+# except ImportError:
+#     load_dotenv = None
+#     logging.warning("python-dotenv не установлен. Установите: pip install python-dotenv")
 
 
 class Environment(Enum):
@@ -142,7 +142,7 @@ class SecretsManager:
     
     def _load_environment_variables(self) -> None:
         """Загрузка переменных окружения из .env файлов по приоритету."""
-        if load_dotenv is None:
+        if True: # Temporarily disabled dotenv
             self.logger.warning("Модуль dotenv недоступен. Используются только системные переменные.")
             return
         
@@ -159,7 +159,7 @@ class SecretsManager:
         loaded_files = []
         for env_file in env_files:
             if env_file.exists():
-                load_dotenv(env_file, override=False)  # override=False = не перезаписывать уже загруженные
+                # load_dotenv(env_file, override=False)  # override=False = не перезаписывать уже загруженные
                 loaded_files.append(str(env_file))
         
         if loaded_files:
@@ -416,7 +416,15 @@ class SecretsManager:
     def load_users_from_csv(cls) -> List[Dict]:
         """Загружает пользователей из CSV файла."""
         users = []
-        with open('users.csv', newline='', encoding='utf-8') as csvfile:
+        # Определяем путь к файлу пользователей
+        project_root = Path(__file__).resolve().parent.parent
+        csv_path = project_root / "secrets" / "bulk_users.csv"
+        
+        # Если файл не найден, возвращаем тестовых пользователей
+        if not csv_path.exists():
+            return cls._get_default_test_users()
+            
+        with open(csv_path, newline='', encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 # Определяем директорию cookies внутри корня проекта
@@ -437,6 +445,30 @@ class SecretsManager:
         return users
 
     @classmethod
+    def _get_default_test_users(cls) -> List[Dict]:
+        """Возвращает тестовых пользователей по умолчанию если CSV файл не найден."""
+        project_root = Path(__file__).resolve().parent.parent
+        cookies_dir = project_root / "cookies"
+        cookies_dir.mkdir(exist_ok=True)
+        
+        return [
+            {
+                "name": "test_user",
+                "login": "test_user",
+                "password": "test_password",
+                "role": "user",
+                "cookie_file": str(cookies_dir / "test_user_cookies.json")
+            },
+            {
+                "name": "admin_user", 
+                "login": "admin_user",
+                "password": "admin_password",
+                "role": "admin",
+                "cookie_file": str(cookies_dir / "admin_user_cookies.json")
+            }
+        ]
+
+    @classmethod
     def get_env(cls, key: str) -> str:
         """Получает значение переменной окружения"""
         value = os.getenv(key)
@@ -444,6 +476,8 @@ class SecretsManager:
             raise ValueError(f"Missing required environment variable: {key}")
         return value
 
+
+# Явная загрузка .env файла временно отключена
 
 # Глобальный экземпляр менеджера секретов
 secrets_manager = SecretsManager()
