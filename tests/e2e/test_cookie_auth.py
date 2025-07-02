@@ -9,6 +9,8 @@
 from __future__ import annotations
 
 import pytest
+
+pytestmark = pytest.mark.auth
 from playwright.sync_api import Page, BrowserContext, Browser
 import allure
 import sys

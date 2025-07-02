@@ -15,17 +15,29 @@ import requests
 from playwright.sync_api import Page
 
 from framework.utils.url_utils import ensure_allow_session_param
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Загружаем переменные окружения из secrets/
+project_root = Path(__file__).resolve().parent.parent
+load_dotenv(project_root / "secrets" / ".env", override=False)
+load_dotenv(project_root / "secrets" / "creds.env", override=True)
 
 
 def _is_headless_run() -> bool:
-    """Определяем, запускаемся ли мы без UI.
-
-    Проверяем env-переменные, которые обычно выставляют в CI или пользователи
-    локально:
-     • ``NOTGUI=1``
-     • ``HEADLESS=1``
     """
-    return os.getenv("NOTGUI") == "1" or os.getenv("HEADLESS") == "1"
+    Определяет, должен ли браузер работать в headless-режиме.
+
+    Алгоритм:
+    1. Если выставлена переменная ``FORCE_HEADED=1`` — всегда GUI.
+    2. Иначе учитываем переменную ``HEADLESS`` (по умолчанию «1»/True).
+    3. Для обратной совместимости поддерживаем устаревшую ``NOTGUI``.
+    """
+    if os.getenv("FORCE_HEADED") == "1":
+        return False
+    if os.getenv("NOTGUI") == "1":
+        return True
+    return os.getenv("HEADLESS", "1").lower() in ("1", "true", "yes", "on")
 
 
 @pytest.fixture(autouse=True, scope="session")

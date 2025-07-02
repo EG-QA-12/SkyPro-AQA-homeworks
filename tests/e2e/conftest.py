@@ -27,7 +27,8 @@ def browser_context_args(browser_context_args: dict) -> dict:
     Фикстура для передачи кастомных аргументов в контекст браузера.
     Добавляет User-Agent для headless режима.
     """
-    is_headless = os.getenv("NOTGUI") == "1" or os.getenv("HEADLESS") == "1"
+    force_headed = os.getenv("FORCE_HEADED") == "1"
+    is_headless = False if force_headed else (os.getenv("HEADLESS", "1").lower() in ("1", "true", "yes", "on"))
 
     args = {
         **browser_context_args,
