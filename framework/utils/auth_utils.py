@@ -75,7 +75,7 @@ def get_cookie_path(username: str) -> Path:
         
     Example:
         >>> path = get_cookie_path("admin")
-        >>> print(path)  # D:\Bll_tests\cookies\admin_cookies.json
+        >>> print(path)  # D:/Bll_tests/cookies/admin_cookies.json
     """
     # Определяем корневую директорию проекта
     project_root = Path(__file__).parent.parent.parent
@@ -228,7 +228,9 @@ def list_available_cookies() -> List[str]:
 
 def get_auth_credentials() -> dict:
     """Получает учетные данные из creds.env через SecretsManager"""
+    # Создаем экземпляр SecretsManager чтобы избежать проблем с глобальной инициализацией
+    secrets = SecretsManager()
     return {
-        "username": SecretsManager.get_env("AUTH_USERNAME"),
-        "password": SecretsManager.get_env("AUTH_PASSWORD")
+        "username": secrets.get_required_env("AUTH_USERNAME"),
+        "password": secrets.get_required_env("AUTH_PASSWORD")
     }

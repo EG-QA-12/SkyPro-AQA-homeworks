@@ -19,8 +19,9 @@ __author__ = "Lead SDET Architect"
 try:
     from .utils.auth_utils import save_cookie, load_cookie
     from .utils.reporting.allure_utils import AllureReporter, allure_test_case
-except ModuleNotFoundError:
+except (ModuleNotFoundError, ValueError):
     # Не устанавливаем тяжёлые зависимости, если они не нужны (playwright и т.д.)
+    # ValueError может возникнуть при отсутствии переменных окружения
     save_cookie = load_cookie = None  # type: ignore
     AllureReporter = allure_test_case = None  # type: ignore
 
