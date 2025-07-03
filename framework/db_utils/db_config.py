@@ -11,3 +11,6 @@ SECRETS_DIR.mkdir(exist_ok=True, parents=True)  # Создаем директо�
 
 # Путь к файлу БД по умолчанию
 DEFAULT_DB_PATH = SECRETS_DIR / "users.db"
+
+# Путь к тестовой базе данных SQLite
+TEST_DB_PATH: str = "./test_db.sqlite3"

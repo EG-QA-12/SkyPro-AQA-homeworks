@@ -3,32 +3,39 @@
 Обеспечивает работу с пользователями и сессиями.
 """
 import sqlite3
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 from pathlib import Path
 # Используем единый конфигурационный модуль для пути к базе данных
 from config.db_settings import DEFAULT_DB_PATH
 
 class DatabaseManager:
-    """Класс для управления базой данных пользователей."""
+    """
+    Класс для управления базой данных пользователей.
 
-    def __init__(self, db_path: str = None):
-        """Инициализирует подключение к БД.
+    Позволяет создавать таблицы, добавлять пользователей, получать их данные и управлять сессией БД.
+    Использует SQLite для хранения информации о пользователях.
+    """
+
+    def __init__(self, db_path: Optional[str] = None) -> None:
+        """
+        Инициализирует подключение к БД.
         
         Args:
-            db_path: Путь к файлу базы данных. Если не указан, используется путь по умолчанию.
+            db_path (Optional[str]): Путь к файлу базы данных. Если не указан, используется путь по умолчанию.
         """
-        # Если путь не передан, используем путь по умолчанию из конфигурации
-        # Если путь передан явно — используем его, иначе берём путь по умолчанию
-        self.db_path = Path(db_path) if db_path else DEFAULT_DB_PATH
-        # Убедимся, что родительская директория существует
+        self.db_path: Path = Path(db_path) if db_path else DEFAULT_DB_PATH
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        self.conn = sqlite3.connect(self.db_path)
+        self.conn: sqlite3.Connection = sqlite3.connect(self.db_path)
         self.create_tables()
 
-    def create_tables(self):
-        """Создает необходимые таблицы в БД."""
+    def create_tables(self) -> None:
+        """
+        Создает необходимые таблицы в БД, если их ещё нет.
+
+        Returns:
+            None
+        """
         cursor = self.conn.cursor()
-        # Основная таблица пользователей
         cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,20 +54,27 @@ class DatabaseManager:
 
     def add_user(self, login: str, password: str, role: str = "user", 
                 subscription: str = "basic") -> int:
-        """Добавляет нового пользователя в БД.
+        """
+        Добавляет нового пользователя в БД.
         
         Args:
-            login: Логин пользователя (email).
-            password: Пароль в открытом виде.
-            role: Роль пользователя.
-            subscription: Тип подписки.
-            
+            login (str): Логин пользователя (email).
+            password (str): Пароль в открытом виде.
+            role (str): Роль пользователя (по умолчанию 'user').
+            subscription (str): Тип подписки (по умолчанию 'basic').
+        
         Returns:
-            ID созданного пользователя.
+            int: ID созданного пользователя.
+        
+        Raises:
+            sqlite3.IntegrityError: Если пользователь с таким логином уже существует.
+        
+        Example:
+            >>> db = DatabaseManager()
+            >>> user_id = db.add_user('test@example.com', 'password123')
         """
         from .security import hash_password
-        hashed_pw = hash_password(password)
-        
+        hashed_pw: str = hash_password(password)
         cursor = self.conn.cursor()
         cursor.execute(
             """
@@ -72,14 +86,20 @@ class DatabaseManager:
         self.conn.commit()
         return cursor.lastrowid
 
-    def get_user(self, login: str) -> Optional[Dict]:
-        """Возвращает данные пользователя по логину.
+    def get_user(self, login: str) -> Optional[Dict[str, Any]]:
+        """
+        Возвращает данные пользователя по логину.
         
         Args:
-            login: Логин пользователя.
-            
+            login (str): Логин пользователя.
+        
         Returns:
-            Словарь с данными пользователя или None, если не найден.
+            Optional[Dict[str, Any]]: Словарь с данными пользователя или None, если не найден.
+        
+        Example:
+            >>> db = DatabaseManager()
+            >>> user = db.get_user('test@example.com')
+            >>> print(user['role'])
         """
         cursor = self.conn.cursor()
         cursor.execute("""
@@ -87,7 +107,6 @@ class DatabaseManager:
             FROM users 
             WHERE login = ?
         """, (login,))
-        
         row = cursor.fetchone()
         if row:
             return {
@@ -101,12 +120,31 @@ class DatabaseManager:
             }
         return None
 
-    def close(self):
-        """Закрывает соединение с БД."""
+    def close(self) -> None:
+        """
+        Закрывает соединение с БД.
+
+        Returns:
+            None
+        """
         self.conn.close()
 
-    def __enter__(self):
+    def __enter__(self) -> 'DatabaseManager':
+        """
+        Позволяет использовать DatabaseManager в контексте with.
+
+        Returns:
+            DatabaseManager: Сам экземпляр класса.
+        """
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        """
+        Гарантирует закрытие соединения при выходе из контекста.
+
+        Args:
+            exc_type: Тип исключения.
+            exc_val: Значение исключения.
+            exc_tb: Трассировка стека.
+        """
         self.close()

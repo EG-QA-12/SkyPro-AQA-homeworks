@@ -1,28 +1,40 @@
-"""Модуль для работы с паролями.
+"""Модуль для работы с безопасностью и хешированием паролей.
 
-Содержит функции хеширования и проверки паролей.
+Содержит функции для хеширования и проверки паролей пользователей.
 """
-import bcrypt
+import hashlib
+from typing import Optional
 
 def hash_password(password: str) -> str:
-    """Хеширует пароль с использованием bcrypt.
-    
-    Args:
-        password: Пароль в открытом виде.
-        
-    Returns:
-        Хешированный пароль.
     """
-    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    Хеширует пароль пользователя с помощью SHA-256.
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Проверяет соответствие пароля его хешу.
-    
     Args:
-        plain_password: Пароль в открытом виде.
-        hashed_password: Хешированный пароль.
-        
+        password (str): Пароль в открытом виде.
+
     Returns:
-        True если пароль верный, иначе False.
+        str: Хеш пароля в шестнадцатеричном виде.
+
+    Example:
+        >>> hash_password('password123')
+        'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f'
     """
-    return bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+
+def verify_password(password: str, password_hash: str) -> bool:
+    """
+    Проверяет соответствие пароля и его хеша.
+
+    Args:
+        password (str): Пароль в открытом виде.
+        password_hash (str): Ожидаемый хеш пароля.
+
+    Returns:
+        bool: True, если пароль соответствует хешу, иначе False.
+
+    Example:
+        >>> verify_password('password123', 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f')
+        True
+    """
+    return hash_password(password) == password_hash
