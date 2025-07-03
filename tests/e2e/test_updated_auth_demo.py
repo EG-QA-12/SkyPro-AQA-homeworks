@@ -20,6 +20,7 @@ from playwright.sync_api import Page, BrowserContext
 # Импортируем Page Objects из framework
 from framework.app.pages.login_page import LoginPage
 from framework.utils.auth_utils import list_available_cookies, check_cookie_validity
+from framework.utils.url_utils import add_allow_session_param, is_headless
 
 
 class TestUpdatedAuthDemo:
@@ -43,7 +44,7 @@ class TestUpdatedAuthDemo:
         login_page = LoginPage(page)
         
         # Переходим на страницу логина
-        page.goto("https://bll.by/login")
+        page.goto(add_allow_session_param("https://bll.by/login", is_headless()))
         
         # Проверяем, что форма логина видна
         assert login_page.is_login_form_visible(), "Форма логина должна быть видна"
@@ -71,7 +72,7 @@ class TestUpdatedAuthDemo:
             "Администратор должен быть авторизован"
         
         # Переходим в админ-панель
-        page.goto("https://bll.by/admin")
+        page.goto(add_allow_session_param("https://bll.by/admin", is_headless()))
         
         # Здесь могут быть проверки элементов админ-панели
         # Например: page.wait_for_selector(".admin-dashboard")
@@ -94,7 +95,7 @@ class TestUpdatedAuthDemo:
             "Пользователь должен быть авторизован"
         
         # Переходим в профиль
-        page.goto("https://bll.by/profile") 
+        page.goto(add_allow_session_param("https://bll.by/profile", is_headless()))
         
         print("✅ Профиль доступен авторизованному пользователю")
 
@@ -117,7 +118,7 @@ class TestUpdatedAuthDemo:
             admin_context = quick_auth("admin")
             admin_page = admin_context.new_page()
             
-            admin_page.goto("https://bll.by/")
+            admin_page.goto(add_allow_session_param("https://bll.by/", is_headless()))
             print("✅ Быстрая авторизация под администратором успешна")
             
             admin_context.close()
@@ -127,7 +128,7 @@ class TestUpdatedAuthDemo:
             moderator_context = quick_auth("moderator")
             moderator_page = moderator_context.new_page()
             
-            moderator_page.goto("https://bll.by/")
+            moderator_page.goto(add_allow_session_param("https://bll.by/", is_headless()))
             print("✅ Быстрая авторизация под модератором успешна")
             
             moderator_context.close()
@@ -144,7 +145,7 @@ class TestUpdatedAuthDemo:
         page = clean_context.new_page()
         login_page = LoginPage(page)
         
-        page.goto("https://bll.by/login")
+        page.goto(add_allow_session_param("https://bll.by/login", is_headless()))
         
         # Пытаемся войти с неверными данными
         login_page.login("invalid_user", "wrong_password")
@@ -171,7 +172,7 @@ class TestUpdatedAuthDemo:
         page = clean_context.new_page()
         
         # Переходим на главную страницу
-        page.goto("https://bll.by/")
+        page.goto(add_allow_session_param("https://bll.by/", is_headless()))
         
         # Проверяем, что страница загрузилась
         page.wait_for_load_state("networkidle")
@@ -198,7 +199,7 @@ class TestUpdatedAuthDemo:
         admin_page = admin_context.new_page()
         
         if load_user_cookie(admin_context, "admin"):
-            admin_page.goto("https://bll.by/admin")
+            admin_page.goto(add_allow_session_param("https://bll.by/admin", is_headless()))
             print("✅ Администратор вошел в админ-панель")
         
         # Создаем отдельный контекст для обычного пользователя
@@ -206,7 +207,7 @@ class TestUpdatedAuthDemo:
         user_page = user_context.new_page()
         
         if load_user_cookie(user_context, "user"):
-            user_page.goto("https://bll.by/profile")
+            user_page.goto(add_allow_session_param("https://bll.by/profile", is_headless()))
             print("✅ Пользователь вошел в профиль")
         
         # Закрываем контексты
@@ -236,9 +237,9 @@ class TestAuthIntegration:
         
         # Переходим на разные страницы, проверяя сохранение авторизации
         test_urls = [
-            "https://bll.by/",
-            "https://bll.by/profile", 
-            "https://bll.by/admin"
+            add_allow_session_param("https://bll.by/", is_headless()),
+            add_allow_session_param("https://bll.by/profile", is_headless()), 
+            add_allow_session_param("https://bll.by/admin", is_headless())
         ]
         
         for url in test_urls:

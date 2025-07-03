@@ -25,7 +25,7 @@ import time
 
 from framework.utils.auth_utils import load_cookie, get_cookie_path, list_available_cookies
 from framework.utils.reporting.allure_utils import ui_test
-from utils.cookie_constants import COOKIE_NAME
+from framework.utils.cookie_constants import COOKIE_NAME
 
 
 def get_target_user() -> str | None:
