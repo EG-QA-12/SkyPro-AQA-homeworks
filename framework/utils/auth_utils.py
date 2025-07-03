@@ -32,30 +32,44 @@ logger = logging.getLogger(__name__)
 
 def save_cookie(context: BrowserContext, filename: str) -> None:
     """
-    Сохраняет куки указанного контекста в файл.
+    Сохраняет cookie авторизации из браузерного контекста в файл.
 
     Args:
-        context: Браузерный контекст Playwright.
-        filename: Название файла для сохранения куков.
+        context (BrowserContext): Контекст браузера Playwright, из которого извлекаются cookies.
+        filename (str): Имя файла, в который будут сохранены cookies.
+
+    Returns:
+        None
+
+    Raises:
+        IOError: Если не удалось записать файл.
+    
+    Example:
+        >>> save_cookie(context, "admin_cookies.json")
     """
-    # Сохраняем только куку с именем test_joint_session
-    cookies = [cookie for cookie in context.cookies() if cookie["name"] == COOKIE_NAME]
+    cookies: List[Dict[str, Any]] = [cookie for cookie in context.cookies() if cookie["name"] == COOKIE_NAME]
     with open(filename, "w") as file:
         json.dump(cookies, file)
 
 
 def load_cookie(context: BrowserContext, filename: str) -> None:
     """
-    Загружает куку test_joint_session из файла и добавляет её в контекст.
+    Загружает cookie test_joint_session из файла и добавляет её в контекст.
 
     Args:
-        context: Браузерный контекст Playwright.
-        filename: Название файла с сохранённой кукой.
+        context (BrowserContext): Браузерный контекст Playwright.
+        filename (str): Название файла с сохранённой кукой.
+
+    Returns:
+        None
+
+    Raises:
+        FileNotFoundError: Если файл не найден.
+        json.JSONDecodeError: Если файл не является корректным JSON.
     """
     with open(filename, 'r') as file:
-        cookies = json.load(file)
-        # Фильтруем только куки с нужным именем
-        target_cookies = [cookie for cookie in cookies if cookie.get("name") == COOKIE_NAME]
+        cookies: List[Dict[str, Any]] = json.load(file)
+        target_cookies: List[Dict[str, Any]] = [cookie for cookie in cookies if cookie.get("name") == COOKIE_NAME]
         if target_cookies:
             context.add_cookies([target_cookies[0]])
 
@@ -68,7 +82,7 @@ def get_cookie_path(username: str) -> Path:
     что упрощает управление и поиск файлов.
     
     Args:
-        username: Имя пользователя для которого нужен файл cookies
+        username (str): Имя пользователя для которого нужен файл cookies
         
     Returns:
         Path: Полный путь к файлу с cookies пользователя
@@ -77,15 +91,10 @@ def get_cookie_path(username: str) -> Path:
         >>> path = get_cookie_path("admin")
         >>> print(path)  # D:/Bll_tests/cookies/admin_cookies.json
     """
-    # Определяем корневую директорию проекта
-    project_root = Path(__file__).parent.parent.parent
-    cookies_dir = project_root / "cookies"
-    
-    # Создаем папку cookies, если её нет
+    project_root: Path = Path(__file__).parent.parent.parent
+    cookies_dir: Path = project_root / "cookies"
     cookies_dir.mkdir(exist_ok=True)
-    
-    # Формируем имя файла с cookies
-    cookie_filename = f"{username}_cookies.json"
+    cookie_filename: str = f"{username}_cookies.json"
     return cookies_dir / cookie_filename
 
 
@@ -95,25 +104,23 @@ def save_user_cookie(context: BrowserContext, username: str) -> None:
     Теперь использует данные из creds.env для авторизации перед сохранением cookie.
     
     Args:
-        context: Браузерный контекст Playwright
-        username: Имя пользователя для сохранения cookies
+        context (BrowserContext): Браузерный контекст Playwright
+        username (str): Имя пользователя для сохранения cookies
+    
+    Returns:
+        None
     
     Example:
         >>> save_user_cookie(context, "admin")
         # Cookies сохранятся в cookies/admin_cookies.json
     """
-    # Получаем учетные данные из creds.env
-    creds = get_auth_credentials()
-    
-    # Авторизуемся с этими учетными данными
+    creds: Dict[str, str] = get_auth_credentials()
     page = context.new_page()
     page.goto(LOGIN_URL)
     page.fill("#username", creds["username"])
     page.fill("#password", creds["password"])
     page.click("#submit")
-    
-    # Сохраняем cookies
-    cookie_path = get_cookie_path(username)
+    cookie_path: Path = get_cookie_path(username)
     save_cookie(context, str(cookie_path))
     logger.info(f"Cookies для пользователя '{username}' сохранены в {cookie_path}")
 
@@ -126,8 +133,8 @@ def load_user_cookie(context: BrowserContext, username: str) -> bool:
     Это предотвращает ошибки при попытке загрузить несуществующие cookies.
     
     Args:
-        context: Браузерный контекст Playwright
-        username: Имя пользователя для загрузки cookies
+        context (BrowserContext): Браузерный контекст Playwright
+        username (str): Имя пользователя для загрузки cookies
         
     Returns:
         bool: True если cookies успешно загружены, False если файл не найден
@@ -138,12 +145,10 @@ def load_user_cookie(context: BrowserContext, username: str) -> bool:
         ... else:
         ...     print("Нужна обычная авторизация")
     """
-    cookie_path = get_cookie_path(username)
-    
+    cookie_path: Path = get_cookie_path(username)
     if not cookie_path.exists():
         logger.warning(f"Файл с cookies для пользователя '{username}' не найден: {cookie_path}")
         return False
-        
     try:
         load_cookie(context, str(cookie_path))
         logger.info(f"Cookies для пользователя '{username}' успешно загружены")
@@ -161,7 +166,10 @@ def clear_all_cookies(context: BrowserContext) -> None:
     неавторизованного пользователя или сброс сессии.
     
     Args:
-        context: Браузерный контекст Playwright
+        context (BrowserContext): Браузерный контекст Playwright
+    
+    Returns:
+        None
     """
     context.clear_cookies()
     logger.debug("Все cookies очищены из браузерного контекста")
@@ -175,15 +183,14 @@ def check_cookie_validity(context: BrowserContext, username: str) -> bool:
     Это помогает убедиться, что авторизация через cookies прошла успешно.
     
     Args:
-        context: Браузерный контекст Playwright
-        username: Имя пользователя (для логирования)
+        context (BrowserContext): Браузерный контекст Playwright
+        username (str): Имя пользователя (для логирования)
         
     Returns:
         bool: True если cookie авторизации найдена, False - если нет
     """
-    cookies = context.cookies()
-    auth_cookie = next((cookie for cookie in cookies if cookie["name"] == COOKIE_NAME), None)
-    
+    cookies: List[Dict[str, Any]] = context.cookies()
+    auth_cookie: Optional[Dict[str, Any]] = next((cookie for cookie in cookies if cookie["name"] == COOKIE_NAME), None)
     if auth_cookie:
         logger.debug(f"Cookie авторизации для пользователя '{username}' найдена и валидна")
         return True
@@ -200,40 +207,28 @@ def list_available_cookies() -> List[str]:
     уже имеют сохраненные сессии.
     
     Returns:
-        List[str]: Список имен пользователей с сохраненными cookies
-        
-    Example:
-        >>> users = list_available_cookies()
-        >>> print(f"Доступные cookies: {users}")
-        # Доступные cookies: ['admin', 'user1', 'moderator']
+        List[str]: Список имён файлов с cookies
     """
-    project_root = Path(__file__).parent.parent.parent
-    cookies_dir = project_root / "cookies"
-    
+    project_root: Path = Path(__file__).parent.parent.parent
+    cookies_dir: Path = project_root / "cookies"
     if not cookies_dir.exists():
         return []
-        
-    cookie_files = list(cookies_dir.glob("*_cookies.json"))
-    usernames = []
-    
-    for cookie_file in cookie_files:
-        # Извлекаем имя пользователя из имени файла
-        # Например: admin_cookies.json -> admin
-        username = cookie_file.stem.replace("_cookies", "")
-        usernames.append(username)
-        
-    logger.debug(f"Найдены cookies для пользователей: {usernames}")
-    return usernames
+    return [f.name for f in cookies_dir.glob("*_cookies.json") if f.is_file()]
 
 
-def get_auth_credentials() -> dict:
-    """Получает учетные данные из creds.env через SecretsManager"""
-    # Локальный импорт для избежания циклических импортов
-    from config.secrets_manager import SecretsManager
+def get_auth_credentials() -> Dict[str, str]:
+    """
+    Получает учетные данные для авторизации из файла creds.env.
     
-    # Создаем экземпляр SecretsManager чтобы избежать проблем с глобальной инициализацией
-    secrets = SecretsManager()
-    return {
-        "username": secrets.get_required_env("AUTH_USERNAME"),
-        "password": secrets.get_required_env("AUTH_PASSWORD")
-    }
+    Returns:
+        Dict[str, str]: Словарь с ключами 'username' и 'password'.
+    
+    Raises:
+        FileNotFoundError: Если файл creds.env не найден.
+        KeyError: Если в файле отсутствуют необходимые ключи.
+    """
+    # Импортируем здесь, чтобы избежать циклических импортов
+    from config.secrets_manager import get_secret
+    username: str = get_secret("username")
+    password: str = get_secret("password")
+    return {"username": username, "password": password}

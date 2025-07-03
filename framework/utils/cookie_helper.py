@@ -11,7 +11,7 @@ from typing import List, Dict, Any
 # Константа для имени cookie, которое мы ищем.
 # Выносим в константу, чтобы избежать "магических строк" в коде.
 # Если имя cookie изменится, нам нужно будет поменять его только в одном месте.
-AUTH_COOKIE_NAME = "test_joint_session"
+AUTH_COOKIE_NAME: str = "test_joint_session"
 
 def get_cookie_files(directory: Path, file_pattern: str) -> List[Path]:
     """
@@ -23,13 +23,16 @@ def get_cookie_files(directory: Path, file_pattern: str) -> List[Path]:
 
     Args:
         directory (Path): Объект Path из библиотеки pathlib, указывающий на
-                          директорию для поиска.
+            директорию для поиска.
         file_pattern (str): Шаблон для поиска файлов (например, '*_cookies.json').
 
     Returns:
         List[Path]: Список объектов Path для каждого найденного файла.
 
-    Пример использования:
+    Raises:
+        None. Если директория не найдена, возвращается пустой список.
+
+    Example:
         >>> from pathlib import Path
         >>> files = get_cookie_files(Path('d:/Bll_tests/cookies/'), '*_cookies.json')
         >>> print(files)
@@ -59,18 +62,14 @@ def parse_auth_cookie(file_path: Path, required_domain: str) -> Dict[str, Any]:
 
     Raises:
         ValueError: Если в файле не найден cookie с заданным именем или если домен cookie не совпадает с требуемым.
+        json.JSONDecodeError: Если файл не является корректным JSON.
+        FileNotFoundError: Если файл не найден.
 
-    Пример возвращаемого словаря:
-        {
-            'name': 'test_joint_session',
-            'value': 'eyJ...',
-            'domain': 'ca.bll.by',
-            'path': '/',
-            'expires': -1,
-            'httpOnly': True,
-            'secure': True,
-            'sameSite': 'Lax'
-        }
+    Example:
+        >>> from pathlib import Path
+        >>> cookie = parse_auth_cookie(Path('cookies/admin_cookies.json'), 'ca.bll.by')
+        >>> print(cookie['name'])
+        test_joint_session
     """
     # Открываем и читаем JSON-файл
     with file_path.open('r', encoding='utf-8') as file:
@@ -81,10 +80,10 @@ def parse_auth_cookie(file_path: Path, required_domain: str) -> Dict[str, Any]:
         if cookie['name'] == AUTH_COOKIE_NAME:
             # Проверяем домен
             # Допускаем как точный домен, так и поддомен с точкой в начале
-            cookie_domain = cookie['domain']
+            cookie_domain: str = cookie['domain']
             # Приводим домен из куки к «нормальной» форме без начальной точки,
             # чтобы корректно сравнить его с требуемым доменом.
-            normalized_cookie_domain = cookie_domain.lstrip('.')
+            normalized_cookie_domain: str = cookie_domain.lstrip('.')
             if normalized_cookie_domain != required_domain:
                 raise ValueError(
                     f"Домен куки ({cookie_domain}) не соответствует требуемому: {required_domain}")

@@ -11,6 +11,7 @@
 import tkinter as tk
 from datetime import datetime
 from typing import Optional, Any
+from playwright.sync_api import Page, Locator
 
 
 class GUIHelper:
@@ -185,3 +186,78 @@ def format_datetime(timestamp: Any) -> str:
             return str(timestamp)
     except Exception:
         return 'Неизвестно'
+
+
+def find_element(page: Page, selector: str, timeout: int = 5000) -> Locator:
+    """
+    Находит элемент на странице по CSS-селектору с явным ожиданием.
+
+    Args:
+        page (Page): Экземпляр страницы Playwright.
+        selector (str): CSS-селектор для поиска элемента.
+        timeout (int): Максимальное время ожидания в миллисекундах (по умолчанию 5000).
+
+    Returns:
+        Locator: Найденный элемент.
+
+    Raises:
+        playwright.sync_api.TimeoutError: Если элемент не найден за отведённое время.
+
+    Example:
+        >>> find_element(page, '#submit')
+    """
+    return page.locator(selector).first.wait_for(state="visible", timeout=timeout)
+
+
+def click_element(page: Page, selector: str, timeout: int = 5000) -> None:
+    """
+    Кликает по элементу на странице с ожиданием его появления.
+
+    Args:
+        page (Page): Экземпляр страницы Playwright.
+        selector (str): CSS-селектор для поиска элемента.
+        timeout (int): Максимальное время ожидания в миллисекундах (по умолчанию 5000).
+
+    Returns:
+        None
+
+    Raises:
+        playwright.sync_api.TimeoutError: Если элемент не найден за отведённое время.
+    """
+    element = find_element(page, selector, timeout)
+    element.click()
+
+
+def get_element_text(page: Page, selector: str, timeout: int = 5000) -> str:
+    """
+    Получает текст элемента на странице.
+
+    Args:
+        page (Page): Экземпляр страницы Playwright.
+        selector (str): CSS-селектор для поиска элемента.
+        timeout (int): Максимальное время ожидания в миллисекундах (по умолчанию 5000).
+
+    Returns:
+        str: Текст найденного элемента.
+    """
+    element = find_element(page, selector, timeout)
+    return element.inner_text()
+
+
+def is_element_visible(page: Page, selector: str, timeout: int = 2000) -> bool:
+    """
+    Проверяет, виден ли элемент на странице.
+
+    Args:
+        page (Page): Экземпляр страницы Playwright.
+        selector (str): CSS-селектор для поиска элемента.
+        timeout (int): Максимальное время ожидания в миллисекундах (по умолчанию 2000).
+
+    Returns:
+        bool: True, если элемент видим, иначе False.
+    """
+    try:
+        find_element(page, selector, timeout)
+        return True
+    except Exception:
+        return False
