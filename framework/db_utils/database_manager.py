@@ -1,18 +1,19 @@
 """Менеджер базы данных SQLite.
 
-Обеспечивает работу с пользователями и сессиями.
+Обеспечивает работу с пользователями, ролями и куками для автоматизации тестирования.
 """
 import sqlite3
-from typing import Dict, Optional, Any
+from typing import Dict, Optional, Any, List
 from pathlib import Path
+from datetime import datetime
 # Используем единый конфигурационный модуль для пути к базе данных
 from config.db_settings import DEFAULT_DB_PATH
 
 class DatabaseManager:
     """
-    Класс для управления базой данных пользователей.
+    Класс для управления базой данных пользователей и их куками.
 
-    Позволяет создавать таблицы, добавлять пользователей, получать их данные и управлять сессией БД.
+    Позволяет создавать таблицы, добавлять пользователей, получать их данные, обновлять куки и фильтровать по ролям/подпискам.
     Использует SQLite для хранения информации о пользователях.
     """
 
@@ -40,51 +41,56 @@ class DatabaseManager:
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             login TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            password_hash TEXT NOT NULL,
-            role TEXT NOT NULL DEFAULT 'user',
-            subscription TEXT NOT NULL DEFAULT 'basic',
+            role TEXT NOT NULL,
+            subscription TEXT NOT NULL,
             cookie_file TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            last_login TIMESTAMP,
+            last_cookie_update TIMESTAMP,
             is_active BOOLEAN DEFAULT 1
         )
         """)
         self.conn.commit()
 
-    def add_user(self, login: str, password: str, role: str = "user", 
-                subscription: str = "basic") -> int:
+    def add_or_update_user(self, login: str, role: str, subscription: str, cookie_file: str = None) -> int:
         """
-        Добавляет нового пользователя в БД.
-        
+        Добавляет нового пользователя или обновляет существующего по логину.
+        Если пользователь уже есть — обновляет роль, подписку и путь к куке.
+
         Args:
-            login (str): Логин пользователя (email).
-            password (str): Пароль в открытом виде.
-            role (str): Роль пользователя (по умолчанию 'user').
-            subscription (str): Тип подписки (по умолчанию 'basic').
-        
+            login (str): Логин пользователя.
+            role (str): Роль пользователя.
+            subscription (str): Тип подписки.
+            cookie_file (str): Путь к cookie-файлу (опционально).
+
         Returns:
-            int: ID созданного пользователя.
-        
-        Raises:
-            sqlite3.IntegrityError: Если пользователь с таким логином уже существует.
-        
-        Example:
-            >>> db = DatabaseManager()
-            >>> user_id = db.add_user('test@example.com', 'password123')
+            int: ID пользователя.
         """
-        from .security import hash_password
-        hashed_pw: str = hash_password(password)
         cursor = self.conn.cursor()
-        cursor.execute(
-            """
-            INSERT INTO users (login, password, password_hash, role, subscription)
-            VALUES (?, ?, ?, ?, ?)
-            """,
-            (login, password, hashed_pw, role, subscription)
-        )
+        now = datetime.utcnow().isoformat()
+        cursor.execute("""
+            INSERT INTO users (login, role, subscription, cookie_file, last_cookie_update, is_active)
+            VALUES (?, ?, ?, ?, ?, 1)
+            ON CONFLICT(login) DO UPDATE SET
+                role=excluded.role,
+                subscription=excluded.subscription,
+                cookie_file=excluded.cookie_file,
+                last_cookie_update=excluded.last_cookie_update,
+                is_active=1
+        """, (login, role, subscription, cookie_file, now))
         self.conn.commit()
-        return cursor.lastrowid
+        cursor.execute("SELECT id FROM users WHERE login = ?", (login,))
+        row = cursor.fetchone()
+        return row[0] if row else -1
+
+    def update_cookie_file(self, login: str, cookie_file: str) -> None:
+        """
+        Обновляет путь к cookie-файлу и дату обновления для пользователя.
+        """
+        cursor = self.conn.cursor()
+        now = datetime.utcnow().isoformat()
+        cursor.execute("""
+            UPDATE users SET cookie_file = ?, last_cookie_update = ? WHERE login = ?
+        """, (cookie_file, now, login))
+        self.conn.commit()
 
     def get_user(self, login: str) -> Optional[Dict[str, Any]]:
         """
@@ -103,22 +109,67 @@ class DatabaseManager:
         """
         cursor = self.conn.cursor()
         cursor.execute("""
-            SELECT id, login, password, password_hash, role, subscription, cookie_file
-            FROM users 
-            WHERE login = ?
+            SELECT id, login, role, subscription, cookie_file, last_cookie_update, is_active
+            FROM users WHERE login = ?
         """, (login,))
         row = cursor.fetchone()
         if row:
             return {
                 "id": row[0],
                 "login": row[1],
-                "password": row[2],
-                "password_hash": row[3],
-                "role": row[4],
-                "subscription": row[5],
-                "cookie_file": row[6]
+                "role": row[2],
+                "subscription": row[3],
+                "cookie_file": row[4],
+                "last_cookie_update": row[5],
+                "is_active": bool(row[6])
             }
         return None
+
+    def get_users_by_role(self, role: str) -> List[Dict[str, Any]]:
+        """
+        Возвращает список пользователей по роли.
+        """
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT id, login, role, subscription, cookie_file, last_cookie_update, is_active
+            FROM users WHERE role = ? AND is_active = 1
+        """, (role,))
+        rows = cursor.fetchall()
+        return [
+            {
+                "id": row[0],
+                "login": row[1],
+                "role": row[2],
+                "subscription": row[3],
+                "cookie_file": row[4],
+                "last_cookie_update": row[5],
+                "is_active": bool(row[6])
+            }
+            for row in rows
+        ]
+
+    def get_users_by_subscription(self, subscription: str) -> List[Dict[str, Any]]:
+        """
+        Возвращает список пользователей по уровню подписки.
+        """
+        cursor = self.conn.cursor()
+        cursor.execute("""
+            SELECT id, login, role, subscription, cookie_file, last_cookie_update, is_active
+            FROM users WHERE subscription = ? AND is_active = 1
+        """, (subscription,))
+        rows = cursor.fetchall()
+        return [
+            {
+                "id": row[0],
+                "login": row[1],
+                "role": row[2],
+                "subscription": row[3],
+                "cookie_file": row[4],
+                "last_cookie_update": row[5],
+                "is_active": bool(row[6])
+            }
+            for row in rows
+        ]
 
     def close(self) -> None:
         """
