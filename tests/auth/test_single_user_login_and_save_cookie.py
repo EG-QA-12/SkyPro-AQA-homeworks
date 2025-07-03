@@ -19,6 +19,7 @@ from playwright.sync_api import Browser
 from pathlib import Path
 from framework.utils.auth_utils import save_cookie, get_cookie_path
 from framework.utils.url_utils import add_allow_session_param, is_headless
+from framework.utils.db_helpers import update_user_in_db
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '../../creds.env'))
 
@@ -59,6 +60,13 @@ def test_login_and_save_cookies(browser: Browser) -> None:
             # Сохраняем куку после успешной авторизации
             save_cookie(context, str(get_cookie_path(role)))
             print(f"[INFO] Кука для {role} сохранена в {get_cookie_path(role)}")
+            # Обновляем информацию о пользователе в БД
+            update_user_in_db(
+                login=username,
+                role=role,
+                subscription=os.getenv(f"{role.upper()}_SUBSCRIPTION", "basic"),
+                cookie_file=str(get_cookie_path(role))
+            )
         except Exception as e:
             screenshot_path = Path(f"auth_fail_{role}.png")
             page.screenshot(path=str(screenshot_path))
