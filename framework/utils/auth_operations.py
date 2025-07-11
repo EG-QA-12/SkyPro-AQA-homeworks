@@ -15,6 +15,7 @@ from playwright.sync_api import sync_playwright
 
 from src.config import config
 from src.auth import load_cookies, perform_login_on_page
+from framework.utils.url_utils import add_allow_session_param, is_headless
 
 
 class AuthOperations:
@@ -145,8 +146,8 @@ class AuthOperations:
                     page = context.new_page()
                     
                     # Переходим на целевую страницу
-                    self.gui_helper.add_result(f"🔗 Переход на: {config.TARGET_URL}")
-                    page.goto(config.TARGET_URL, timeout=30000)
+                    self.gui_helper.add_result(f"🔗 Переход на: {add_allow_session_param(config.TARGET_URL, is_headless())}")
+                    page.goto(add_allow_session_param(config.TARGET_URL, is_headless()), timeout=30000)
                     
                     try:
                         page.wait_for_load_state('domcontentloaded', timeout=3000)

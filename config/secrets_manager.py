@@ -21,6 +21,7 @@ from typing import Dict, Optional, Any, List
 from dataclasses import dataclass, field
 from enum import Enum
 import sqlite3
+from dotenv import load_dotenv
 # from dotenv import load_dotenv
 # Импорт DatabaseManager перенесен внутрь методов для избежания циклических импортов
 
@@ -142,9 +143,9 @@ class SecretsManager:
     
     def _load_environment_variables(self) -> None:
         """Загрузка переменных окружения из .env файлов по приоритету."""
-        if True: # Temporarily disabled dotenv
-            self.logger.warning("Модуль dotenv недоступен. Используются только системные переменные.")
-            return
+        # Загружаем переменные из creds.env (гарантированно для тестов)
+        load_dotenv("D:/Bll_tests/secrets/creds.env", override=True)
+        # Можно добавить другие .env, если нужно
         
         # Порядок приоритета .env файлов (от высшего к низшему)
         env_files = [

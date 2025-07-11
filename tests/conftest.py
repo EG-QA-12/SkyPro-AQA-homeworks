@@ -22,6 +22,9 @@ from dotenv import load_dotenv
 project_root = Path(__file__).resolve().parent.parent
 load_dotenv(project_root / "secrets" / ".env", override=False)
 load_dotenv(project_root / "secrets" / "creds.env", override=True)
+load_dotenv(dotenv_path='D:/Bll_tests/secrets/creds.env')
+print('AUTH_USERNAME:', os.getenv('AUTH_USERNAME'))
+print('AUTH_PASSWORD:', os.getenv('AUTH_PASSWORD'))
 
 
 

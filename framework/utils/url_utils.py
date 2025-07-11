@@ -10,19 +10,55 @@ PARAM_NAME = "allow-session"
 PARAM_VALUE = "1"
 
 
-def ensure_allow_session_param(url: str) -> str:
-    """Return *url* with ``allow-session=1`` query parameter present.
+def is_headless() -> bool:
+    """Определяет, запущен ли тест в headless-режиме.
 
-    The order of query parameters is preserved (new param appended).  If the
-    parameter already present we keep the original url unchanged.
+    Возвращает True, если тесты запущены в headless-режиме. Проверяет переменную окружения HEADLESS
+    или другие параметры запуска (можно доработать под нужды проекта).
+
+    Returns:
+        bool: True, если headless, иначе False.
     """
+    import os
+    value = os.getenv("HEADLESS", "false").lower()
+    return value in ("1", "true", "yes")
+
+
+def add_allow_session_param(url: str, headless: bool = True) -> str:
+    """
+    Добавляет параметр allow-session=2 к URL, если headless=True.
+    Если параметр уже есть, URL не меняется.
+
+    Args:
+        url (str): Исходный URL.
+        headless (bool): Флаг headless-режима.
+
+    Returns:
+        str: Модифицированный URL.
+
+    Пример:
+        >>> add_allow_session_param('https://site/page', True)
+        'https://site/page?allow-session=2'
+        >>> add_allow_session_param('https://site/page?foo=bar', True)
+        'https://site/page?foo=bar&allow-session=2'
+        >>> add_allow_session_param('https://site/page', False)
+        'https://site/page'
+    """
+    if not headless:
+        return url
+    from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
     parsed = urlparse(url)
     query_params = parse_qsl(parsed.query, keep_blank_values=True)
     if any(k == PARAM_NAME for k, _ in query_params):
         return url  # already present
-    query_params.append((PARAM_NAME, PARAM_VALUE))
+    query_params.append((PARAM_NAME, "2"))
     new_query = urlencode(query_params)
     return urlunparse(parsed._replace(query=new_query))
+
+
+def ensure_allow_session_param(url: str) -> str:
+    """[Устарело] Используйте add_allow_session_param. Оставлено для обратной совместимости."""
+    return add_allow_session_param(url, headless=True)
 
 
 def build_url(base_url: str, path: str) -> str:

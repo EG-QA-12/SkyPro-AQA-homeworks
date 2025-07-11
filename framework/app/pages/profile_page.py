@@ -8,6 +8,7 @@ import logging
 from typing import Optional
 
 from playwright.sync_api import Page, Locator, TimeoutError as PlaywrightTimeoutError
+from framework.utils.url_utils import add_allow_session_param, is_headless
 
 logger = logging.getLogger(__name__)
 
@@ -149,7 +150,7 @@ class ProfilePage:
             profile_url = f"{base_url}/user/profile"
             logger.info(f"Переход на страницу профиля: {profile_url}")
             
-            self.page.goto(profile_url, wait_until="domcontentloaded", timeout=15000)
+            self.page.goto(add_allow_session_param(profile_url, is_headless()), wait_until="domcontentloaded", timeout=15000)
             
             # Проверяем, что переход выполнен успешно
             if self.wait_for_profile_page_load():

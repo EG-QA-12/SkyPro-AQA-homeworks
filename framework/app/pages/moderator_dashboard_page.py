@@ -8,6 +8,7 @@ import logging
 from typing import Optional, List
 
 from playwright.sync_api import Page, Locator, TimeoutError as PlaywrightTimeoutError
+from framework.utils.url_utils import add_allow_session_param, is_headless
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +87,7 @@ class ModeratorDashboardPage:
             dashboard_url = f"{base_url}{possible_paths[0]}"
             logger.info(f"Переход на панель модератора: {dashboard_url}")
             
-            self.page.goto(dashboard_url, wait_until="domcontentloaded", timeout=15000)
+            self.page.goto(add_allow_session_param(dashboard_url, is_headless()), wait_until="domcontentloaded", timeout=15000)
             
             # Проверяем, что переход выполнен успешно
             if self.wait_for_dashboard_load():

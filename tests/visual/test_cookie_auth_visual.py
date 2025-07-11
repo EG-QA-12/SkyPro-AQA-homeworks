@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 import time
+from framework.utils.url_utils import add_allow_session_param, is_headless
 
 # Добавляем корень проекта в PYTHONPATH
 project_root = Path(__file__).parent.parent.parent
@@ -65,7 +66,7 @@ def visual_cookie_auth_demo(user_login: str = None):
             page_no_auth = context_no_auth.new_page()
             
             print(f"   🔗 Переходим на: {config.TARGET_URL}")
-            page_no_auth.goto(config.TARGET_URL)
+            page_no_auth.goto(add_allow_session_param(config.TARGET_URL, is_headless()))
             
             print(f"   ⏱️ Пауза 3 секунды для просмотра...")
             time.sleep(3)
@@ -98,7 +99,7 @@ def visual_cookie_auth_demo(user_login: str = None):
             page_with_auth = context_with_auth.new_page()
             
             print(f"   🔗 Переходим на: {config.TARGET_URL}")
-            page_with_auth.goto(config.TARGET_URL)
+            page_with_auth.goto(add_allow_session_param(config.TARGET_URL, is_headless()))
             
             print(f"   ⏱️ Пауза 5 секунд для просмотра результата...")
             time.sleep(5)
