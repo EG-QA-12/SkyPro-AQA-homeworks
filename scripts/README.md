@@ -7,6 +7,7 @@
 ## Структура
 
 - **projects/auth_management/scripts/parallel_auth_optimized.py** — оптимизированная параллельная авторизация (ThreadPool + прогресс-бар)
+- **scripts/maintenance/login_with_cookies.py** — авторизация на любом *.bll.by с использованием сохранённых куков
 - **setup_secrets.py** — инициализация секретов и переменных окружения
 - **setup_paths.py** — настройка путей для окружения
 - **demo_secure_usage.py** — пример безопасной работы с секретами
@@ -24,6 +25,9 @@ python scripts/setup_secrets.py
 
 # Cookie-тестирование
 python scripts/maintenance/playwright_cookie_tester.py
+
+# Авторизация с куками
+python scripts/maintenance/login_with_cookies.py --role expert --url https://expert.bll.by/ --headed
 ```
 
 ## Рекомендации
