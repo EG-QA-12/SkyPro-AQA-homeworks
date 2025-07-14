@@ -24,7 +24,7 @@ from typing import List, Dict, Any, Optional
 import logging
 
 from .cookie_constants import COOKIE_NAME, LOGIN_URL
-from playwright.sync_api import BrowserContext
+from playwright.sync_api import BrowserContext, Page
 # Импорт SecretsManager перенесен внутрь функций для избежания циклических импортов
 
 logger = logging.getLogger(__name__)
@@ -232,3 +232,58 @@ def get_auth_credentials() -> Dict[str, str]:
     username: str = get_secret("username")
     password: str = get_secret("password")
     return {"username": username, "password": password}
+
+
+def get_random_user_cookie(context: BrowserContext) -> List[Dict[str, Any]]:
+    """
+    Возвращает cookies случайного пользователя в формате для добавления в контекст.
+    
+    Выбирает случайного пользователя из test_users.csv, загружает его cookies
+    (или симулирует, если не найдены).
+    
+    Args:
+        context: Не используется напрямую, но для совместимости
+        
+    Returns:
+        List[Dict[str, Any]]: Список cookies для добавления
+    """
+    import random
+    users = ['admin', 'user', 'moderator']  # Или читайте из файла
+    username = random.choice(users)
+    cookie_path = get_cookie_path(username)
+    if cookie_path.exists():
+        with open(cookie_path, 'r') as f:
+            return json.load(f)
+    else:
+        logger.warning(f"Cookies для {username} не найдены, возвращаем пустой список")
+        return []
+
+def is_guest(page: Page) -> bool:
+    """
+    Проверяет, является ли пользователь гостем (видна кнопка 'Войти').
+    
+    Args:
+        page: Страница Playwright
+        
+    Returns:
+        bool: True если гость
+    """
+    locator = page.locator('a[href*="/login"][class*="top-nav__ent"]')
+    return locator.is_visible(timeout=5000)
+
+def is_authorized(page: Page) -> bool:
+    """
+    Проверяет, авторизован ли пользователь (виден 'Мой профиль' или альтернативы).
+    
+    Args:
+        page: Страница Playwright
+        
+    Returns:
+        bool: True если авторизован
+    """
+    profile_locator = page.locator('a#myProfile_id[class*="top-nav__profile"]')
+    nick_locator = page.locator('div.user-in__nick')
+    profile_link_locator = page.locator('a[href*="/user/profile"][class*="profile-menu__link-1"]')
+    return (profile_locator.is_visible(timeout=5000) or
+            nick_locator.is_visible(timeout=5000) or
+            profile_link_locator.is_visible(timeout=5000))

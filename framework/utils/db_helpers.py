@@ -35,6 +35,5 @@ def update_user_in_db(
             login=login,
             role=role,
             subscription=subscription,
-            cookie_file=cookie_file,
-            last_cookie_update=last_cookie_update
-        ) 
+            cookie_file=cookie_file
+        )
