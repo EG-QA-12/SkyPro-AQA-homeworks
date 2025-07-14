@@ -27,8 +27,22 @@ python scripts/setup_secrets.py
 python scripts/maintenance/playwright_cookie_tester.py
 
 # Авторизация с куками
-python scripts/maintenance/login_with_cookies.py --role expert --url https://expert.bll.by/ --headed
+python scripts/maintenance/login_with_cookies.py --role expert --url https://expert.bll.by/
 ```
+
+## Миграция и проверка единой БД пользователей
+
+После перехода на единую БД (`secrets/users.db`) выполните одноразовую миграцию:
+
+```bash
+# dry-run: покажет, что будет перенесено
+python scripts/maintenance/migrate_users_db.py
+
+# фактическая миграция
+python scripts/maintenance/migrate_users_db.py --apply
+```
+
+Скрипт перенесёт записи из старых файлов (`data/users.db`, `projects/user_data/users.db`) и подскажет, какие файлы можно удалить вручную.
 
 ## Рекомендации
 - Все скрипты снабжены docstrings и поддерживают --help
