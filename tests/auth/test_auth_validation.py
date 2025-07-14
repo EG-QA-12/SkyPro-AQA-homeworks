@@ -12,10 +12,9 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from playwright.sync_api import sync_playwright, Page, BrowserContext
-from src.auth import perform_login_on_page, get_credentials
-from src.config import config
-from pages.profile_page import ProfilePage
-from pages.login_page import LoginPage
+from framework.app.pages.profile_page import ProfilePage
+from framework.app.pages.login_page import LoginPage
+from config.secrets_manager import SecretsManager
 
 logger = logging.getLogger(__name__)
 
@@ -25,13 +24,12 @@ class TestAuthValidation:
     
     @pytest.fixture
     def browser_context(self):
-        """Фикстура для создания браузерного контекста."""
+        """Создает и предоставляет браузерный контекст для тестов."""
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=config.HEADLESS)
-            context = browser.new_context(
-                viewport={'width': 1920, 'height': 1080},
-                ignore_https_errors=True
-            )
+            # Убираем жестко заданный headless, чтобы Playwright мог управляться
+            # флагами командной строки (--headed), которые передает наш скрипт.
+            browser = p.chromium.launch()
+            context = browser.new_context()
             yield context
             context.close()
             browser.close()
@@ -86,11 +84,7 @@ class TestAuthValidation:
         logger.info("✅ Метод navigate_to_profile протестирован")
     
     def test_get_user_nickname_method(self, page: Page):
-        """
-        Тест метода get_user_nickname.
-        
-        Проверяет обработку различных сценариев получения никнейма.
-        """
+        """Проверяет получение никнейма со страницы профиля."""
         logger.info("🧪 Тест метода get_user_nickname")
         
         profile_page = ProfilePage(page)
@@ -166,108 +160,68 @@ class TestAuthValidation:
     
     def test_perform_login_with_verification_success(self, page: Page):
         """
-        Тест выполнения авторизации с успешной проверкой.
-        
-        Проверяет, что функция perform_login_on_page корректно
-        выполняет проверку авторизации.
+        Проверяет успешный логин с последующей верификацией на странице профиля.
+        Тест-кейс:
+        1. Открыть страницу логина.
+        2. Ввести валидные учетные данные.
+        3. Нажать кнопку "Войти".
+        4. Проверить, что произошел переход на страницу профиля.
+        5. Проверить, что имя пользователя на странице соответствует ожидаемому.
         """
-        logger.info("🧪 Тест авторизации с успешной проверкой")
-        
-        # Мокаем все внешние зависимости
-        with patch('src.auth.ProfilePage') as mock_profile_class:
-            mock_profile = Mock()
-            mock_profile.navigate_to_profile.return_value = True
-            mock_profile.is_user_logged_in.return_value = True
-            mock_profile_class.return_value = mock_profile
-            
-            # Мокаем страницу и её методы
-            mock_page = Mock()
-            mock_page.url = "https://ca.bll.by/"
-            mock_page.goto.return_value = None
-            mock_page.click.return_value = None
-            mock_page.fill.return_value = None
-            mock_page.expect_navigation.return_value.__enter__ = Mock()
-            mock_page.expect_navigation.return_value.__exit__ = Mock()
-            
-            try:
-                # Вызываем функцию с проверкой
-                perform_login_on_page(
-                    mock_page, 
-                    "testuser", 
-                    "testpass",
-                    verify_login=True
-                )
-                
-                # Проверяем, что методы проверки были вызваны
-                mock_profile.navigate_to_profile.assert_called_once()
-                mock_profile.is_user_logged_in.assert_called_once_with("testuser")
-                
-            except Exception as e:
-                # В тестовой среде могут возникнуть ошибки из-за отсутствия реального браузера
-                # Проверяем, что это не ошибка нашей логики
-                if "ProfilePage" not in str(e):
-                    raise
-        
-        logger.info("✅ Авторизация с проверкой протестирована")
-    
-    def test_perform_login_without_verification(self, page: Page):
-        """
-        Тест выполнения авторизации без проверки.
-        
-        Проверяет, что функция perform_login_on_page корректно работает
-        с отключенной проверкой авторизации.
-        """
-        logger.info("🧪 Тест авторизации без проверки")
-        
-        # Мокаем страницу и её методы
-        mock_page = Mock()
-        mock_page.url = "https://ca.bll.by/"
-        mock_page.goto.return_value = None
-        mock_page.click.return_value = None
-        mock_page.fill.return_value = None
-        mock_page.expect_navigation.return_value.__enter__ = Mock()
-        mock_page.expect_navigation.return_value.__exit__ = Mock()
-        
-        try:
-            # Вызываем функцию без проверки
-            perform_login_on_page(
-                mock_page, 
-                "testuser", 
-                "testpass",
-                verify_login=False
-            )
-            
-            # Если дошли до этой точки, значит функция отработала
-            # без вызова ProfilePage (так как verify_login=False)
-            
-        except Exception as e:
-            # В тестовой среде могут возникнуть ошибки из-за отсутствия реального браузера
-            # Проверяем, что это не ошибка нашей логики проверки
-            if "ProfilePage" in str(e) or "авторизация не подтверждена" in str(e).lower():
-                pytest.fail("Проверка авторизации не должна вызываться при verify_login=False")
-        
-        logger.info("✅ Авторизация без проверки протестирована")
-    
-    def test_login_page_integration_with_profile_validation(self, page: Page):
-        """
-        Интеграционный тест совместной работы LoginPage и ProfilePage.
-        
-        Проверяет, что оба Page Object работают вместе корректно.
-        """
-        logger.info("🧪 Интеграционный тест LoginPage + ProfilePage")
+        secrets_manager = SecretsManager()
+        creds = secrets_manager.get_auth_credentials()
         
         login_page = LoginPage(page)
         profile_page = ProfilePage(page)
+
+        # Выполняем логин через метод страницы
+        login_page.login(creds.username, creds.password)
+
+        # Проверяем, что мы авторизованы
+        is_logged_in = profile_page.is_user_logged_in(creds.username)
         
-        # Проверяем, что оба объекта созданы
-        assert login_page is not None
-        assert profile_page is not None
+        assert is_logged_in is True, f"Пользователь '{creds.username}' должен быть авторизован."
+
+    def test_perform_login_without_verification(self, page: Page):
+        """
+        Проверяет базовый функционал логина без верификации на странице профиля.
+        Тест-кейс:
+        1. Открыть страницу логина.
+        2. Ввести валидные учетные данные.
+        3. Нажать кнопку "Войти".
+        4. Проверить, что URL изменился и не содержит 'login', что указывает на успешный редирект.
+        """
+        secrets_manager = SecretsManager()
+        creds = secrets_manager.get_auth_credentials()
+        login_page = LoginPage(page)
+
+        # Выполняем логин
+        login_page.login(creds.username, creds.password)
+
+        # Простая проверка, что мы ушли со страницы логина
+        page.wait_for_url(lambda url: "login" not in url, timeout=5000)
+        assert "login" not in page.url, "После успешного логина URL не должен содержать 'login'."
+
+    def test_login_page_integration_with_profile_validation(self, page: Page):
+        """
+        Интеграционный тест: логин и проверка имени на странице профиля.
+        """
+        secrets_manager = SecretsManager()
+        admin_creds = secrets_manager.get_auth_credentials()
         
-        # Проверяем, что у них один и тот же page
-        assert login_page.page == profile_page.page == page
+        login_page = LoginPage(page)
+        login_page.navigate()
+        login_page.login(admin_creds.username, admin_creds.password)
         
-        logger.info("✅ Интеграция LoginPage и ProfilePage работает корректно")
-    
+        profile_page = ProfilePage(page)
+        
+        # Явное ожидание загрузки элемента с никнеймом
+        profile_page.nickname_element.wait_for(state='visible', timeout=10000)
+        
+        user_nickname = profile_page.get_user_nickname()
+        assert user_nickname == admin_creds.username, \
+            f"Ожидаемый никнейм '{admin_creds.username}', но получен '{user_nickname}'"
+
     @pytest.mark.parametrize("username,expected_result", [
         ("EvgenQA", True),
         ("EvgenQA ", True),  # С пробелом

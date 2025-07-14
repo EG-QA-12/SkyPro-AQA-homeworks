@@ -14,9 +14,9 @@ from framework.utils.url_utils import add_allow_session_param, is_headless
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.config import config
-from src.auth import load_cookies
-from src.logger import setup_logger
+from config.secrets_manager import SecretsManager
+from framework.utils.auth_utils import load_cookie
+from projects.auth_management.logger import setup_logger
 
 logger = setup_logger(__name__)
 
@@ -58,7 +58,7 @@ def visual_cookie_auth_demo(user_login: str = None):
                 args=['--start-maximized']
             )
             
-            print(f"\\n📺 ДЕМОНСТРАЦИЯ 1: Доступ БЕЗ кук")
+            print(f"\n📺 ДЕМОНСТРАЦИЯ 1: Доступ БЕЗ кук")
             print("   Откроется браузер и покажет, что без кук происходит редирект на логин")
             
             # Создаем контекст без кук
@@ -81,11 +81,11 @@ def visual_cookie_auth_demo(user_login: str = None):
             
             context_no_auth.close()
             
-            print(f"\\n📺 ДЕМОНСТРАЦИЯ 2: Доступ С куками пользователя {user_login}")
+            print(f"\n📺 ДЕМОНСТРАЦИЯ 2: Доступ С куками пользователя {user_login}")
             print("   Сейчас загрузим куки и покажем успешную авторизацию")
             
             # Загружаем куки
-            cookies = load_cookies(cookies_file)
+            cookies = load_cookie(cookies_file)
             if not cookies:
                 print(f"   ❌ Не удалось загрузить куки")
                 browser.close()
@@ -130,11 +130,11 @@ def visual_cookie_auth_demo(user_login: str = None):
             else:
                 print("   ❌ Ошибка: не удалось авторизоваться через куки")
             
-            print(f"\\n⏱️ Пауза 10 секунд для изучения страницы...")
+            print(f"\n⏱️ Пауза 10 секунд для изучения страницы...")
             print("   💡 Вы можете взаимодействовать со страницей в браузере")
             time.sleep(10)
             
-            print(f"\\n📊 ИНФОРМАЦИЯ О КУКАХ:")
+            print(f"\n📊 ИНФОРМАЦИЯ О КУКАХ:")
             
             # Анализируем куки
             from datetime import datetime
@@ -165,7 +165,7 @@ def visual_cookie_auth_demo(user_login: str = None):
             context_with_auth.close()
             browser.close()
             
-            print(f"\\n🎉 Визуальная демонстрация завершена!")
+            print(f"\n🎉 Визуальная демонстрация завершена!")
             print(f"   Результат: Авторизация через куки работает корректно")
             
             return True
@@ -198,15 +198,15 @@ def main():
     demo_user = available_users[0]
     print(f"🎯 Демонстрация с пользователем: {demo_user}")
     
-    input("\\n👆 Нажмите Enter для начала демонстрации...")
+    input("\n👆 Нажмите Enter для начала демонстрации...")
     
     success = visual_cookie_auth_demo(demo_user)
     
     if success:
-        print(f"\\n🎉 Демонстрация завершена успешно!")
+        print(f"\n🎉 Демонстрация завершена успешно!")
         print("✅ Авторизация через подставление кук работает корректно")
     else:
-        print(f"\\n❌ Во время демонстрации возникли проблемы")
+        print(f"\n❌ Во время демонстрации возникли проблемы")
     
     return success
 

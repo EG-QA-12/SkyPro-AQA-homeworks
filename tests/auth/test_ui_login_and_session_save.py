@@ -20,9 +20,8 @@ import os
 import time
 from config.secrets_manager import SecretsManager
 
-# Импортируем утилиты из корневой директории
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from utils.cookie_constants import COOKIE_NAME, joint_cookie
+# Импортируем утилиты из фреймворка
+from framework.utils.cookie_constants import COOKIE_NAME, joint_cookie
 from framework.utils.reporting.allure_utils import ui_test
 from framework.utils.auth_utils import save_cookie, load_cookie
 

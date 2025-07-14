@@ -2,41 +2,59 @@ import logging
 import os
 import sys
 from logging.handlers import TimedRotatingFileHandler
+from pathlib import Path
 
-# Add project root to sys.path for absolute imports
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from src.config import config as Config
+def setup_logger(name: str) -> logging.Logger:
+    """
+    Настраивает и возвращает логгер с ротацией файлов.
 
-
-def setup_logger(name):
-    """Настраивает и возвращает логгер."""
-    log_file = Config.LOG_FILE
-    log_level = Config.LOG_LEVEL
-    log_dir = Config.LOG_DIR
+    Конфигурация логгера теперь определяется переменными окружения
+    с разумными значениями по умолчанию, что делает модуль независимым.
+    """
+    # Определяем корневую директорию проекта для корректного сохранения логов
+    project_root = Path(__file__).parent.parent.parent
     
-    # Создаём директорию логов если её нет
-    if log_dir:
-        os.makedirs(log_dir, exist_ok=True)
+    # Получаем конфигурацию из переменных окружения или используем defaults
+    log_dir_str = os.getenv("LOG_DIR", "logs")
+    log_file_name = os.getenv("LOG_FILE", f"{name.replace('__', '')}.log")
+    log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+
+    # Создаем директорию для логов
+    log_dir = project_root / log_dir_str
+    log_dir.mkdir(exist_ok=True)
     
-    # Также создаём директорию для файла логов если она отличается
-    log_file_dir = os.path.dirname(log_file)
-    if log_file_dir and log_file_dir != str(log_dir):
-        os.makedirs(log_file_dir, exist_ok=True)
+    log_file_path = log_dir / log_file_name
+
+    # Настраиваем логгер
     logger = logging.getLogger(name)
-    logger.setLevel(log_level.upper())
+    logger.setLevel(log_level)
+
+    # Очищаем существующие обработчики, чтобы избежать дублирования
     if logger.hasHandlers():
         logger.handlers.clear()
-    ch = logging.StreamHandler()
-    ch.setLevel(log_level.upper())
-    fh = TimedRotatingFileHandler(log_file, when="midnight", backupCount=7, encoding='utf-8')
-    fh.setLevel(log_level.upper())
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    fh.setFormatter(formatter)
-    logger.addHandler(ch)
-    logger.addHandler(fh)
+
+    # Форматтер для сообщений
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+    # Обработчик для вывода в консоль
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setLevel(log_level)
+    stream_handler.setFormatter(formatter)
+    
+    # Обработчик для записи в файл с ротацией
+    file_handler = TimedRotatingFileHandler(
+        log_file_path, when="midnight", backupCount=7, encoding='utf-8'
+    )
+    file_handler.setLevel(log_level)
+    file_handler.setFormatter(formatter)
+    
+    # Добавляем обработчики к логгеру
+    logger.addHandler(stream_handler)
+    logger.addHandler(file_handler)
+    
     return logger
 
-
-# Создаем и экспортируем экземпляр логгера
+# Создаем и экспортируем экземпляр логгера для использования в других модулях
 logger = setup_logger(__name__)

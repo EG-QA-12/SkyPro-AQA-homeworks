@@ -13,8 +13,9 @@ from pathlib import Path
 from typing import Dict, Any, Callable, Optional
 from playwright.sync_api import sync_playwright
 
-from src.config import config
-from src.auth import load_cookies, perform_login_on_page
+from framework.utils.cookie_constants import LOGIN_URL
+from framework.utils.auth_utils import get_cookie_path
+from framework.app.pages.login_page import LoginPage # Предполагаем, что логика переехала сюда
 from framework.utils.url_utils import add_allow_session_param, is_headless
 
 
@@ -52,8 +53,8 @@ class AuthOperations:
                 user_login = user.get('login') or user.get('username', 'неизвестный')
                 self.gui_helper.add_result(f"Начинается авторизация пользователя {user_login}")
                 
-                # Формируем путь для сохранения куков
-                cookies_path = config.COOKIES_PATH.parent / f"{user.get('login')}_cookies.json"
+                # Формируем путь для сохранения куков, используя новую утилиту
+                cookies_path = get_cookie_path(user_login)
                 
                 # Проверяем корректность логина
                 if not user_login or user_login == 'None' or user_login.strip() == '':
@@ -75,13 +76,9 @@ class AuthOperations:
                     self.gui_helper.add_result(f"📝 Авторизация: логин='{user_login}', пароль={'*' * len(password_to_use)}")
                     self.gui_helper.add_result(f"💾 Куки будут сохранены в: {cookies_path}")
                     
-                    # Используем точно такой же вызов, как в рабочем коде
-                    perform_login_on_page(
-                        page=page,
-                        login=user_login,
-                        password=password_to_use,
-                        cookies_path=cookies_path
-                    )
+                    # Используем метод из LoginPage для выполнения логина
+                    login_page = LoginPage(page)
+                    login_page.login(user_login, password_to_use, cookies_path)
                     
                     # Получаем куки ДО закрытия браузера (КРИТИЧНО!)
                     cookies = context.cookies()
@@ -133,21 +130,18 @@ class AuthOperations:
                     browser = p.chromium.launch(headless=headless)
                     context = browser.new_context()
                     
-                    # Загружаем куки
-                    cookies_path = config.COOKIES_PATH.parent / f"{user_login}_cookies.json"
-                    cookies = load_cookies(cookies_path)
-                    
-                    if cookies:
-                        context.add_cookies(cookies)
-                        self.gui_helper.add_result(f"🍪 Загружены куки ({len(cookies)} шт.)")
-                    else:
-                        self.gui_helper.add_result("⚠️ Куки не найдены", "WARNING")
+                    # Загружаем куки через новую утилиту
+                    from framework.utils.auth_utils import load_cookie
+                    cookies_path = get_cookie_path(user_login)
+                    load_cookie(context, str(cookies_path))
+                    self.gui_helper.add_result(f"🍪 Загружены куки из {cookies_path}")
                     
                     page = context.new_page()
                     
                     # Переходим на целевую страницу
-                    self.gui_helper.add_result(f"🔗 Переход на: {add_allow_session_param(config.TARGET_URL, is_headless())}")
-                    page.goto(add_allow_session_param(config.TARGET_URL, is_headless()), timeout=30000)
+                    target_url = add_allow_session_param(LOGIN_URL, is_headless())
+                    self.gui_helper.add_result(f"🔗 Переход на: {target_url}")
+                    page.goto(target_url, timeout=30000)
                     
                     try:
                         page.wait_for_load_state('domcontentloaded', timeout=3000)
@@ -170,7 +164,7 @@ class AuthOperations:
                     # Общая оценка авторизации
                     is_authorized = (
                         auth_success or
-                        config.TARGET_URL in current_url or
+                        LOGIN_URL in current_url or
                         "login" not in current_url.lower() or
                         len(indicators_found) > 0
                     )

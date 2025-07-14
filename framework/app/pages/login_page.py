@@ -17,61 +17,64 @@ Classes:
 import logging
 from typing import Optional
 from playwright.sync_api import Page, Locator
+from framework.app.pages.base_page import BasePage
+from framework.utils.cookie_constants import LOGIN_URL
 
 logger = logging.getLogger(__name__)
 
-class LoginPage:
+class LoginPage(BasePage):
     """
-    Page Object Model для страницы логина.
-    
-    Инкапсулирует все элементы и действия на странице входа,
-    делая тесты более читаемыми и поддерживаемыми.
-    
-    Args:
-        page (Page): Экземпляр страницы Playwright для взаимодействия с браузером
-    
-    Attributes:
-        page (Page): Главный объект страницы
-        login_link (Locator): Ссылка "Войти" в навигации
-        username_input (Locator): Поле ввода логина
-        password_input (Locator): Поле ввода пароля
-        submit_button (Locator): Кнопка отправки формы
+    Класс, представляющий страницу логина.
+    Содержит локаторы и методы для взаимодействия с элементами на странице.
     """
-    page: Page
-    login_link: Locator
-    username_input: Locator
-    password_input: Locator
-    submit_button: Locator
-
-    def __init__(self, page: Page) -> None:
-        """
-        Инициализация Page Object.
+    # URL страницы логина вынесен в константы для легкого доступа
+    URL = LOGIN_URL
+    
+    # --- Локаторы ---
+    # Использование словарей для локаторов позволяет легко их расширять
+    # и делает код более читаемым. Мы используем CSS-селекторы.
+    
+    LOCATORS = {
+        # Используем более надежные селекторы по 'name' атрибуту, 
+        # так как 'id' может меняться.
+        "username_input": "input[name='login']",
+        "password_input": "input[name='password']",
         
-        Здесь мы определяем все локаторы для элементов страницы.
-        Локаторы - это способ найти элемент на странице (по ID, классу, тексту и т.д.)
+        # Локатор для кнопки входа
+        "submit_button": "button[type='submit']",
+        
+        # Локатор для сообщения об ошибке
+        "error_message": "div.form-error" 
+    }
+
+    def __init__(self, page):
+        """
+        Инициализация LoginPage.
         
         Args:
-            page (Page): Объект страницы Playwright
+            page: Экземпляр страницы Playwright.
         """
-        self.page = page
-        self.login_link = self.page.locator("a.top-nav__ent")
-        self.username_input = self.page.locator("#login")
-        self.password_input = self.page.locator("#password")
-        self.submit_button = self.page.locator("input[type='submit'][value='Войти']")
-
-    def navigate_to_login(self) -> None:
-        """
-        Переходит к форме логина, кликнув по ссылке "Войти".
+        super().__init__(page)
         
-        Returns:
-            None
-        """
-        logger.debug("Переход к форме логина")
-        self.login_link.wait_for(state="visible", timeout=5000)
-        self.login_link.click()
-        logger.debug("Клик по ссылке 'Войти' выполнен")
+        # --- Элементы страницы ---
+        # Мы инициализируем локаторы как свойства класса для удобного доступа.
+        # Это позволяет избежать повторного поиска элементов в каждом методе.
+        self.username_input = self.page.locator(self.LOCATORS["username_input"])
+        self.password_input = self.page.locator(self.LOCATORS["password_input"])
+        self.submit_button = self.page.locator(self.LOCATORS["submit_button"])
+        self.error_message = self.page.locator(self.LOCATORS["error_message"])
 
-    def fill_username(self, username: str) -> None:
+    def navigate(self):
+        """
+        Переходит на страницу логина.
+        
+        Этот метод инкапсулирует логику перехода на URL страницы,
+        что делает тесты чище и проще в поддержке.
+        """
+        self.logger.info(f"Переход на страницу логина: {self.URL}")
+        self.page.goto(self.URL)
+
+    def fill_username(self, username: str):
         """
         Заполняет поле 'Логин'.
         
@@ -81,12 +84,11 @@ class LoginPage:
         Returns:
             None
         """
-        logger.debug(f"Заполняем поле логина: {username}")
-        self.username_input.wait_for(state="visible", timeout=5000)
+        self.logger.info(f"Ввод имени пользователя: '{username}'")
+        self.username_input.wait_for(state="visible", timeout=10000)
         self.username_input.fill(username)
-        logger.debug("Поле логина заполнено")
 
-    def fill_password(self, password: str) -> None:
+    def fill_password(self, password: str):
         """
         Заполняет поле 'Пароль'.
         
@@ -99,24 +101,22 @@ class LoginPage:
         Returns:
             None
         """
-        logger.debug(f"Заполняем поле пароля: {'*' * len(password)} символов")
-        self.password_input.wait_for(state="visible", timeout=5000)
+        self.logger.info("Ввод пароля (скрыт)")
+        self.password_input.wait_for(state="visible", timeout=10000)
         self.password_input.fill(password)
-        logger.debug("Поле пароля заполнено")
 
-    def click_submit(self) -> None:
+    def click_submit_button(self):
         """
         Нажимает кнопку 'Войти' для отправки формы.
         
         Returns:
             None
         """
-        logger.debug("Нажимаем кнопку 'Войти'")
-        self.submit_button.wait_for(state="visible", timeout=5000)
+        self.logger.info("Нажатие на кнопку 'Войти'")
+        self.submit_button.wait_for(state="enabled", timeout=10000)
         self.submit_button.click()
-        logger.debug("Кнопка 'Войти' нажата, форма отправлена")
 
-    def login(self, username: str, password: str) -> None:
+    def login(self, username: str, password: str, cookies_path: str = None):
         """
         Выполняет полный процесс логина.
         
@@ -132,39 +132,27 @@ class LoginPage:
         Returns:
             None
         """
-        logger.info(f"Начинаем процесс входа для пользователя: {username}")
+        self.logger.info(f"Выполнение полного цикла логина для пользователя '{username}'")
         self.fill_username(username)
         self.fill_password(password)
-        self.click_submit()
-        logger.info(f"Процесс входа для пользователя {username} завершен")
-
-    def is_login_form_visible(self) -> bool:
-        """
-        Проверяет, видна ли форма логина на странице.
+        self.click_submit_button()
         
-        Returns:
-            bool: True, если форма логина видна, False - если нет
-        """
-        try:
-            self.username_input.wait_for(state="visible", timeout=3000)
-            return True
-        except Exception as e:
-            logger.debug(f"Форма логина не найдена: {e}")
-            return False
-
-    def get_validation_error(self) -> Optional[str]:
+        # После успешного входа, ожидаем перехода на другую страницу.
+        # Это делает тест более надежным, так как мы дожидаемся завершения
+        # асинхронной операции (редиректа).
+        self.page.wait_for_navigation(timeout=15000)
+        
+        if cookies_path:
+            self.save_cookies(cookies_path)
+            self.logger.info(f"Куки для пользователя '{username}' сохранены в {cookies_path}")
+            
+    def get_error_message(self) -> str:
         """
         Получает текст ошибки валидации, если она присутствует.
         
         Returns:
             Optional[str]: Текст ошибки, если найден, None - если ошибок нет
         """
-        try:
-            error_locator = self.page.locator(".error, .alert-danger, .validation-error")
-            error_locator.wait_for(state="visible", timeout=2000)
-            error_text = error_locator.text_content()
-            logger.debug(f"Найдена ошибка валидации: {error_text}")
-            return error_text
-        except Exception:
-            logger.debug("Ошибки валидации не найдены")
-            return None
+        if self.error_message.is_visible():
+            return self.error_message.inner_text()
+        return ""
