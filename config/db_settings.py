@@ -17,11 +17,11 @@ from pathlib import Path
 # Корень репозитория — это два уровня выше текущего файла: config/db_settings.py -> config -> <root>
 PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent
 
-# Каталог для артефактов (БД, временные файлы и пр.)
-DATA_DIR: Path = PROJECT_ROOT / "data"
-DATA_DIR.mkdir(exist_ok=True)
+# Единый каталог с секретами и CSV (единственная БД хранится здесь)
+SECRETS_DIR: Path = PROJECT_ROOT / "secrets"
+SECRETS_DIR.mkdir(exist_ok=True)
 
-# Путь к SQLite-файлу по умолчанию
-DEFAULT_DB_PATH: Path = DATA_DIR / "users.db"
+# Путь к SQLite-файлу по умолчанию (только один источник истины)
+DEFAULT_DB_PATH: Path = SECRETS_DIR / "users.db"
 
-__all__ = ["DEFAULT_DB_PATH", "DATA_DIR", "PROJECT_ROOT"]
+__all__ = ["DEFAULT_DB_PATH", "SECRETS_DIR", "PROJECT_ROOT"]

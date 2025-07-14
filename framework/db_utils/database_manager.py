@@ -6,7 +6,7 @@ import sqlite3
 from typing import Dict, Optional, Any, List
 from pathlib import Path
 from datetime import datetime
-# Используем единый конфигурационный модуль для пути к базе данных
+# Единый путь к БД определён в config.db_settings
 from config.db_settings import DEFAULT_DB_PATH
 
 class DatabaseManager:
