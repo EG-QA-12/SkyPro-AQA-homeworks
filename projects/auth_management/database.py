@@ -18,7 +18,7 @@ USER_DATA_DIR.mkdir(exist_ok=True)
 import bcrypt
 from typing import Dict, List, Optional, Tuple, Any, Union
 
-from src.config import config
+from .config import config
 
 
 class DatabaseManager:
