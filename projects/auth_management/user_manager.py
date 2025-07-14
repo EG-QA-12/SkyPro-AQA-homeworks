@@ -16,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from framework.db_utils.database_manager import DatabaseManager
+from .database import DatabaseManager
 from .config import config
 from .logger import setup_logger
 from framework.utils.db_helpers import update_user_in_db
