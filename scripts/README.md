@@ -6,7 +6,7 @@
 
 ## Структура
 
-- **parallel_auth.py** — параллельная авторизация пользователей через Playwright
+- **projects/auth_management/scripts/parallel_auth_optimized.py** — оптимизированная параллельная авторизация (ThreadPool + прогресс-бар)
 - **setup_secrets.py** — инициализация секретов и переменных окружения
 - **setup_paths.py** — настройка путей для окружения
 - **demo_secure_usage.py** — пример безопасной работы с секретами
@@ -16,8 +16,13 @@
 ## Примеры запуска
 
 ```bash
-python scripts/parallel_auth.py secrets/bulk_users.csv --threads 5 --headless
+# Параллельная авторизация (рекомендуется)
+python projects/auth_management/scripts/parallel_auth_optimized.py secrets/bulk_users.csv --threads 5 --headless
+
+# Настройка секретов
 python scripts/setup_secrets.py
+
+# Cookie-тестирование
 python scripts/maintenance/playwright_cookie_tester.py
 ```
 
