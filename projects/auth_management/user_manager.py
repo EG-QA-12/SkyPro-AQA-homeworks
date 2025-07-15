@@ -388,37 +388,26 @@ class UserManager:
             True если сохранение успешно
         """
         try:
-            import json
-            from datetime import datetime, timedelta
-            
             # Приводим домен куки к универсальному вида .bll.by, чтобы куки работали на всех субдоменах
             for c in cookies:
                 domain = c.get("domain", "")
                 if domain and not domain.startswith("."):
-                    # заменяем конкретный субдомен на общий
                     c["domain"] = ".bll.by"
             
-            cookies_json = json.dumps(cookies, ensure_ascii=False)
-            expiry_time = datetime.now() + timedelta(days=self.COOKIE_EXPIRY_DAYS)
-            
-            query = "UPDATE users SET cookie = ?, cookie_expiration = ? WHERE id = ?"
-            self.db.execute_query(query, (cookies_json, expiry_time.isoformat(), user_id))
-            logger.info(f"Куки для пользователя {user_id} сохранены в БД")
-
-            # Дополнительно сохраняем файл в директории data
-            try:
-                from .config import config  # локальный импорт, чтобы избежать циклов
-                data_dir = config.COOKIES_PATH.parent
-                data_dir.mkdir(exist_ok=True)
-                # Получаем логин пользователя
-                user = self.db.get_user(user_id) if isinstance(user_id, str) else None
-                login = user.get("login") if user else str(user_id)
-                file_path = data_dir / f"{login}_cookies.json"
-                with open(file_path, "w", encoding="utf-8") as f:
-                    json.dump(cookies, f, ensure_ascii=False, indent=2)
-                logger.info(f"Куки сохранены в файл {file_path}")
-            except Exception as fe:
-                logger.warning(f"Не удалось сохранить файл кук: {fe}")
+            # Сохраняем куки в файл
+            from .config import config  # локальный импорт, чтобы избежать циклов
+            data_dir = config.COOKIES_PATH.parent
+            data_dir.mkdir(exist_ok=True)
+            # Получаем логин пользователя по id
+            login_row = self.db.execute_query("SELECT login FROM users WHERE id = ?", (user_id,), fetch=True)
+            login = login_row[0][0] if login_row else str(user_id)
+            file_path = data_dir / f"{login}_cookies.json"
+            import json, datetime
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(cookies, f, ensure_ascii=False, indent=2)
+            # Обновляем БД — сохраняем только путь к файлу
+            self.db.update_cookie_file(login=login, cookie_file=str(file_path))
+            logger.info(f"Куки для пользователя {login} сохранены в файл {file_path} и путь обновлён в БД")
             return True
         except Exception as e:
             logger.error(f"Ошибка сохранения куков для пользователя {user_id}: {e}")

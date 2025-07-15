@@ -31,10 +31,10 @@ def update_user_in_db(
     if last_cookie_update is None:
         last_cookie_update = datetime.now()
     with DatabaseManager() as db:
+        # Обновляем роль/подписку и путь к cookie-файлу
         db.add_or_update_user(
             login=login,
             role=role,
             subscription=subscription,
-            cookie_file=cookie_file,
-            last_cookie_update=last_cookie_update
+            cookie_file=cookie_file
         ) 
