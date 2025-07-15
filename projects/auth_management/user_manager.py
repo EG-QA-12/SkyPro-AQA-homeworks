@@ -506,3 +506,21 @@ class UserManager:
             logger.error(f"Ошибка сохранения куков для пользователя {login}: {e}")
             return False
 
+    def save_user_cookies(self, login: str, cookies: list) -> bool:
+        """Back-compat wrapper that saves cookies via new API."""
+        return self.save_cookies_to_file(login, cookies)
+
+    def get_user_cookies(self, login: str):
+        """Back-compat wrapper that returns cookies list for given login, if any."""
+        import json
+        user = self.get_user(login=login)
+        if not user:
+            return None
+        raw = self.load_cookies(user_id=str(user["id"]))
+        if not raw:
+            return None
+        try:
+            return json.loads(raw)
+        except Exception:  # pragma: no cover
+            return None
+

@@ -258,6 +258,22 @@ class PlaywrightAuth:
             if self.context:
                 self.context.close()
 
+    def authenticate(self, username: str, password: str) -> Dict[str, Any]:
+        """Authorize user and return result in legacy format.
+
+        Старый слой UserManager ожидает метод ``authenticate`` с таким интерфейсом.
+        Мы вызываем существующий ``login`` и приводим ответ к ожидаемому
+        словарю вида ``{"success": bool, "cookies": list}``.
+        """
+        try:
+            login_result = self.login(username, password)
+            if login_result:
+                return {"success": True, "cookies": login_result.get("cookies")}
+            return {"success": False, "cookies": None}
+        except Exception as exc:  # pragma: no cover
+            logger.error("Ошибка PlaywrightAuth.authenticate: %s", exc)
+            return {"success": False, "cookies": None}
+
     def close(self) -> None:
         """
         Закрывает браузер и освобождает ресурсы.
