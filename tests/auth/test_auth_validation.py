@@ -175,6 +175,7 @@ class TestAuthValidation:
         profile_page = ProfilePage(page)
 
         # Выполняем логин через метод страницы
+        login_page.navigate()  # Важно: сначала переходим на страницу логина
         login_page.login(creds.username, creds.password)
                 
         # Проверяем, что мы авторизованы
@@ -196,6 +197,7 @@ class TestAuthValidation:
         login_page = LoginPage(page)
 
         # Выполняем логин
+        login_page.navigate()  # Важно: сначала переходим на страницу логина
         login_page.login(creds.username, creds.password)
             
         # Простая проверка, что мы ушли со страницы логина
@@ -216,7 +218,7 @@ class TestAuthValidation:
         profile_page = ProfilePage(page)
         
         # Явное ожидание загрузки элемента с никнеймом
-        profile_page.nickname_element.wait_for(state='visible', timeout=10000)
+        profile_page.user_nickname_locator.wait_for(state='visible', timeout=10000)
         
         user_nickname = profile_page.get_user_nickname()
         assert user_nickname == admin_creds.username, \

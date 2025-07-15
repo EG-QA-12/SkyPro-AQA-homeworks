@@ -16,9 +16,9 @@ sys.path.insert(0, str(project_root))
 
 from config.secrets_manager import SecretsManager
 from framework.utils.auth_utils import load_cookie
-from projects.auth_management.logger import setup_logger
+import logging
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
 def visual_cookie_auth_demo(user_login: str = None):
     """
@@ -32,7 +32,7 @@ def visual_cookie_auth_demo(user_login: str = None):
     # Определяем пользователя для тестирования
     if not user_login:
         # Проверяем доступных пользователей
-        cookies_dir = config.COOKIES_PATH.parent
+        cookies_dir = Path("D:/Bll_tests/cookies")
         cookie_files = list(cookies_dir.glob("*_cookies.json"))
         if cookie_files:
             user_login = cookie_files[0].stem.replace("_cookies", "")
@@ -41,7 +41,7 @@ def visual_cookie_auth_demo(user_login: str = None):
             print("❌ Не найдено файлов кук")
             return False
     
-    cookies_file = config.COOKIES_PATH.parent / f"{user_login}_cookies.json"
+    cookies_file = Path("D:/Bll_tests/cookies") / f"{user_login}_cookies.json"
     
     if not cookies_file.exists():
         print(f"❌ Файл кук для пользователя {user_login} не найден: {cookies_file}")
@@ -65,8 +65,9 @@ def visual_cookie_auth_demo(user_login: str = None):
             context_no_auth = browser.new_context(viewport={'width': 1920, 'height': 1080})
             page_no_auth = context_no_auth.new_page()
             
-            print(f"   🔗 Переходим на: {config.TARGET_URL}")
-            page_no_auth.goto(add_allow_session_param(config.TARGET_URL, is_headless()))
+            target_url = "https://ca.bll.by"
+            print(f"   🔗 Переходим на: {target_url}")
+            page_no_auth.goto(add_allow_session_param(target_url, is_headless()))
             
             print(f"   ⏱️ Пауза 3 секунды для просмотра...")
             time.sleep(3)
@@ -98,8 +99,9 @@ def visual_cookie_auth_demo(user_login: str = None):
             context_with_auth.add_cookies(cookies)
             page_with_auth = context_with_auth.new_page()
             
-            print(f"   🔗 Переходим на: {config.TARGET_URL}")
-            page_with_auth.goto(add_allow_session_param(config.TARGET_URL, is_headless()))
+            target_url = "https://ca.bll.by"
+            print(f"   🔗 Переходим на: {target_url}")
+            page_with_auth.goto(add_allow_session_param(target_url, is_headless()))
             
             print(f"   ⏱️ Пауза 5 секунд для просмотра результата...")
             time.sleep(5)
@@ -107,7 +109,7 @@ def visual_cookie_auth_demo(user_login: str = None):
             auth_url = page_with_auth.url
             print(f"   📍 Текущий URL: {auth_url}")
             
-            if config.TARGET_URL in auth_url or auth_url.startswith(config.BASE_URL):
+            if target_url in auth_url or auth_url.startswith("https://ca.bll.by"):
                 print("   ✅ Успешно: авторизация через куки работает!")
                 
                 # Дополнительная проверка элементов
@@ -184,7 +186,7 @@ def main():
     print("")
     
     # Проверяем доступных пользователей
-    cookies_dir = config.COOKIES_PATH.parent
+    cookies_dir = Path("D:/Bll_tests/cookies")
     cookie_files = list(cookies_dir.glob("*_cookies.json"))
     
     if not cookie_files:

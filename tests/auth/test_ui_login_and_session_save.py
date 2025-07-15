@@ -1,13 +1,8 @@
 """
-Демонстрационный тест авторизации с видимым интерфейсом.
+Демонстрационный тест авторизации через UI с сохранением куков в файлы и базу данных.
 
-Этот тест показывает:
-1. Процесс авторизации через логин/пароль с замедленными действиями
-2. Сохранение авторизационной куки test_joint_session  
-3. Видимую проверку авторизации разных пользователей из сохранённых куков
-4. Отображение статуса авторизации в браузере
-
-ВНИМАНИЕ: Для корректной работы требуется подключение к тестовому серверу!
+Загружает пользователей из CSV файла и выполняет видимую авторизацию для каждого.
+После успешной авторизации сохраняет cookies в файлы и обновляет информацию в БД.
 """
 from __future__ import annotations
 
@@ -23,8 +18,9 @@ from config.secrets_manager import SecretsManager
 # Импортируем утилиты из фреймворка
 from framework.utils.cookie_constants import COOKIE_NAME, joint_cookie
 from framework.utils.reporting.allure_utils import ui_test
-from framework.utils.auth_utils import save_cookie, load_cookie
+from framework.utils.auth_utils import save_cookie, load_cookie, get_cookie_path
 from framework.utils.db_helpers import update_user_in_db
+from framework.utils.url_utils import add_allow_session_param, is_headless
 
 # Загрузка тестовых пользователей из CSV
 USERS_CSV_PATH = Path("d:/Bll_tests/secrets/bulk_users.csv")
@@ -73,8 +69,9 @@ def test_visible_login_and_save_cookies(browser: Browser) -> None:
                 
                 # Шаг 1: Переход на главную страницу
                 with allure.step("Переход на главную страницу"):
-                    print("   🌐 Переходим на https://ca.bll.by")
-                    response = page.goto("https://ca.bll.by", wait_until="domcontentloaded")
+                    main_url = add_allow_session_param("https://ca.bll.by", is_headless())
+                    print(f"   🌐 Переходим на {main_url}")
+                    response = page.goto(main_url, wait_until="domcontentloaded")
                     
                     if response and response.status == 403:
                         print("   ⚠️  Получен статус 403 - возможно требуется тестовый сервер")
@@ -193,10 +190,11 @@ def test_visible_login_and_save_cookies(browser: Browser) -> None:
                         except Exception as e:
                             print(f"   ⚠️  Ошибка поиска никнейма: {e}")
                         
-                        # Переходим на страницу профиля для полной проверки
-                        try:
-                            print("   🔄 Переходим на страницу профиля...")
-                            page.goto("https://ca.bll.by/user/profile", timeout=10000)
+                                                    # Переходим на страницу профиля для полной проверки
+                            try:
+                                profile_url = add_allow_session_param("https://ca.bll.by/user/profile", is_headless())
+                                print(f"   🔄 Переходим на страницу профиля: {profile_url}")
+                                page.goto(profile_url, timeout=10000)
                             page.wait_for_load_state('domcontentloaded', timeout=5000)
                             
                             # Проверяем элемент "Мой профиль" на странице профиля
@@ -326,9 +324,10 @@ def test_visible_auth_from_saved_cookies(browser: Browser) -> None:
                 # Шаг 3: Проверяем авторизацию на сайте
                 with allure.step("Проверка авторизации на сайте"):
                     page = context.new_page()
-                    print("   🌐 Переходим на сайт с загруженной кукой...")
+                    main_url = add_allow_session_param("https://ca.bll.by", is_headless())
+                    print(f"   🌐 Переходим на сайт с загруженной кукой: {main_url}")
                     
-                    response = page.goto("https://ca.bll.by", wait_until="domcontentloaded")
+                    response = page.goto(main_url, wait_until="domcontentloaded")
                     time.sleep(2)  # Пауза для визуализации
                     
                     if response:

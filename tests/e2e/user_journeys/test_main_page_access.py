@@ -11,6 +11,7 @@ from __future__ import annotations
 import pytest
 from playwright.sync_api import Page, expect
 import allure
+from framework.utils.url_utils import add_allow_session_param, is_headless
 
 # Импортируем утилиты Allure из корневой директории
 import sys
@@ -83,8 +84,9 @@ def test_main_page_loads_successfully(page: Page) -> None:
     js_errors = []
     page.on("pageerror", lambda error: js_errors.append(error))
 
-    # Переходим на страницу и проверяем ответ
-    response = page.goto("https://bll.by")
+    # Переходим на страницу и проверяем ответ  
+    main_url = add_allow_session_param("https://bll.by", is_headless())
+    response = page.goto(main_url)
     assert response is not None, "Не получен ответ от сервера"
     assert response.status == 200, f"Сайт не загружен, статус {response.status} вместо 200"
 
@@ -136,7 +138,8 @@ def test_main_page_performance(page: Page) -> None:
     start_time = time.time()
     
     # Загружаем страницу
-    response = page.goto("https://bll.by")
+    main_url = add_allow_session_param("https://bll.by", is_headless())
+    response = page.goto(main_url)
     assert response is not None
     assert response.status == 200
     

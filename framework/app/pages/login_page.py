@@ -37,11 +37,11 @@ class LoginPage(BasePage):
     LOCATORS = {
         # Используем более надежные селекторы по 'name' атрибуту, 
         # так как 'id' может меняться.
-        "username_input": "input[name='login']",
-        "password_input": "input[name='password']",
+"username_input": "input[name='login'], input[name='email'], #login",
+"password_input": "input[type='password'], input[name='password'], #password",
         
-        # Локатор для кнопки входа
-        "submit_button": "button[type='submit']",
+        # Локатор для кнопки входа - используем составной селектор
+        "submit_button": "button[type='submit']:has-text('Войти'), button[type='submit']:has-text('Вход'), input[type='submit']",
         
         # Локатор для сообщения об ошибке
         "error_message": "div.form-error" 
@@ -150,7 +150,7 @@ class LoginPage(BasePage):
             None
         """
         self.logger.info("Нажатие на кнопку 'Войти'")
-        self.submit_button.wait_for(state="enabled", timeout=10000)
+        self.submit_button.wait_for(state="visible", timeout=10000)
         self.submit_button.click()
 
     def login(self, username: str, password: str, cookies_path: str = None):
@@ -177,7 +177,8 @@ class LoginPage(BasePage):
         # После успешного входа, ожидаем перехода на другую страницу.
         # Это делает тест более надежным, так как мы дожидаемся завершения
         # асинхронной операции (редиректа).
-        self.page.wait_for_navigation(timeout=15000)
+        # Ждем, пока URL изменится (уйдем со страницы логина)
+        self.page.wait_for_url(lambda url: "login" not in url, timeout=15000)
         
         if cookies_path:
             self.save_cookies(cookies_path)
