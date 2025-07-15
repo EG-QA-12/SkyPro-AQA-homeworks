@@ -8,7 +8,20 @@
       "--disable-gpu",
       "--disable-web-security",
       "--allow-running-insecure-content",
-      "--disable-features=VizDisplayCompositor"
+      "--disable-features=VizDisplayCompositor",
+      "--disable-blink-features=AutomationControlled",
+      "--disable-automation",
+      "--disable-background-timer-throttling",
+      "--disable-backgrounding-occluded-windows",
+      "--disable-renderer-backgrounding",
+      "--disable-field-trial-config",
+      "--disable-ipc-flooding-protection",
+      "--no-first-run",
+      "--no-default-browser-check",
+      "--no-pings",
+      "--password-store=basic",
+      "--use-mock-keychain",
+      "--user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'"
     ],
     "firefox": [
       "--width=1920",
@@ -24,9 +37,9 @@
   "timezone": "Europe/Minsk",
   "permissions": ["geolocation", "camera", "microphone"],
   "timeout": {
-    "navigation": 30000,
-    "action": 10000,
-    "element": 5000
+    "navigation": 45000,
+    "action": 15000,
+    "element": 10000
   },
   "retry": {
     "count": 3,

@@ -437,3 +437,88 @@ def get_auth_credentials() -> Dict[str, str]:
 
 # Алиасы для совместимости с secure_auth_utils
 SecureAuthManager = UnifiedAuthManager 
+
+
+def create_stealth_browser(playwright_instance, headless: bool = True, slow_mo: int = 0):
+    """
+    Создает браузер с настройками для обхода антибот защиты.
+    
+    Args:
+        playwright_instance: Экземпляр Playwright
+        headless: Запускать в headless режиме
+        slow_mo: Задержка между действиями в миллисекундах
+    
+    Returns:
+        Browser: Настроенный браузер
+    """
+    # Антибот флаги для Chrome
+    args = [
+        "--disable-blink-features=AutomationControlled",
+        "--disable-automation",
+        "--disable-dev-shm-usage", 
+        "--no-sandbox",
+        "--disable-gpu",
+        "--disable-background-timer-throttling",
+        "--disable-backgrounding-occluded-windows",
+        "--disable-renderer-backgrounding", 
+        "--disable-field-trial-config",
+        "--disable-ipc-flooding-protection",
+        "--no-first-run",
+        "--no-default-browser-check",
+        "--no-pings",
+        "--password-store=basic",
+        "--use-mock-keychain",
+        "--disable-web-security",
+        "--allow-running-insecure-content",
+        "--disable-features=VizDisplayCompositor"
+    ]
+    
+    # Увеличиваем таймауты для headless
+    timeout_multiplier = 2 if headless else 1
+    
+    browser = playwright_instance.chromium.launch(
+        headless=headless,
+        slow_mo=slow_mo,
+        args=args,
+        timeout=60000 * timeout_multiplier  # Увеличенный таймаут запуска
+    )
+    
+    return browser
+
+
+def create_stealth_context(browser, page_timeout: int = 45000):
+    """
+    Создает контекст браузера с антибот настройками.
+    
+    Args:
+        browser: Экземпляр браузера
+        page_timeout: Таймаут загрузки страниц в миллисекундах
+        
+    Returns:
+        BrowserContext: Настроенный контекст
+    """
+    context = browser.new_context(
+        user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        viewport={"width": 1920, "height": 1080},
+        locale="ru-RU", 
+        timezone_id="Europe/Minsk",
+        ignore_https_errors=True,
+        java_script_enabled=True,
+        extra_http_headers={
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "ru-RU,ru;q=0.9,en;q=0.8", 
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate", 
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1"
+        }
+    )
+    
+    # Устанавливаем увеличенные таймауты
+    context.set_default_navigation_timeout(page_timeout)
+    context.set_default_timeout(page_timeout)
+    
+    return context 

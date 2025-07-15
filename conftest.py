@@ -60,6 +60,65 @@ def http_session() -> Generator[requests.Session, None, None]:
         yield session
 
 
+@pytest.fixture(scope="session")
+def browser_launch_args():
+    """
+    Аргументы запуска браузера с защитой от детекции автоматизации.
+    
+    Возвращает набор флагов Chrome для максимального обхода антибот защиты.
+    """
+    return {
+        "headless": False,  # По умолчанию видимый режим
+        "args": [
+            "--disable-blink-features=AutomationControlled",
+            "--disable-automation", 
+            "--disable-dev-shm-usage",
+            "--no-sandbox",
+            "--disable-gpu",
+            "--disable-background-timer-throttling",
+            "--disable-backgrounding-occluded-windows", 
+            "--disable-renderer-backgrounding",
+            "--disable-field-trial-config",
+            "--disable-ipc-flooding-protection",
+            "--no-first-run",
+            "--no-default-browser-check",
+            "--no-pings",
+            "--password-store=basic",
+            "--use-mock-keychain",
+            "--disable-web-security",
+            "--allow-running-insecure-content"
+        ]
+    }
+
+
+@pytest.fixture(scope="session") 
+def anti_bot_browser_context_args():
+    """
+    Аргументы контекста браузера для обхода антибот защиты.
+    
+    Настраивает реалистичные заголовки и поведение браузера.
+    """
+    return {
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "viewport": {"width": 1920, "height": 1080},
+        "locale": "ru-RU",
+        "timezone_id": "Europe/Minsk",
+        "ignore_https_errors": True,
+        "java_script_enabled": True,
+        "extra_http_headers": {
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+            "Accept-Language": "ru-RU,ru;q=0.9,en;q=0.8",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "Sec-Fetch-Dest": "document", 
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1"
+        }
+    }
+
+
 def pytest_addoption(parser: pytest.Parser) -> None:
     """
     Добавляет кастомные опции командной строки для pytest.
