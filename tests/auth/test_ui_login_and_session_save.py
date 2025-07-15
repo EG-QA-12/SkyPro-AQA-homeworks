@@ -374,6 +374,70 @@ def test_single_evgenqa_auth(browser: Browser) -> None:
         context.close()
 
 
+@pytest.mark.integration
+def test_single_third_user_auth(browser: Browser) -> None:
+    """
+    Тест авторизации третьего пользователя из списка для сравнения с EvgenQA.
+    Проверяем, что проблема действительно в учетных данных, а не в системе.
+    """
+    print("\n" + "="*80)
+    print("🔍 ТЕСТ АВТОРИЗАЦИИ ТРЕТЬЕГО ПОЛЬЗОВАТЕЛЯ")
+    print("="*80)
+    
+    # Берем третьего пользователя из списка (индекс 2)
+    if len(TEST_USERS) < 3:
+        pytest.skip("Недостаточно пользователей в TEST_USERS")
+    
+    third_user = TEST_USERS[2]  # Третий пользователь (fKL5nOOz)
+    
+    print(f"\n📝 Авторизуем пользователя: {third_user['name']}")
+    print(f"   Логин: {third_user['login']}")
+    
+    context = browser.new_context()
+    page = context.new_page()
+    
+    try:
+        with allure.step(f"Авторизация {third_user['name']}"):
+            # Переход на страницу логина
+            login_url = add_allow_session_param("https://ca.bll.by/login", is_headless())
+            print(f"   🌐 Переходим на страницу логина: {login_url}")
+            page.goto(login_url, wait_until="domcontentloaded", timeout=20000)
+            
+            # Заполнение формы
+            print(f"   📝 Заполняем форму авторизации...")
+            page.fill("input[name='login'], input[name='email'], #login", third_user['login'])
+            page.fill("input[type='password'], input[name='password'], #password", third_user['password'])
+            
+            print(f"   🔘 Нажимаем кнопку входа...")
+            page.click("button[type='submit'], input[type='submit'], button:has-text('Войти')")
+            print(f"   ✅ Форма авторизации отправлена")
+            
+            # Проверка авторизации
+            try:
+                page.wait_for_selector(".user-in__nick", timeout=15000)
+                nickname_element = page.locator(".user-in__nick")
+                nickname_text = nickname_element.text_content().strip()
+                
+                print(f"   ✅ Найден никнейм пользователя: '{nickname_text}'")
+                
+                if nickname_text == third_user['login']:
+                    print(f"   ✅ Никнейм совпадает с логином - авторизация успешна!")
+                    print(f"   🎉 {third_user['name']} успешно авторизован!")
+                else:
+                    print(f"   ❌ Никнейм '{nickname_text}' не соответствует логину '{third_user['login']}'")
+                    assert False, f"Никнейм не совпадает с логином"
+                    
+            except Exception as e:
+                print(f"   ❌ Никнейм пользователя не найден: {e}")
+                screenshot_path = f"{third_user['name']}_solo_auth_fail.png" 
+                page.screenshot(path=screenshot_path)
+                print(f"   📸 Скриншот сохранен: {screenshot_path}")
+                assert False, f"Авторизация {third_user['name']} не удалась: никнейм не найден"
+                
+    finally:
+        context.close()
+
+
 # @pytest.fixture(autouse=True, scope="module")
 # def cleanup_demo_files():
 #     """Автоматическая очистка демонстрационных файлов после тестов."""
