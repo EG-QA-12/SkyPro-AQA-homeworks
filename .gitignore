@@ -211,3 +211,5 @@ projects/__pycache__/
 projects/.pytest_cache/
 projects/allure-results/
 projects/screenshots/
+framework/__pycache__/
+scripts/__pycache__/
