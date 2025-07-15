@@ -8,3 +8,6 @@
 
 ## Tests Overview
 // ... content from tests_overview.md ... 
+
+## Testing Guide
+// ... content from TESTING_GUIDE.md ... 
