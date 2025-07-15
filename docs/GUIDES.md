@@ -3,8 +3,10 @@
 ## Contributing
 // ... content from contributing.md ...
 
-## Single User Tests Guide
-// ... content from single_user_tests_guide.md ...
+## Структура тестов
+- auth/ сохранена
+- unit/ и visual/ слиты в integration/
+- e2e/ для end-to-end
 
 ## Tests Overview
 // ... content from tests_overview.md ... 
