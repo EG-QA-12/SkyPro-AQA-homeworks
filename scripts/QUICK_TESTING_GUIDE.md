@@ -6,6 +6,7 @@
 - **`run_tests_parallel.bat`** - подробный вывод (~20 сек)
 - **`run_tests_quick.bat`** - краткий вывод (~15 сек) 
 - **`run_tests_allure.bat`** - с Allure отчетами
+- **`run_auth_gui.bat`** - GUI авторизация (медленная, для отладки)
 
 ### Командная строка:
 ```bash
