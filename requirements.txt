@@ -1,72 +1,43 @@
-# Основные зависимости фреймворка автоматизации тестирования
-# Консолидированный файл - единый источник зависимостей
+# HTML парсинг для SSO тестов
+beautifulsoup4==4.12.3
 
-# Тестовый фреймворк
-pytest>=8.4.0
-pytest-html>=3.2.0
-pytest-xdist>=3.3.0  # Параллельный запуск тестов
-pytest-playwright>=0.7.0  # Playwright интеграция
-pytest-asyncio==1.0.0
-
-# Playwright для E2E тестирования
-playwright>=1.52.0
-
-# Allure отчетность
-allure-pytest>=2.14.0
-allure-python-commons>=2.14.0
-
-# HTTP клиенты для API тестирования
-requests>=2.32.0
-urllib3>=2.0.0
-
-# Работа с данными и валидация
-pydantic>=2.0.0
-pydantic-settings>=2.0.3
-
-# Конфигурация и секреты
-python-dotenv>=1.0.0
-
-# Утилиты
-colorama>=0.4.6  # Цветной вывод в консоли
-python-slugify>=8.0.0  # Для генерации имен файлов
-typing-extensions>=4.8.0
-pygments>=2.19.0
-
-# Безопасность
-bcrypt>=4.1.2
-
-# Development зависимости
-black>=23.3.0  # Форматирование кода
-ruff>=0.4.0    # Линтинг и фиксы
-mypy>=1.10.0    # Статическая типизация
-pre-commit>=3.7.0  # Git hooks
-
-# Дополнительные зависимости
-annotated-types==0.7.0
-attrs==25.3.0
-certifi==2025.6.15
-cfgv==3.4.0
-charset-normalizer==3.4.2
-click==8.2.1
-distlib==0.3.9
-execnet==2.1.1
-filelock==3.18.0
-flake8==7.2.0
-greenlet==3.2.2
-identify==2.6.12
-idna==3.10
-iniconfig==2.1.0
-isort==6.0.1
-jinja2==3.1.6
-markupsafe==3.0.2
-mccabe==0.7.0
-mypy_extensions==1.1.0
-nodeenv==1.9.1
-packaging==25.0
-pathspec==0.12.1
-platformdirs==4.3.8
+# Остальные зависимости
+allure-pytest==2.14.3
+argparse==1.4.0
+certifi==2025.1.27
+greenlet==3.1.1
+packaging==24.2
+pathlib==1.0.1
+pathlib2==2.3.7.post1
+pillow==11.0.0
+playwright==1.49.1
 pluggy==1.6.0
-pre_commit==4.2.0
+psycopg2==2.9.10
+pydantic==2.10.4
+pytest==8.4.0
+pytest-allure==1.0.2
+pytest-allure-adaptor==1.7.10
+pytest-html==4.1.1
+pytest-playwright==0.6.2
+pytest-repeat==0.9.3
+pytest-xdist==3.7.0
+pytest-asyncio==1.0.0
+python-dateutil==2.9.0.post0
+python-dotenv==1.0.1
+pytz==2024.2
+requests==2.32.3
+selenium==4.27.1
+setuptools==75.8.0
+tornado==6.4.2
+urllib3==2.2.3
+
+# Code quality tools
+black==24.12.0
+autoflake==2.4.0
+autopep8==2.3.1
+docformatter==1.8.0
+flake8==7.1.1
+mccabe==0.7.0
 pycodestyle==2.13.0
 pydantic_core==2.33.2
 pyee==13.0.0
