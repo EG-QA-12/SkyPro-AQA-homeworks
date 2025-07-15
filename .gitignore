@@ -207,3 +207,7 @@ Temporary Items
 # используйте отрицание: !important_test_file.json
 
 tests/__pycache__/
+projects/__pycache__/
+projects/.pytest_cache/
+projects/allure-results/
+projects/screenshots/

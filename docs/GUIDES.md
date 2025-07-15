@@ -8,6 +8,9 @@
 - unit/ и visual/ слиты в integration/
 - e2e/ для end-to-end
 
+## Projects Overview
+// ... content from projects/README.md ...
+
 ## Tests Overview
 // ... content from tests_overview.md ... 
 
