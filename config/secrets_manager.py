@@ -144,7 +144,8 @@ class SecretsManager:
     def _load_environment_variables(self) -> None:
         """Загрузка переменных окружения из .env файлов по приоритету."""
         # Загружаем переменные из creds.env (гарантированно для тестов)
-        load_dotenv("D:/Bll_tests/secrets/creds.env", override=True)
+        secrets_creds_path = self.project_root / "secrets" / "creds.env"
+        load_dotenv(secrets_creds_path, override=True)
         # Можно добавить другие .env, если нужно
         
         # Порядок приоритета .env файлов (от высшего к низшему)

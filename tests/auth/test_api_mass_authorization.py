@@ -9,6 +9,7 @@ from __future__ import annotations
 import pytest
 import allure
 import time
+import os
 from pathlib import Path
 
 from config.secrets_manager import SecretsManager
@@ -56,11 +57,16 @@ def test_api_mass_authorization() -> None:
         with allure.step("Выполнение массовой авторизации"):
             start_time = time.time()
             
+            # Получаем количество потоков из переменной окружения
+            threads = int(os.environ.get("API_THREADS", "5"))
+            print(f"🔄 Используем {threads} потоков для параллельной обработки")
+            
             # Выполняем массовую авторизацию
             auth_results, stats = auth_manager.mass_authorize_users(
                 users=TEST_USERS,
                 save_to_files=True,
-                update_database=True
+                update_database=True,
+                max_workers=threads
             )
             
             elapsed_time = time.time() - start_time

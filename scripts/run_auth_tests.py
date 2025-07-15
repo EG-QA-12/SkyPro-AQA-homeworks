@@ -134,6 +134,30 @@ def run_api_mode():
     return subprocess.run(cmd).returncode
 
 
+def run_api_turbo_mode():
+    """
+    Режим API TURBO - сверхбыстрая авторизация с 10 потоками.
+    
+    Максимальная производительность для массовой авторизации.
+    Использует 10 параллельных потоков для экстремальной скорости.
+    """
+    print("🚀 Запуск API TURBO режима (HTTP запросы, 10 потоков)")
+    
+    # Устанавливаем переменную окружения для количества потоков
+    import os
+    os.environ["API_THREADS"] = "10"
+    
+    cmd = [
+        "python", "-m", "pytest",
+        "tests/auth/test_api_mass_authorization.py::test_api_mass_authorization",
+        "-v", "-s",
+        "--tb=short",
+        "-m", "api"
+    ]
+    
+    return subprocess.run(cmd).returncode
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Универсальный запуск тестов авторизации",
@@ -145,20 +169,22 @@ def main():
   fast        - Быстрая проверка (тест существующих кук)
   parallel    - GUI массовая авторизация (видимый браузер, 3 потока)
   stealth     - Экспериментальный (антибот headless)
-  api         - API авторизация (HTTP запросы, самый быстрый)
+  api         - API авторизация (HTTP запросы, 5 потоков)
+  api-turbo   - API TURBO (HTTP запросы, 10 потоков, максимальная скорость)
 
 Примеры:
   python scripts/run_auth_tests.py ci          # Для CI/CD
   python scripts/run_auth_tests.py dev         # Для отладки UI
   python scripts/run_auth_tests.py fast        # Быстрая проверка
   python scripts/run_auth_tests.py parallel    # GUI массовая авторизация
-  python scripts/run_auth_tests.py api         # Самая быстрая массовая авторизация
+  python scripts/run_auth_tests.py api         # Быстрая массовая авторизация (5 потоков)
+  python scripts/run_auth_tests.py api-turbo   # Максимальная скорость (10 потоков)
         """
     )
     
     parser.add_argument(
         "mode",
-        choices=["ci", "dev", "fast", "parallel", "stealth", "api"],
+        choices=["ci", "dev", "fast", "parallel", "stealth", "api", "api-turbo"],
         help="Режим запуска тестов"
     )
     
@@ -179,7 +205,8 @@ def main():
         "fast": run_fast_mode,
         "parallel": run_parallel_mode,
         "stealth": run_stealth_mode,
-        "api": run_api_mode
+        "api": run_api_mode,
+        "api-turbo": run_api_turbo_mode
     }
     
     try:

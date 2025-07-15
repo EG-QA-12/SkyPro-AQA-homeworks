@@ -23,7 +23,7 @@ from framework.utils.db_helpers import update_user_in_db
 from framework.utils.url_utils import add_allow_session_param, is_headless
 
 # Загрузка тестовых пользователей из CSV
-USERS_CSV_PATH = Path("d:/Bll_tests/secrets/bulk_users.csv")
+USERS_CSV_PATH = Path(__file__).resolve().parents[2] / "secrets" / "bulk_users.csv"
 TEST_USERS = SecretsManager.load_users_from_csv()
 
 

@@ -24,7 +24,7 @@ class DatabaseManager:
         """
         if db_path is None:
             # Используем стандартный путь к БД в secrets
-            project_root = Path(__file__).resolve().parents[3]
+            project_root = Path(__file__).resolve().parents[2]
             self.db_path = project_root / "secrets" / "users.db"
         else:
             self.db_path = Path(db_path)
