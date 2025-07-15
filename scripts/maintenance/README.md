@@ -1,4 +1,6 @@
-# Maintenance Scripts Catalog
+# Объединенный README
+
+## Назначение
 
 ## cookie_tester.py
 Объединенный тестер куки.

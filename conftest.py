@@ -21,11 +21,8 @@ import requests
 from dotenv import load_dotenv
 
 # Абсолютный путь до корня репозитория (папка, где расположен этот conftest)
-PROJECT_ROOT: Path = Path(__file__).resolve().parent
-
-# Добавляем в sys.path, если ещё не добавлен
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+PROJECT_ROOT = Path(__file__).parent.resolve()
+sys.path.insert(0, str(PROJECT_ROOT))
 
 # Загружаем переменные окружения из secrets/
 load_dotenv(PROJECT_ROOT / "secrets" / ".env", override=False)
