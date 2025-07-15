@@ -12,9 +12,9 @@ import argparse
 from dotenv import load_dotenv
 from playwright.sync_api import sync_playwright
 
-from src.config import config
-from src.logger import setup_logger
-from src.cookies import load_cookies
+from projects.auth_management.config import config
+from projects.auth_management.logger import setup_logger
+from projects.auth_management.cookies import load_cookies
 
 
 class AuthManager:

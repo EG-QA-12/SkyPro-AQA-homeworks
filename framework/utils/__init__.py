@@ -15,9 +15,8 @@
 Модули организованы по принципу единой ответственности для удобства сопровождения.
 """
 
-from .auth_utils import save_cookie, load_cookie
+from .auth_utils import save_cookie, load_cookie, SecureAuthManager, UnifiedAuthManager
 from .reporting.allure_utils import AllureReporter, allure_test_case, smoke_test, regression_test
-from .secure_auth_utils import SecureAuthManager  # auth_manager исключен чтобы избежать проблем инициализации
 from .cookie_constants import COOKIE_NAME, joint_cookie
 from .cookie_helper import get_cookie_files, parse_auth_cookie
 
@@ -26,6 +25,7 @@ __all__ = [
     'save_cookie',
     'load_cookie',
     'SecureAuthManager',
+    'UnifiedAuthManager',
     
     # Allure отчеты
     'AllureReporter',

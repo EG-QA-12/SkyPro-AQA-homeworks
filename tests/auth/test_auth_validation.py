@@ -176,12 +176,12 @@ class TestAuthValidation:
 
         # Выполняем логин через метод страницы
         login_page.login(creds.username, creds.password)
-
+                
         # Проверяем, что мы авторизованы
         is_logged_in = profile_page.is_user_logged_in(creds.username)
         
         assert is_logged_in is True, f"Пользователь '{creds.username}' должен быть авторизован."
-
+    
     def test_perform_login_without_verification(self, page: Page):
         """
         Проверяет базовый функционал логина без верификации на странице профиля.
@@ -197,11 +197,11 @@ class TestAuthValidation:
 
         # Выполняем логин
         login_page.login(creds.username, creds.password)
-
+            
         # Простая проверка, что мы ушли со страницы логина
         page.wait_for_url(lambda url: "login" not in url, timeout=5000)
         assert "login" not in page.url, "После успешного логина URL не должен содержать 'login'."
-
+    
     def test_login_page_integration_with_profile_validation(self, page: Page):
         """
         Интеграционный тест: логин и проверка имени на странице профиля.
@@ -221,7 +221,7 @@ class TestAuthValidation:
         user_nickname = profile_page.get_user_nickname()
         assert user_nickname == admin_creds.username, \
             f"Ожидаемый никнейм '{admin_creds.username}', но получен '{user_nickname}'"
-
+    
     @pytest.mark.parametrize("username,expected_result", [
         ("EvgenQA", True),
         ("EvgenQA ", True),  # С пробелом

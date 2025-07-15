@@ -16,7 +16,7 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from src.config import config
+from projects.auth_management.config import config
 from tests.integration.test_moderator_auth import (
     test_moderator_direct_login,
     test_moderator_cookie_auth,

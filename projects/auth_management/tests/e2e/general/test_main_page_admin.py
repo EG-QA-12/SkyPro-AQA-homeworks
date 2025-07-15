@@ -12,10 +12,10 @@ from playwright.sync_api import sync_playwright
 project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.config import config
-from src.user_manager import UserManager
-from src.auth import load_cookies
-from src.logger import setup_logger
+from projects.auth_management.config import config
+from projects.auth_management.user_manager import UserManager
+from projects.auth_management.auth import load_cookies
+from projects.auth_management.logger import setup_logger
 from framework.utils.url_utils import add_allow_session_param, is_headless
 
 def test_main_page_admin():

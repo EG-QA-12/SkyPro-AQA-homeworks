@@ -15,7 +15,7 @@ if str(AUTH_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(AUTH_PROJECT_ROOT))
 
 # Импортируем конфигурацию из auth_project
-from src.config import AppConfig
+from projects.auth_management.config import AppConfig
 
 # Переопределяем пути к данным пользователей
 os.environ["LOG_PATH"] = str(AUTH_PROJECT_ROOT / "user_data" / "app.log")

@@ -21,8 +21,8 @@ from typing import List, Dict
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.database import DatabaseManager  # noqa: E402
-from src.logger import logger  # noqa: E402
+from projects.auth_management.database import DatabaseManager  # noqa: E402
+from projects.auth_management.logger import logger  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Данные «по умолчанию» (используются, если не указан --csv)

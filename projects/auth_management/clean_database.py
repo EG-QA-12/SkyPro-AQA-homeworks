@@ -19,10 +19,10 @@ from pathlib import Path
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from src.user_manager import UserManager
-from src.database import DatabaseManager
-from src.config import config
-from src.logger import setup_logger
+from projects.auth_management.user_manager import UserManager
+from projects.auth_management.database import DatabaseManager
+from projects.auth_management.config import config
+from projects.auth_management.logger import setup_logger
 
 logger = setup_logger(__name__)
 

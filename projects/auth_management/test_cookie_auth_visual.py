@@ -22,8 +22,8 @@ from playwright.sync_api import sync_playwright
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from src.config import config
-from src.logger import setup_logger
+from projects.auth_management.config import config
+from projects.auth_management.logger import setup_logger
 from framework.utils.url_utils import add_allow_session_param, is_headless
 
 logger = setup_logger(__name__)

@@ -19,8 +19,8 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.auth_playwright import PlaywrightAuthManager
-from src.logger import setup_logger
+from projects.auth_management.auth_playwright import PlaywrightAuthManager
+from projects.auth_management.logger import setup_logger
 
 
 async def main() -> None:

@@ -16,7 +16,7 @@ def test_config_loading():
     print("🔧 Тестирование загрузки конфигурации...")
     
     try:
-        from src.config import config
+        from projects.auth_management.config import config
         print(f"✅ Конфигурация загружена")
         print(f"   LOGIN: {config.LOGIN}")
         print(f"   BASE_URL: {config.BASE_URL}")
@@ -34,7 +34,7 @@ def test_database_connection():
     print("\n🗄️ Тестирование подключения к базе данных...")
     
     try:
-        from src.database import DatabaseManager
+        from projects.auth_management.database import DatabaseManager
         
         db = DatabaseManager()
         print("✅ Подключение к БД установлено")
@@ -75,7 +75,7 @@ def test_auth_functions():
     print("\n🔐 Тестирование функций авторизации...")
     
     try:
-        from src.auth import get_credentials, load_cookies
+        from projects.auth_management.auth import get_credentials, load_cookies
         
         # Тест получения учетных данных
         login, password = get_credentials()
@@ -100,7 +100,7 @@ def test_logger():
     print("\n📝 Тестирование системы логирования...")
     
     try:
-        from src.logger import setup_logger
+        from projects.auth_management.logger import setup_logger
         
         logger = setup_logger("test_logger")
         logger.info("Тест логирования")
@@ -116,7 +116,7 @@ def test_cookies_module():
     print("\n🍪 Тестирование модуля работы с куками...")
     
     try:
-        from src.cookies import load_cookies, check_cookies_validity
+        from projects.auth_management.cookies import load_cookies, check_cookies_validity
         
         # Тест проверки валидности кук
         test_cookies = [

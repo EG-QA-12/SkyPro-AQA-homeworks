@@ -11,7 +11,7 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 from tests.integration.test_cookie_auth import test_cookie_authentication
-from src.config import config
+from projects.auth_management.config import config
 
 def main():
     """Основная функция для запуска теста модератора."""

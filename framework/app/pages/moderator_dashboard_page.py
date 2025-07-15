@@ -57,7 +57,7 @@ class ModeratorDashboardPage:
         Returns:
             bool: True, если переход выполнен успешно.
         """
-        from src.config import config
+        from projects.auth_management.config import config
         
         if base_url is None:
             # Проверяем несоответствие между BASE_URL и LOGIN_URL/TARGET_URL
@@ -247,7 +247,7 @@ class ModeratorDashboardPage:
         """
         # Сначала пробуем получить URL из конфигурации
         try:
-            from src.config import config
+            from projects.auth_management.config import config
             if hasattr(config, 'BASE_URL') and config.BASE_URL:
                 return config.BASE_URL
         except ImportError:

@@ -22,7 +22,7 @@ sys.path.insert(0, str(project_root))
 
 try:
     # Проверяем наличие всех необходимых модулей
-    from src.auth_gui import main
+    from projects.auth_management.auth_gui import main
     
     print("🚀 Запуск GUI для управления авторизацией...")
     print("📁 Корневая директория проекта:", project_root)

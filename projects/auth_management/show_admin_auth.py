@@ -11,8 +11,8 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 from playwright.sync_api import sync_playwright
-from src.config import config
-from src.auth import load_cookies
+from projects.auth_management.config import config
+from projects.auth_management.auth import load_cookies
 from scripts.auth_integration import AuthIntegration
 from framework.utils.url_utils import add_allow_session_param, is_headless
 

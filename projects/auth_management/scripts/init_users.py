@@ -3,8 +3,8 @@ import os
 
 # Add project root to sys.path for absolute imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.user_manager import UserManager
-from src.config import config
+from projects.auth_management.user_manager import UserManager
+from projects.auth_management.config import config
 import csv
 from datetime import datetime, timezone
 import sqlite3

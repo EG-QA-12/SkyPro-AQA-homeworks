@@ -18,7 +18,7 @@ def setup_logger(name: str) -> logging.Logger:
     log_dir_str = os.getenv("LOG_DIR", "logs")
     log_file_name = os.getenv("LOG_FILE", f"{name.replace('__', '')}.log")
     log_level = os.getenv("LOG_LEVEL", "INFO").upper()
-
+    
     # Создаем директорию для логов
     log_dir = project_root / log_dir_str
     log_dir.mkdir(exist_ok=True)

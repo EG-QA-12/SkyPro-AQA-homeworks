@@ -1,24 +1,23 @@
 """
 Глобальные фикстуры для End-to-End тестов.
 
-Этот модуль содержит:
-- Настройки браузеров для E2E тестирования.
-- Заглушки для авторизационных фикстур.
-- Маркеры для категоризации тестов.
+Этот модуль содержит специфичные для E2E тестирования фикстуры:
+- Настройки браузеров Playwright
+- Фикстуры для браузерного контекста
+- Маркеры для категоризации E2E тестов
+
+Базовая конфигурация (sys.path, переменные окружения) наследуется
+из корневого conftest.py.
 """
 from __future__ import annotations
 
 import os
-import sys
-from pathlib import Path
 from typing import Generator
 
 import pytest
 from playwright.sync_api import Browser, BrowserContext, Page
 
-# Добавляем корневую директорию проекта в sys.path для импорта `framework`
-project_root = Path(__file__).parent.parent.parent
-sys.path.append(str(project_root))
+# sys.path теперь настраивается в корневом conftest.py
 
 
 @pytest.fixture(scope="session")
@@ -29,75 +28,32 @@ def browser_context_args(browser_context_args: dict) -> dict:
     """
     args = {
         **browser_context_args,
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
         "viewport": {"width": 1920, "height": 1080},
-        "locale": "ru-RU",
-        "timezone_id": "Europe/Minsk",
-        "permissions": ["geolocation"],
-        "record_video_dir": "test-results/videos/",
-        "record_har_path": "test-results/network.har",
+        "ignore_https_errors": True,
+        "java_script_enabled": True,
     }
-
-    # The user_agent is now set by playwright itself when running in headless mode.
-    # We can add a print statement to confirm when tests are running headless.
-    # This can be checked using the 'headless' fixture provided by pytest-playwright.
-    # Example: def test_example(headless: bool): if headless: print("Running headless")
-
-
     return args
 
 
 @pytest.fixture(scope="function")
-def authenticated_context_admin(
-    browser: Browser,
-) -> Generator[BrowserContext, None, None]:
-    """Браузерный контекст с авторизацией под администратором (заглушка)."""
-    context = browser.new_context(
-        viewport={"width": 1920, "height": 1080}, locale="ru-RU"
-    )
-    # TODO: Реализовать загрузку сохраненных куки администратора
-    try:
-        yield context
-    finally:
-        context.close()
-
-
-@pytest.fixture(scope="function")
-def authenticated_context_moderator(
-    browser: Browser,
-) -> Generator[BrowserContext, None, None]:
-    """Браузерный контекст с авторизацией под модератором (заглушка)."""
-    context = browser.new_context(
-        viewport={"width": 1920, "height": 1080}, locale="ru-RU"
-    )
-    # TODO: Реализовать загрузку сохраненных куки модератора
-    try:
-        yield context
-    finally:
-        context.close()
-
-
-@pytest.fixture(scope="function")
-def authenticated_page_admin(
-    authenticated_context_admin: BrowserContext,
-) -> Generator[Page, None, None]:
-    """Страница с авторизацией под администратором (заглушка)."""
-    page = authenticated_context_admin.new_page()
+def browser_page(browser: Browser) -> Generator[Page, None, None]:
+    """
+    Создает новую страницу браузера для каждого теста.
+    
+    Автоматически закрывает страницу после завершения теста.
+    
+    Yields:
+        Page: Страница Playwright для взаимодействия с браузером
+    """
+    context = browser.new_context()
+    page = context.new_page()
+    
     try:
         yield page
     finally:
         page.close()
-
-
-@pytest.fixture(scope="function")
-def authenticated_page_moderator(
-    authenticated_context_moderator: BrowserContext,
-) -> Generator[Page, None, None]:
-    """Страница с авторизацией под модератором (заглушка)."""
-    page = authenticated_context_moderator.new_page()
-    try:
-        yield page
-    finally:
-        page.close()
+        context.close()
 
 
 # Маркеры для категоризации тестов

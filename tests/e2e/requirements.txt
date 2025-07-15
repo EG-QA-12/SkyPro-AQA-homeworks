@@ -1,6 +1,0 @@
-pytest>=7.0
-requests>=2.25.0
-
-# Allure отчетность для E2E тестов
-allure-pytest>=2.13.0
-allure-python-commons>=2.13.0

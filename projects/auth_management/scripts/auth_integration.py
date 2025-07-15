@@ -13,8 +13,8 @@ from typing import Optional
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from playwright.sync_api import BrowserContext  # type: ignore
-from src.user_manager import UserManager  # noqa: E402
-from src.logger import logger  # noqa: E402
+from projects.auth_management.user_manager import UserManager  # noqa: E402
+from projects.auth_management.logger import logger  # noqa: E402
 
 
 class AuthIntegration:
@@ -26,7 +26,7 @@ class AuthIntegration:
         Args:
             env_path: путь к .env (по умолчанию `data/creds.env`).
         """
-        from src.config import config  # noqa: E402, импорт после PYTHONPATH
+        from projects.auth_management.config import config  # noqa: E402, импорт после PYTHONPATH
 
         # config уже загружен; просто проверяем путь для отладочных целей
         if env_path and os.path.exists(env_path):

@@ -22,11 +22,11 @@ import os
 # Добавляем путь к модулям проекта
 sys.path.append(str(Path(__file__).parent.parent))
 
-from src.config import config
-from src.logger import setup_logger
-from src.user_manager import UserManager
-from src.auth import authorize_and_save_cookies, load_cookies
-from src.database import init_db
+from projects.auth_management.config import config
+from projects.auth_management.logger import setup_logger
+from projects.auth_management.user_manager import UserManager
+from projects.auth_management.auth import authorize_and_save_cookies, load_cookies
+from projects.auth_management.database import init_db
 
 
 class AuthGUI:
@@ -536,7 +536,7 @@ class AuthGUI:
                     raise ValueError(f"Логин пользователя не указан или некорректен: '{user_login}'")
                 
                 # Выполняем авторизацию с данными конкретного пользователя
-                from src.auth import perform_login_on_page, verify_page_cookie_status
+                from projects.auth_management.auth import perform_login_on_page, verify_page_cookie_status
                 from playwright.sync_api import sync_playwright
                 
                 with sync_playwright() as p:
@@ -672,7 +672,7 @@ class AuthGUI:
             if not password_to_use:
                 raise ValueError(f"Пароль для пользователя {login_to_use} не найден в конфигурации")
 
-            from src.auth import perform_login_on_page
+            from projects.auth_management.auth import perform_login_on_page
             from playwright.sync_api import sync_playwright
 
             with sync_playwright() as p:

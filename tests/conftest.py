@@ -1,30 +1,14 @@
-"""Root-level Pytest configuration.
+"""Конфигурация pytest для папки tests.
 
-Добавляет параметр ``allow-session=1`` ко всем HTTP/Playwright запросам
-в без-GUI (headless) сборках, чтобы бэкенд не считал нас ботом.  Логика
-вынесена на корневой уровень, чтобы применяться ко *всем* подпапкам
-(`tests/e2e`, `tests/integration`, etc.).
+Содержит специфичные для тестовой папки фикстуры и утилиты.
+Базовая конфигурация наследуется из корневого conftest.py.
 """
 from __future__ import annotations
 
-import os
-from typing import Generator
-
-import pytest
-import requests
-from playwright.sync_api import Page
-
 from framework.utils.url_utils import ensure_allow_session_param
-from pathlib import Path
-from dotenv import load_dotenv
 
-# Загружаем переменные окружения из secrets/
-project_root = Path(__file__).resolve().parent.parent
-load_dotenv(project_root / "secrets" / ".env", override=False)
-load_dotenv(project_root / "secrets" / "creds.env", override=True)
-load_dotenv(dotenv_path='D:/Bll_tests/secrets/creds.env')
-print('AUTH_USERNAME:', os.getenv('AUTH_USERNAME'))
-print('AUTH_PASSWORD:', os.getenv('AUTH_PASSWORD'))
+# Все остальные настройки (sys.path, переменные окружения, http_session) 
+# теперь наследуются из корневого conftest.py
 
 
 

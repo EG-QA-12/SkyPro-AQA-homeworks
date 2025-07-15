@@ -240,7 +240,7 @@ python -m src.auth_gui
 ### Управление пользователями через DatabaseManager
 
 ```python
-from src.database import DatabaseManager
+from projects.auth_management.database import DatabaseManager
 
 db = DatabaseManager()
 
@@ -274,7 +274,7 @@ db.delete_user("user2")
 ### Управление пользователями через UserManager
 
 ```python
-from src.user_manager import UserManager
+from projects.auth_management.user_manager import UserManager
 
 user_manager = UserManager()
 
@@ -304,8 +304,8 @@ if user_manager.verify_password("john_doe", "securepass123"):
 ### Работа с куками
 
 ```python
-from src.auth import load_cookies, save_cookies
-from src.user_manager import UserManager
+from projects.auth_management.auth import load_cookies, save_cookies
+from projects.auth_management.user_manager import UserManager
 import json
 
 user_manager = UserManager()
@@ -342,7 +342,7 @@ if cookies:
 ### Примеры использования UserManager
 
 ```python
-from src.user_manager import UserManager
+from projects.auth_management.user_manager import UserManager
 
 user_manager = UserManager()
 

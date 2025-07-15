@@ -26,9 +26,9 @@ from typing import Dict, List, Any, Optional
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from src.config import config
-from src.logger import setup_logger
-from src.user_manager import UserManager
+from projects.auth_management.config import config
+from projects.auth_management.logger import setup_logger
+from projects.auth_management.user_manager import UserManager
 from playwright.sync_api import sync_playwright
 
 logger = setup_logger(__name__)

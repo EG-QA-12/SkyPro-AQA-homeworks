@@ -25,10 +25,10 @@ from typing import Dict, List, Optional, Any
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.config import config
-from src.logger import setup_logger
-from src.user_manager import UserManager
-from src.auth import AuthService
+from projects.auth_management.config import config
+from projects.auth_management.logger import setup_logger
+from projects.auth_management.user_manager import UserManager
+from projects.auth_management.auth import AuthService
 
 
 class ThreadSafeProgress:

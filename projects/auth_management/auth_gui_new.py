@@ -18,12 +18,12 @@ from typing import Optional, Dict, Any
 # Добавляем путь к модулям проекта
 sys.path.append(str(Path(__file__).parent.parent))
 
-from src.config import config
-from src.logger import setup_logger
-from src.user_manager import UserManager
-from src.database import init_db
-from src.gui.utils.gui_helpers import GUIHelper, setup_gui_styles, extract_login_from_selection, format_user_info
-from src.gui.utils.auth_operations import AuthOperations
+from projects.auth_management.config import config
+from projects.auth_management.logger import setup_logger
+from projects.auth_management.user_manager import UserManager
+from projects.auth_management.database import init_db
+from projects.auth_management.gui.utils.gui_helpers import GUIHelper, setup_gui_styles, extract_login_from_selection, format_user_info
+from projects.auth_management.gui.utils.auth_operations import AuthOperations
 
 
 class AuthGUI:
@@ -388,7 +388,7 @@ class AuthGUI:
     
     def _update_buttons_state(self, enabled: bool) -> None:
         """Обновление состояния кнопок."""
-        from src.gui.utils.gui_helpers import update_buttons_state
+        from projects.auth_management.gui.utils.gui_helpers import update_buttons_state
         update_buttons_state(self.buttons, enabled)
     
     def _get_selected_user(self) -> Optional[Dict[str, Any]]:
@@ -580,7 +580,7 @@ class AuthGUI:
                 
                 # Последняя авторизация
                 last_auth = user.get('last_login', 'Не авторизован')
-                from src.gui.utils.gui_helpers import format_datetime
+                from projects.auth_management.gui.utils.gui_helpers import format_datetime
                 last_auth = format_datetime(last_auth)
                 
                 self.users_tree.insert('', tk.END, values=(login, role, status, last_auth))

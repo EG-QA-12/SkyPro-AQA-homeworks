@@ -5,7 +5,7 @@
 """
 
 from playwright.sync_api import sync_playwright
-from src.config import config
+from projects.auth_management.config import config
 import time
 
 def analyze_auth_behavior():
