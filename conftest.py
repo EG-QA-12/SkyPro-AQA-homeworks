@@ -65,10 +65,13 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     Доступные опции:
     --headless: Запуск браузерных тестов в headless режиме
     --slow-mo: Задержка между действиями в Playwright (мс)
-    --browser: Выбор браузера (chromium, firefox, webkit)
+    --test-browser: Выбор браузера (chromium, firefox, webkit) 
     --cookie-file: Указание cookie файла для тестов
     --user-role: Роль пользователя для авторизации
     --user-login: Логин конкретного пользователя
+    
+    Примечание: pytest-playwright добавляет свою опцию --browser,
+    поэтому мы используем --test-browser для избежания конфликтов.
     """
     # Браузерные опции
     parser.addoption(
@@ -85,11 +88,11 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         help="Задержка между действиями в Playwright (мс)"
     )
     parser.addoption(
-        "--browser",
+        "--test-browser",
         action="store",
         default="chromium", 
         choices=["chromium", "firefox", "webkit"],
-        help="Выбор браузера для тестов"
+        help="Выбор браузера для тестов (альтернатива pytest-playwright --browser)"
     )
     
     # Опции для cookie тестов
