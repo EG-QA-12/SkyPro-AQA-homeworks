@@ -1,13 +1,13 @@
 """
-Эталонный тест авторизации через UI с сохранением куки для одного или всех пользователей из creds.env.
+Эталонный тест авторизации через UI с сохранением куки для пользователей из creds.env.
 
 - По умолчанию (AUTH_MODE=all) авторизует всех пользователей (admin, moderator, expert, user)
 - Если AUTH_MODE=one — авторизует только admin
 - Для каждого пользователя отдельный assert с пояснением в логе
 - Для запуска всех пользователей:
-    pytest tests/integration/test_single_user_login_and_save_cookie.py --headed -v -s
+    pytest tests/auth/test_single_user_creds_login_and_save_cookie.py --headed -v -s
 - Для запуска только admin:
-    AUTH_MODE=one pytest tests/integration/test_single_user_login_and_save_cookie.py --headed -v -s
+    AUTH_MODE=one pytest tests/auth/test_single_user_creds_login_and_save_cookie.py --headed -v -s
 
 - Все параметры берутся из creds.env
 """

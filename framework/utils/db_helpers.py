@@ -7,7 +7,7 @@
     from framework.utils.db_helpers import update_user_in_db
     update_user_in_db(login, role, subscription, cookie_file)
 """
-from framework.db_utils.database_manager import DatabaseManager
+from framework.utils.db_utils import DatabaseManager
 from datetime import datetime
 from typing import Optional
 

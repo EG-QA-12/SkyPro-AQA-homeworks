@@ -24,6 +24,7 @@ from config.secrets_manager import SecretsManager
 from framework.utils.cookie_constants import COOKIE_NAME, joint_cookie
 from framework.utils.reporting.allure_utils import ui_test
 from framework.utils.auth_utils import save_cookie, load_cookie
+from framework.utils.db_helpers import update_user_in_db
 
 # Загрузка тестовых пользователей из CSV
 USERS_CSV_PATH = Path("d:/Bll_tests/secrets/bulk_users.csv")
@@ -231,6 +232,20 @@ def test_visible_login_and_save_cookies(browser: Browser) -> None:
                         print(f"   📁 Размер файла: {file_size} байт")
                     else:
                         print(f"   ❌ Ошибка: файл {user['cookie_file']} не создан")
+                
+                # Шаг 4: Сохранение данных пользователя в БД
+                with allure.step("Сохранение данных в БД"):
+                    try:
+                        update_user_in_db(
+                            login=user['login'],
+                            role=user.get('role', 'user'),
+                            subscription=user.get('subscription', 'basic'),
+                            cookie_file=user['cookie_file']
+                        )
+                        print(f"   🗄️  Данные пользователя {user['name']} сохранены в БД")
+                        print(f"   📊 Роль: {user.get('role', 'user')}, Подписка: {user.get('subscription', 'basic')}")
+                    except Exception as e:
+                        print(f"   ⚠️  Ошибка сохранения в БД: {e}")
                 
                 print(f"   🎉 Авторизация {user['name']} завершена успешно!\n")
                 time.sleep(1)  # Пауза между пользователями

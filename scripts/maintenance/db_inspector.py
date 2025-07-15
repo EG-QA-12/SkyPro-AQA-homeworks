@@ -18,9 +18,11 @@ from typing import List, Dict, Any
 # Позволяем запускать скрипт из любой директории проекта
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
-    sys.path.append(str(PROJECT_ROOT))
+    sys.path.insert(0, str(PROJECT_ROOT))
+if str(PROJECT_ROOT / 'framework') not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT / 'framework'))
 
-from framework.db_utils.database_manager import DatabaseManager  # noqa: E402
+from framework.utils.db_utils import DatabaseManager  # noqa: E402
 
 
 def format_users(rows: List[Dict[str, Any]]) -> str:
