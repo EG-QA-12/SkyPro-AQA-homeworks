@@ -88,7 +88,7 @@ class LoginPage(BasePage):
         
         # Ожидаем появления формы логина для обеспечения готовности
         try:
-            self.page.wait_for_selector(self.USERNAME_INPUT, timeout=5000)
+            self.page.wait_for_selector(self.LOCATORS["username_input"], timeout=5000)
             self.logger.info("Форма логина успешно загружена и готова к использованию")
         except Exception as e:
             self.logger.warning(f"Форма логина не появилась за 5 секунд: {e}")
