@@ -85,7 +85,7 @@ class UserManager:
             Словарь с данными пользователя или None
         """
         if login:
-            return self.db.get_user_by_username(login)
+            return self.db.get_user(login)
         elif role:
             return self.get_user_by_role(role)
         return None
@@ -181,7 +181,7 @@ class UserManager:
         Returns:
             Словарь с результатами авторизации
         """
-        from .auth import AuthService
+        from .auth import PlaywrightAuth
         
         success = {}
         failed = []
@@ -191,7 +191,7 @@ class UserManager:
             return {"success": success, "failed": failed}
             
         # Инициализируем сервис авторизации
-        auth_service = AuthService(headless=headless)
+        auth_service = PlaywrightAuth(headless=headless)
         
         try:
             with open(csv_path, 'r', encoding='utf-8') as csvfile:
@@ -411,7 +411,7 @@ class UserManager:
                 data_dir = config.COOKIES_PATH.parent
                 data_dir.mkdir(exist_ok=True)
                 # Получаем логин пользователя
-                user = self.db.get_user_by_username(user_id) if isinstance(user_id, str) else None
+                user = self.db.get_user(user_id) if isinstance(user_id, str) else None
                 login = user.get("login") if user else str(user_id)
                 file_path = data_dir / f"{login}_cookies.json"
                 with open(file_path, "w", encoding="utf-8") as f:

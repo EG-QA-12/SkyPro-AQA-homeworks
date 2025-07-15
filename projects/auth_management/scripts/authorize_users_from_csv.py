@@ -13,7 +13,7 @@ import os
 import sys
 
 # Add project root to sys.path to allow absolute imports
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
 
 from projects.auth_management.user_manager import UserManager  # noqa: E402
 from projects.auth_management.logger import setup_logger  # noqa: E402

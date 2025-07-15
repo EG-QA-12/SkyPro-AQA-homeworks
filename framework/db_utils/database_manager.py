@@ -199,3 +199,52 @@ class DatabaseManager:
             exc_tb: Трассировка стека.
         """
         self.close()
+
+    # ===⬇️ Методы-адаптеры для обратной совместимости (legacy API) ===
+    def create_user(self, login: str, password: str, role: str = "user") -> bool:
+        """Создаёт пользователя (back-compat).
+
+        Старый код ожидал метод ``create_user`` с сигнатурой ``(login, password, role)``.
+        В новой схеме пароли и так хранятся в CSV/Secrets, поэтому пароль игнорируется.
+        Мы делегируем реализацию на ``add_or_update_user``.
+
+        Args:
+            login (str): Логин пользователя.
+            password (str): Пароль (не используется).
+            role (str): Роль пользователя.
+
+        Returns:
+            bool: ``True``, если запись создана/обновлена без ошибок.
+        """
+        try:
+            # По умолчанию ставим фиктивную подписку «trial» для совместимости
+            user_id = self.add_or_update_user(login=login, role=role, subscription="trial")
+            return user_id != -1
+        except Exception as exc:  # pragma: no cover
+            # Логировать здесь нельзя, чтобы не тянуть зависимости; просто пробрасываем
+            raise exc
+
+    def get_user_by_username(self, login: str):
+        """Возвращает пользователя по логину (back-compat)."""
+        return self.get_user(login)
+
+    def execute_query(self, query: str, params: tuple = (), fetch: bool = False):
+        """Универсальный метод выполнения SQL-запроса.
+
+        Этот метод нужен для старого слоя ``UserManager``, который напрямую
+        исполняет raw-SQL. Для совместимости мы предоставляем простую обёртку
+        вокруг ``sqlite3``.
+
+        Args:
+            query (str): SQL-запрос.
+            params (tuple): Параметры запроса.
+            fetch (bool): Если ``True`` — вернуть все результаты ``fetchall``.
+
+        Returns:
+            Any: Список строк результата или ``None``.
+        """
+        cursor = self.conn.cursor()
+        cursor.execute(query, params)
+        data = cursor.fetchall() if fetch else None
+        self.conn.commit()
+        return data
