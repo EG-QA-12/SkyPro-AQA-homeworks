@@ -1,19 +1,16 @@
-# Объединенный README
-
-## Назначение
-
+# Обновленный каталог
+## flexible_auth.py
+Слитая авторизация.
+## db_utils.py
+Слитые БД-утилиты.
 ## cookie_tester.py
-Объединенный тестер куки.
-
+Тестер куки.
 ## db_inspector.py
-Инспекция БД.
-
+Инспектор БД.
 ## run_csv_auth_gui.py
-Авторизация из CSV с GUI.
-
+Запуск GUI авторизации.
 ## run_gui_tests.py
 Запуск GUI тестов.
-
 ## run_tests_with_allure.py
 Тесты с Allure. 
 
