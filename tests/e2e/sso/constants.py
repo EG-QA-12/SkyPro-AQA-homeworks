@@ -82,7 +82,7 @@ class SSOTestConfig:
     """Настройки для SSO тестов."""
     
     # Таймауты
-    REQUEST_TIMEOUT = 15  # Таймаут HTTP запросов (секунды)
+    REQUEST_TIMEOUT = 8  # Таймаут HTTP запросов (секунды) - ОПТИМАЛЬНЫЙ баланс скорости/надежности
     
     # Настройки retry
     MAX_RETRIES = 3
