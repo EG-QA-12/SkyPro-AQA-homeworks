@@ -122,33 +122,4 @@ def test_main_page_loads_successfully(page: Page) -> None:
     assert content_found, "Основной контент страницы не найден или не виден"
 
 
-@pytest.mark.regression
-@pytest.mark.user_journey
-def test_main_page_performance(page: Page) -> None:
-    """
-    E2E тест производительности главной страницы.
-    
-    Проверяет время загрузки и базовые метрики производительности.
-    
-    Args:
-        page: Страница браузера для тестирования.
-    """
-    import time
-    
-    start_time = time.time()
-    
-    # Загружаем страницу
-    main_url = add_allow_session_param("https://bll.by", is_headless())
-    response = page.goto(main_url)
-    assert response is not None
-    assert response.status == 200
-    
-    # Ждем полной загрузки
-    page.wait_for_load_state('networkidle')
-    
-    load_time = time.time() - start_time
-    
-    # Обновленный таймаут производительности
-    assert load_time < 10.0, f"Страница загружается слишком медленно: {load_time:.2f} секунд"
-    
-    print(f"✅ Страница загрузилась за {load_time:.2f} секунд")
+

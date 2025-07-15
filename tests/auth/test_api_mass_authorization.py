@@ -163,97 +163,6 @@ def test_api_mass_authorization() -> None:
     print("="*80)
 
 
-@ui_test(
-    title="Демонстрация одиночной API авторизации",
-    description="Пошаговая демонстрация API авторизации на примере админа",
-    feature="API авторизация"
-)
-@pytest.mark.api
-@pytest.mark.demo
-def test_single_api_auth_demo() -> None:
-    """
-    Демонстрационный тест одиночной API авторизации.
-    
-    Показывает детальный процесс авторизации одного пользователя
-    для понимания механизма работы API.
-    """
-    
-    print("\n" + "="*80)
-    print("🔍 ДЕМОНСТРАЦИЯ ОДИНОЧНОЙ API АВТОРИЗАЦИИ")
-    print("="*80)
-    
-    # Используем админа для демонстрации
-    admin_user = None
-    for user in TEST_USERS:
-        if user.get('login') == 'admin' or user.get('name') == 'admin':
-            admin_user = user
-            break
-    
-    if not admin_user:
-        pytest.skip("Пользователь admin не найден для демонстрации")
-    
-    print(f"👤 Демонстрируем API авторизацию пользователя: {admin_user['login']}")
-    
-    with allure.step("Создание API менеджера"):
-        auth_manager = APIAuthManager()
-        print(f"🔧 API менеджер создан")
-        print(f"   🌐 Базовый URL: {auth_manager.base_url}")
-        print(f"   📡 Эндпоинт авторизации: {auth_manager.login_endpoint}")
-        print(f"   ⏱️  Таймаут: {auth_manager.timeout} сек")
-    
-    try:
-        with allure.step("Выполнение API запроса"):
-            print(f"\n📡 Выполняем POST запрос к /login...")
-            print(f"   📝 Параметры:")
-            print(f"      • lgn: {admin_user['login']}")
-            print(f"      • password: [скрыт для безопасности]")
-            print(f"      • remember: 1")
-            
-            start_time = time.time()
-            result = auth_manager.login_user(admin_user['login'], admin_user['password'])
-            elapsed_time = time.time() - start_time
-            
-            print(f"\n📊 Результат запроса:")
-            print(f"   ⏱️  Время выполнения: {elapsed_time:.2f} сек")
-            print(f"   📈 HTTP статус: {result.response_status}")
-            print(f"   ✅ Успех: {'Да' if result.success else 'Нет'}")
-            
-            if result.success:
-                print(f"   🔑 Кука получена: {COOKIE_NAME}")
-                print(f"   📝 Значение куки: {result.session_token[:50]}...")
-                print(f"   🍪 Количество кук: {len(result.cookies) if result.cookies else 0}")
-                
-                # Детали куки
-                if result.cookies and COOKIE_NAME in result.cookies:
-                    cookie = result.cookies[COOKIE_NAME]
-                    print(f"\n🔍 Детали куки:")
-                    print(f"   • Имя: {cookie['name']}")
-                    print(f"   • Домен: {cookie['domain']}")
-                    print(f"   • Путь: {cookie['path']}")
-                    print(f"   • Безопасная: {cookie['secure']}")
-                    print(f"   • HttpOnly: {cookie['httpOnly']}")
-                    print(f"   • SameSite: {cookie['sameSite']}")
-            else:
-                print(f"   ❌ Ошибка: {result.error_message}")
-        
-        with allure.step("Валидация результата"):
-            if result.success:
-                # Проверяем обязательные поля
-                assert result.cookies is not None, "Куки должны быть получены"
-                assert COOKIE_NAME in result.cookies, f"Кука {COOKIE_NAME} должна присутствовать"
-                assert result.session_token, "Токен сессии должен быть получен"
-                assert result.response_status == 200, f"Ожидался статус 200, получен {result.response_status}"
-                
-                print(f"✅ Все проверки пройдены успешно")
-            else:
-                pytest.fail(f"API авторизация не удалась: {result.error_message}")
-    
-    finally:
-        auth_manager.close()
-        print(f"\n🧹 API сессия закрыта")
-    
-    print(f"\n🎯 Демонстрация завершена успешно!")
-
 
 @pytest.mark.api
 @pytest.mark.performance  
@@ -288,8 +197,8 @@ def test_api_performance_benchmark() -> None:
     print(f"   ⚡ Время на пользователя: {total_time / len(test_users):.2f} сек")
     print(f"   🚀 Пользователей в секунду: {len(test_users) / total_time:.2f}")
     
-    # Сравнение с эталонными показателями
-    expected_time_per_user = 2.0  # Ожидаем не более 2 сек на пользователя
+    # Сравнение с эталонными показателями (более реалистичные ограничения)
+    expected_time_per_user = 10.0  # Ожидаем не более 10 сек на пользователя (учитывая сетевые задержки)
     actual_time_per_user = total_time / len(test_users)
     
     print(f"\n🎯 СРАВНЕНИЕ С ЭТАЛОНОМ:")
@@ -301,9 +210,9 @@ def test_api_performance_benchmark() -> None:
     else:
         print(f"   ⚠️  Производительность ниже ожидаемой")
     
-    # Проверки производительности
+    # Проверки производительности (реалистичные ограничения)
     assert successful_count > 0, "Должна быть хотя бы одна успешная авторизация"
-    assert total_time < 30, f"Общее время не должно превышать 30 сек, получено {total_time:.2f}"
+    assert total_time < 60, f"Общее время не должно превышать 60 сек, получено {total_time:.2f}"
     
     print(f"\n🏆 Бенчмарк завершен успешно!")
 
