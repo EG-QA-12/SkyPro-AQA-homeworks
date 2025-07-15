@@ -64,29 +64,66 @@ class LoginPage(BasePage):
         self.submit_button = self.page.locator(self.LOCATORS["submit_button"])
         self.error_message = self.page.locator(self.LOCATORS["error_message"])
 
-    def navigate(self):
+    def navigate(self) -> None:
         """
-        Переходит на страницу логина.
+        Переходит на страницу логина и ожидает готовности формы авторизации.
         
-        Этот метод инкапсулирует логику перехода на URL страницы,
-        что делает тесты чище и проще в поддержке.
+        Этот метод инкапсулирует логику перехода на URL страницы логина
+        и обеспечивает, что форма авторизации готова к взаимодействию.
+        Использует таймауты для стабильности в различных условиях сети.
+        
+        Raises:
+            TimeoutError: Если страница не загрузится за 30 секунд
+            
+        Example:
+            >>> login_page = LoginPage(page)
+            >>> login_page.navigate()
+            >>> # Теперь можно заполнять форму логина
+            
+        Note:
+            После успешного выполнения поле ввода логина готово к заполнению.
         """
-        self.logger.info(f"Переход на страницу логина: {self.URL}")
-        self.page.goto(self.URL)
+        self.logger.info(f"Начинаем навигацию на страницу логина: {self.URL}")
+        self.page.goto(self.URL, timeout=30000)
+        
+        # Ожидаем появления формы логина для обеспечения готовности
+        try:
+            self.page.wait_for_selector(self.USERNAME_INPUT, timeout=5000)
+            self.logger.info("Форма логина успешно загружена и готова к использованию")
+        except Exception as e:
+            self.logger.warning(f"Форма логина не появилась за 5 секунд: {e}")
+            # Продолжаем выполнение, так как страница может загрузиться позже
 
-    def fill_username(self, username: str):
+    def fill_username(self, username: str) -> None:
         """
-        Заполняет поле 'Логин'.
+        Заполняет поле логина с валидацией и проверкой готовности.
+        
+        Метод безопасно заполняет поле ввода логина, ожидая его готовности
+        к взаимодействию. Включает валидацию входных данных и подробное
+        логирование для отладки тестов.
         
         Args:
-            username (str): Логин пользователя для ввода
-        
-        Returns:
-            None
+            username: Логин пользователя для ввода. Не должен быть пустым.
+            
+        Raises:
+            ValueError: Если username пустой или None
+            TimeoutError: Если поле ввода недоступно в течение 10 секунд
+            
+        Example:
+            >>> login_page = LoginPage(page)
+            >>> login_page.navigate()
+            >>> login_page.fill_username("admin")
+            
+        Note:
+            Метод ожидает видимости поля перед заполнением для стабильности.
         """
-        self.logger.info(f"Ввод имени пользователя: '{username}'")
+        if not username or username.strip() == "":
+            raise ValueError("Логин не может быть пустым")
+            
+        self.logger.info(f"Заполняем поле логина пользователем: '{username}'")
         self.username_input.wait_for(state="visible", timeout=10000)
         self.username_input.fill(username)
+        self.logger.info("Поле логина успешно заполнено")
 
     def fill_password(self, password: str):
         """

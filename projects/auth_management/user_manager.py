@@ -395,16 +395,16 @@ class UserManager:
                     c["domain"] = ".bll.by"
             
             # Сохраняем куки в файл
-            from .config import config  # локальный импорт, чтобы избежать циклов
-            data_dir = config.COOKIES_PATH.parent
-            data_dir.mkdir(exist_ok=True)
+                from .config import config  # локальный импорт, чтобы избежать циклов
+                data_dir = config.COOKIES_PATH.parent
+                data_dir.mkdir(exist_ok=True)
             # Получаем логин пользователя по id
             login_row = self.db.execute_query("SELECT login FROM users WHERE id = ?", (user_id,), fetch=True)
             login = login_row[0][0] if login_row else str(user_id)
-            file_path = data_dir / f"{login}_cookies.json"
+                file_path = data_dir / f"{login}_cookies.json"
             import json, datetime
-            with open(file_path, "w", encoding="utf-8") as f:
-                json.dump(cookies, f, ensure_ascii=False, indent=2)
+                with open(file_path, "w", encoding="utf-8") as f:
+                    json.dump(cookies, f, ensure_ascii=False, indent=2)
             # Обновляем БД — сохраняем только путь к файлу
             self.db.update_cookie_file(login=login, cookie_file=str(file_path))
             logger.info(f"Куки для пользователя {login} сохранены в файл {file_path} и путь обновлён в БД")

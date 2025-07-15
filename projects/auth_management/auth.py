@@ -221,8 +221,8 @@ class PlaywrightAuth:
     def __enter__(self):
         # Если браузер уже запущен (создан в __init__), просто возвращаем self
         if not self.browser:
-            self.playwright = sync_playwright().start()
-            self.browser = self.playwright.chromium.launch(headless=self.headless)
+        self.playwright = sync_playwright().start()
+        self.browser = self.playwright.chromium.launch(headless=self.headless)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
