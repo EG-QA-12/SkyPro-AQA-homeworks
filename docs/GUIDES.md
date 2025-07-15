@@ -3,10 +3,9 @@
 ## Contributing
 // ... content from contributing.md ...
 
-## Структура тестов
-- auth/ сохранена
-- unit/ и visual/ слиты в integration/
-- e2e/ для end-to-end
+## Auth Tests Structure
+- Слито в unified_auth_tests.py
+- Удалены пустые поддиректории
 
 ## Auth Management Guide
 // ... content from README.md ...
