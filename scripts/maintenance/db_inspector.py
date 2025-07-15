@@ -90,6 +90,15 @@ def list_users() -> None:
     print(format_users(users))
 
 
+def inspect_db(db_path: str) -> None:
+    """Инспектирует БД.
+
+    Args:
+        db_path: Путь к БД.
+    """
+    pass # Placeholder for actual inspection logic
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Инспектор базы пользователей: выводит информацию о пользователях и куках.",
