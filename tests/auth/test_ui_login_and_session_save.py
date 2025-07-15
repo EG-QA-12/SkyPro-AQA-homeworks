@@ -306,6 +306,74 @@ def test_visible_auth_from_saved_cookies(browser: Browser) -> None:
     print("="*80)
 
 
+@pytest.mark.integration
+def test_single_evgenqa_auth(browser: Browser) -> None:
+    """
+    Тест авторизации только пользователя EvgenQA для проверки корректности учетных данных.
+    Запускается отдельно, без влияния других пользователей.
+    """
+    print("\n" + "="*80)
+    print("🔍 ТЕСТ АВТОРИЗАЦИИ ТОЛЬКО EVGENQA")
+    print("="*80)
+    
+    # Берем только EvgenQA из списка
+    evgenqa_user = None
+    for user in TEST_USERS:
+        if user['name'] == 'EvgenQA':
+            evgenqa_user = user
+            break
+    
+    if not evgenqa_user:
+        pytest.skip("Пользователь EvgenQA не найден в TEST_USERS")
+    
+    print(f"\n📝 Авторизуем пользователя: {evgenqa_user['name']}")
+    print(f"   Логин: {evgenqa_user['login']}")
+    
+    context = browser.new_context()
+    page = context.new_page()
+    
+    try:
+        with allure.step(f"Авторизация {evgenqa_user['name']}"):
+            # Переход на страницу логина
+            login_url = add_allow_session_param("https://ca.bll.by/login", is_headless())
+            print(f"   🌐 Переходим на страницу логина: {login_url}")
+            page.goto(login_url, wait_until="domcontentloaded", timeout=20000)
+            
+            # Заполнение формы
+            print(f"   📝 Заполняем форму авторизации...")
+            page.fill("input[name='login'], input[name='email'], #login", evgenqa_user['login'])
+            page.fill("input[type='password'], input[name='password'], #password", evgenqa_user['password'])
+            
+            print(f"   🔘 Нажимаем кнопку входа...")
+            page.click("button[type='submit'], input[type='submit'], button:has-text('Войти')")
+            print(f"   ✅ Форма авторизации отправлена")
+            
+            # Проверка авторизации
+            try:
+                page.wait_for_selector(".user-in__nick", timeout=15000)
+                nickname_element = page.locator(".user-in__nick")
+                nickname_text = nickname_element.text_content().strip()
+                
+                print(f"   ✅ Найден никнейм пользователя: '{nickname_text}'")
+                
+                if nickname_text == evgenqa_user['login']:
+                    print(f"   ✅ Никнейм совпадает с логином - авторизация успешна!")
+                    print(f"   🎉 EvgenQA успешно авторизован!")
+                else:
+                    print(f"   ❌ Никнейм '{nickname_text}' не соответствует логину '{evgenqa_user['login']}'")
+                    assert False, f"Никнейм не совпадает с логином"
+                    
+            except Exception as e:
+                print(f"   ❌ Никнейм пользователя не найден: {e}")
+                screenshot_path = f"evgenqa_solo_auth_fail.png" 
+                page.screenshot(path=screenshot_path)
+                print(f"   📸 Скриншот сохранен: {screenshot_path}")
+                assert False, f"Авторизация EvgenQA не удалась: никнейм не найден"
+                
+    finally:
+        context.close()
+
+
 # @pytest.fixture(autouse=True, scope="module")
 # def cleanup_demo_files():
 #     """Автоматическая очистка демонстрационных файлов после тестов."""
