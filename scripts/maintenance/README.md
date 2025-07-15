@@ -16,3 +16,6 @@
 
 ## run_tests_with_allure.py
 Тесты с Allure. 
+
+## Setup Secrets
+Настройка секретов теперь в config/secrets_manager.py 
