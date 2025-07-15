@@ -28,9 +28,14 @@ sys.path.insert(0, str(PROJECT_ROOT))
 load_dotenv(PROJECT_ROOT / "secrets" / ".env", override=False)
 load_dotenv(PROJECT_ROOT / "secrets" / "creds.env", override=True)
 
-# Выводим информацию об авторизационных данных для отладки
-print(f"AUTH_USERNAME: {os.getenv('AUTH_USERNAME')}")
-print(f"AUTH_PASSWORD: {os.getenv('AUTH_PASSWORD')}")
+# Безопасная проверка конфигурации без раскрытия секретов
+auth_username = os.getenv('AUTH_USERNAME')
+auth_password = os.getenv('AUTH_PASSWORD')
+
+if auth_username and auth_password:
+    print(f"✅ Конфигурация авторизации загружена для пользователя: {auth_username[:2]}***")
+else:
+    print("⚠️ Отсутствуют данные авторизации в переменных окружения")
 
 
 @pytest.fixture(scope="session")
