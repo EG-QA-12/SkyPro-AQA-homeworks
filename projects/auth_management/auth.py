@@ -212,14 +212,17 @@ class PlaywrightAuth:
     """
 
     def __init__(self, headless: bool = True):
-        self.playwright = None
-        self.browser = None
+        # Немедленно запускаем Playwright для обратной совместимости
+        self.playwright = sync_playwright().start()
+        self.browser = self.playwright.chromium.launch(headless=headless)
         self.context = None
         self.headless = headless
 
     def __enter__(self):
-        self.playwright = sync_playwright().start()
-        self.browser = self.playwright.chromium.launch(headless=self.headless)
+        # Если браузер уже запущен (создан в __init__), просто возвращаем self
+        if not self.browser:
+            self.playwright = sync_playwright().start()
+            self.browser = self.playwright.chromium.launch(headless=self.headless)
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
