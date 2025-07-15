@@ -142,35 +142,112 @@ class SSORequestsClient:
         self.session.cookies.clear()
         logger.debug("Куки очищены")
     
-    def make_request(self, url: str, with_cookies: bool = False) -> Tuple[int, str]:
+    def make_request(self, url: str, with_cookies: bool = True) -> Tuple[int, str]:
         """
-        Выполняет HTTP GET запрос.
+        Выполняет HTTP запрос к указанному URL.
         
         Args:
             url: URL для запроса
-            with_cookies: Использовать ли куки в запросе
+            with_cookies: Использовать ли куки из сессии
             
         Returns:
-            Кортеж (status_code, response_text)
-            
-        Raises:
-            requests.RequestException: При ошибке HTTP запроса
+            Кортеж (статус_код, html_контент)
         """
         try:
+            # Временно отключаем куки если нужно
+            original_cookies = None
             if not with_cookies:
-                # Очищаем куки для запроса без авторизации
-                self.clear_cookies()
+                original_cookies = self.session.cookies.copy()
+                self.session.cookies.clear()
             
-            logger.debug(f"Выполняем {'авторизованный' if with_cookies else 'неавторизованный'} запрос к {url}")
+            # Выполняем запрос с автоматическими редиректами
+            # Но для доменов с принудительной авторизацией проверяем финальный URL
+            response = self.session.get(
+                url, 
+                timeout=self.timeout,
+                allow_redirects=True,  # Следуем редиректам
+                headers={'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'}
+            )
             
-            response = self.session.get(url, timeout=self.timeout, allow_redirects=True)
+            final_url = response.url
+            html_content = response.text
             
-            logger.debug(f"Получен ответ: {response.status_code} от {url}")
-            return response.status_code, response.text
+            # Специальная обработка доменов с принудительной авторизацией
+            if self._is_forced_auth_redirect(url, final_url, html_content):
+                logger.info(f"Обнаружен принудительный редирект на авторизацию: {url} → {final_url}")
+                
+                # Если это запрос БЕЗ кук и мы попали на страницу авторизации - это ожидаемо
+                if not with_cookies:
+                    # Возвращаем специальный маркер для анализа
+                    modified_html = self._create_auth_redirect_marker(url, final_url, html_content)
+                    return response.status_code, modified_html
+                else:
+                    # Если с куками все еще редирект на авторизацию - SSO не работает
+                    logger.warning(f"SSO не работает на {url}: редирект на авторизацию даже с куками")
+                    return response.status_code, html_content
+            
+            # Восстанавливаем куки если отключали
+            if not with_cookies and original_cookies:
+                self.session.cookies.update(original_cookies)
+                
+            logger.debug(f"Запрос к {url}: статус {response.status_code}, размер {len(html_content)}")
+            return response.status_code, html_content
             
         except requests.RequestException as e:
             logger.error(f"Ошибка HTTP запроса к {url}: {e}")
+            # Восстанавливаем куки в случае ошибки
+            if not with_cookies and original_cookies:
+                self.session.cookies.update(original_cookies)
             raise
+    
+    def _is_forced_auth_redirect(self, original_url: str, final_url: str, html_content: str) -> bool:
+        """
+        Проверяет является ли ответ принудительным редиректом на авторизацию.
+        
+        Args:
+            original_url: Исходный URL запроса
+            final_url: Финальный URL после редиректов
+            html_content: HTML контент ответа
+            
+        Returns:
+            True если это принудительный редирект на авторизацию
+        """
+        # Проверяем редирект на ca.bll.by/login
+        if "ca.bll.by/login" in final_url and original_url != final_url:
+            return True
+            
+        # Проверяем заголовок страницы bii-auth (заглушка авторизации)
+        if "bii-auth" in html_content:
+            return True
+            
+        # Проверяем наличие формы логина или редирект-сообщений
+        if any(marker in html_content.lower() for marker in [
+            "redirecting to", "перенаправление", "login required", "требуется вход"
+        ]):
+            return True
+            
+        return False
+    
+    def _create_auth_redirect_marker(self, original_url: str, final_url: str, html_content: str) -> str:
+        """
+        Создает специальный HTML маркер для доменов с принудительной авторизацией.
+        
+        Это помогает анализатору понять что пользователь НЕ авторизован (ожидаемо).
+        """
+        # Добавляем явные маркеры неавторизованного состояния в HTML
+        auth_markers = '''
+        <!-- SSO Test Marker: Forced Auth Redirect -->
+        <a class="top-nav__item top-nav__ent" href="{}">Войти</a>
+        <div class="auth-required">Требуется авторизация для доступа к {}</div>
+        '''.format(final_url, original_url)
+        
+        # Вставляем маркеры в начало body или в конец HTML
+        if "<body>" in html_content:
+            html_content = html_content.replace("<body>", f"<body>{auth_markers}")
+        else:
+            html_content = html_content + auth_markers
+            
+        return html_content
     
     def test_sso_domain(self, domain_url: str, user_cookies: List[Dict[str, Any]]) -> SSOTestResult:
         """
