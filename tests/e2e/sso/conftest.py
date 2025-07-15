@@ -37,7 +37,10 @@ def isolated_sso_client() -> SSORequestsClient:
 @pytest.fixture
 def random_user_cookies(isolated_sso_client: SSORequestsClient) -> Dict[str, Any]:
     """
-    Загружает куки случайного пользователя для тестирования.
+    Загружает куки приоритизированного пользователя для тестирования.
+    
+    Использует приоритетный список пользователей вместо случайного выбора
+    для повышения стабильности тестов.
     
     Args:
         isolated_sso_client: Изолированный SSO клиент
@@ -53,8 +56,19 @@ def random_user_cookies(isolated_sso_client: SSORequestsClient) -> Dict[str, Any
     if not available_users:
         pytest.skip("Нет доступных файлов кук для тестирования SSO")
     
-    # Выбираем случайного пользователя
-    selected_user = random.choice(available_users)
+    # Приоритетный список пользователей (от наиболее надежного к менее надежному)
+    priority_users = ["admin", "expert", "moderator", "EvgenQA", "Xf2gijK8", "TABCDEFr", "eGH344kH"]
+    
+    # Находим первого доступного пользователя из приоритетного списка
+    selected_user = None
+    for priority_user in priority_users:
+        if priority_user in available_users:
+            selected_user = priority_user
+            break
+    
+    # Если никого из приоритетных нет, берем любого доступного
+    if not selected_user:
+        selected_user = available_users[0]  # Первый по алфавиту как фоллбэк
     
     try:
         # Загружаем куки пользователя
