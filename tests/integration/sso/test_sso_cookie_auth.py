@@ -24,7 +24,7 @@ from typing import Dict, Any
 from framework.utils.sso_requests import SSORequestsClient
 from framework.utils.html_parser import validate_sso_response, check_auth_status
 from framework.utils.reporting.allure_utils import ui_test
-from tests.e2e.sso.constants import SSO_DOMAINS, get_domain_display_name
+from tests.integration.sso.constants import SSO_DOMAINS, get_domain_display_name
 
 
 @ui_test(

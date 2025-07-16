@@ -22,28 +22,28 @@
 ### Быстрые HTTP-тесты (рекомендуется)
 ```bash
 # Запуск только HTTP тестов
-pytest redirect_tests/test_redirect_status_codes.py -v
+pytest integration/redirect_tests/test_redirect_status_codes.py -v
 
 # С детальным выводом
-pytest redirect_tests/test_redirect_status_codes.py -v -s
+pytest integration/redirect_tests/test_redirect_status_codes.py -v -s
 ```
 
 ### Все тесты
 ```bash
 # Запуск всех тестов в директории
-pytest redirect_tests/ -v
+pytest integration/redirect_tests/ -v
 ```
 
 ### Отдельные категории тестов
 ```bash
 # Только тесты без редиректа
-pytest redirect_tests/test_redirect_status_codes.py::test_no_redirect_status_code -v
+pytest integration/redirect_tests/test_redirect_status_codes.py::test_no_redirect_status_code -v
 
 # Только тесты с редиректом
-pytest redirect_tests/test_redirect_status_codes.py::test_redirect_status_code -v
+pytest integration/redirect_tests/test_redirect_status_code -v
 
 # Тесты доступности
-pytest redirect_tests/test_redirect_status_codes.py::test_url_connectivity -v
+pytest integration/redirect_tests/test_url_connectivity -v
 ```
 
 ## Преимущества HTTP-тестов

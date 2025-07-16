@@ -12,7 +12,7 @@ from typing import Dict, List, Any
 from pathlib import Path
 
 from framework.utils.sso_requests import SSORequestsClient, get_available_users
-from tests.e2e.sso.constants import SSOTestConfig
+from tests.integration.sso.constants import SSOTestConfig
 
 
 @pytest.fixture
