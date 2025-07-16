@@ -11,7 +11,8 @@ def load_burger_menu_cases(csv_path):
         for row in reader:
             link_text = row["Текст ссылки"].strip()
             url = row["URL"].strip()
-            cases.append((link_text, url))
+            expected_heading = row.get("Ожидаемый заголовок", "").strip() or link_text
+            cases.append((link_text, url, expected_heading))
     return cases
 
 @pytest.fixture(scope="session")
@@ -26,15 +27,15 @@ def admin_cookies():
     """Получает куки для роли admin один раз на сессию."""
     return get_auth_cookies(role="admin")
 
-@pytest.mark.parametrize("link_text,url", load_burger_menu_cases("scripts/data/burger_menu_links_admin.csv"))
-def test_burger_menu_link_and_heading(browser: Browser, admin_cookies, link_text: str, url: str):
+@pytest.mark.parametrize("link_text,url,expected_heading", load_burger_menu_cases("scripts/data/burger_menu_links_admin.csv"))
+def test_burger_menu_link_and_heading(browser: Browser, admin_cookies, link_text: str, url: str, expected_heading: str):
     """
     Проверяет, что после клика по ссылке в бургер-меню открывается страница с ожидаемым заголовком.
     Для каждой проверки:
       - Открывает главную страницу
       - Кликает по бургер-меню
       - Кликает по нужной ссылке
-      - Проверяет заголовок
+      - Проверяет заголовок (по универсальному селектору)
       - Возвращается на главную для следующей итерации
     """
     context: BrowserContext = browser.new_context()
@@ -54,9 +55,14 @@ def test_burger_menu_link_and_heading(browser: Browser, admin_cookies, link_text
         menu_link.wait_for(state="visible", timeout=5000)
         # 4. Клик по нужной ссылке
         menu_link.click()
-        # 5. Проверка заголовка (ожидаем, что он совпадает с текстом ссылки)
-        heading = page.get_by_role("heading", name=link_text)
-        assert heading.is_visible(), f"Заголовок '{link_text}' не найден после перехода по '{link_text}'"
+        # 5. Проверка заголовка по универсальному селектору (h1.news-list__title, h1.topics-title, h1)
+        # Это покрывает разные варианты разметки на страницах
+        heading = page.locator(
+            f"h1.news-list__title:has-text('{expected_heading}'), "
+            f"h1.topics-title:has-text('{expected_heading}'), "
+            f"h1:has-text('{expected_heading}')"
+        )
+        assert heading.is_visible(), f"Заголовок '{expected_heading}' не найден после перехода по '{link_text}'"
         # 6. Возврат на главную страницу для следующей итерации
         page.goto("https://bll.by/")
     finally:
