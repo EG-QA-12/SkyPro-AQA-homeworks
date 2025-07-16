@@ -44,9 +44,9 @@ def test_burger_menu_link_and_heading(browser: Browser, admin_cookies, link_text
     try:
         # 1. Открыть главную страницу
         page.goto("https://bll.by/")
-        # 2. Клик по бургер-меню (заменить локатор на актуальный для вашего сайта)
-        # Пример: aria-label="Открыть меню" или уникальный класс
-        burger_button = page.get_by_role("button", name="Открыть меню")
+        # 2. Клик по бургер-меню
+        # Используем явный CSS-селектор по классам, так как <a class="menu-btn menu-btn_new"> — уникальный элемент бургер-меню
+        burger_button = page.locator("a.menu-btn.menu-btn_new")
         burger_button.wait_for(state="visible", timeout=5000)
         burger_button.click()
         # 3. Явное ожидание появления нужной ссылки
