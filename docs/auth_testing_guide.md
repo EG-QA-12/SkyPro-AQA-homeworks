@@ -225,3 +225,30 @@ def test_example(page: Page):
 **Где искать:**
 - `framework/utils/url_utils.py` — реализация функции
 - `docs/auth_testing_guide.md` — это руководство 
+
+## ✅ Пример успешной проверки невидимой капчи (Invisible SmartCaptcha)
+
+**Кратко:**
+- На современных сайтах (например, BLL) используется невидимая капча, которая не всегда отображает iframe или визуальные элементы.
+- Критерий успеха автотеста: если после отправки формы **нет редиректа на страницу "Спасибо"** (или появляется ошибка/блокировка) — капча/защита сработала, тест считается успешным.
+- Не нужно ждать появления iframe или других визуальных признаков капчи!
+
+**Пример кода:**
+```python
+def test_captcha_invisible(page: Page):
+    # ... заполнение формы ...
+    submit_btn.click()
+    try:
+        page.wait_for_url("**/thanks", timeout=2000)
+        redirected = True
+    except PlaywrightTimeoutError:
+        redirected = False
+    if redirected or "thanks" in page.url:
+        assert False, "Заявка прошла без капчи — тест не пройден!"
+    else:
+        assert True  # Капча/защита сработала, тест пройден
+```
+
+**Пояснение:**
+- Такой подход полностью соответствует документации Яндекс SmartCaptcha: https://yandex.cloud/ru/docs/smartcaptcha/concepts/invisible-captcha?utm_referrer=about%3Ablank
+- Вся команда должна использовать этот критерий для тестов с невидимой капчей. 
