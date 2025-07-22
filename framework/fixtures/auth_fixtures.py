@@ -224,6 +224,34 @@ def auth_page(authenticated_admin) -> Generator[Page, None, None]:
         page.close()
 
 
+@pytest.fixture(scope="function")
+def isolated_context(browser: Browser) -> Generator[tuple[BrowserContext, Page], None, None]:
+    """
+    Фикстура для создания полностью изолированного браузерного контекста.
+    
+    Создает новый контекст без какого-либо предзагруженного состояния (cookies, storage и т.д.).
+    Полезно для тестов, где требуется начинать с 'чистого листа' каждый раз.
+    
+    Args:
+        browser: Браузер из playwright
+        
+    Yields:
+        tuple[BrowserContext, Page]: Кортеж из контекста и новой страницы
+        
+    Example:
+        def test_something(isolated_context):
+            context, page = isolated_context
+            # ... логика теста
+    """
+    context = browser.new_context()
+    page = context.new_page()
+    try:
+        yield context, page
+    finally:
+        page.close()
+        context.close()
+
+
 def _get_user_credentials(secrets_dir: Path, user_type: str) -> Optional[dict]:
     """
     Вспомогательная функция для получения учетных данных пользователя.
