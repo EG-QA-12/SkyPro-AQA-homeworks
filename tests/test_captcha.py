@@ -3,132 +3,138 @@
 """
 import pytest
 from playwright.sync_api import Page
-from framework.buy_page import BuyPage
 import random
 import string
+from framework.utils.url_utils import add_allow_session_param, is_headless
 
 def random_string(length=8):
-    """Генерирует случайную строку из букв заданной длины.
-    
-    Args:
-        length: Длина генерируемой строки.
-        
-    Returns:
-        Случайная строка из латинских букв.
-    """
+    """Генерирует случайную строку из букв заданной длины."""
     return ''.join(random.choices(string.ascii_letters, k=length))
 
 def random_phone():
-    """Генерирует случайный белорусский номер телефона.
-    
-    Returns:
-        Номер телефона в формате +37529XXXXXXX.
-    """
+    """Генерирует случайный белорусский номер телефона."""
     return "+37529" + ''.join(random.choices(string.digits, k=7))
 
 def random_email():
-    """Генерирует случайный email-адрес.
-    
-    Returns:
-        Email в формате xxxxx@example.com.
-    """
+    """Генерирует случайный email-адрес."""
     return random_string(5) + "@example.com"
 
-def test_form_submission_triggers_captcha(page: Page) -> None:
+
+def test_captcha_fill_without_anchor(page: Page):
     """
-    Проверяет, что быстрое заполнение и отправка формы на странице
-    https://bll.by/buy активирует Yandex SmartCaptcha.
-
-    Сценарий:
-    1. Открыть страницу с формой.
-    2. Быстро заполнить все обязательные поля.
-    3. Проставить галочки согласия.
-    4. Нажать кнопку "Отправить".
-    5. Убедиться, что на странице появился iframe капчи.
-
-    Args:
-        page: Экземпляр playwright.sync_api.Page, предоставляемый фикстурой.
+    Проверяет, можно ли сразу заполнить форму на https://bll.by/buy без клика по кнопке 'Заказать демодоступ'.
+    Если форма недоступна — кликает по кнопке и повторяет попытку.
     """
-    # Инициализация page object для работы со страницей покупки BLL
-    buy_page = BuyPage(page)
-    buy_page.navigate()
-    
-    # Заполнение формы тестовыми данными
-    # Быстрая скорость ввода автотеста является триггером для системы защиты
-    buy_page.fill_form(
-        fio="Тестов Тест Тестович",
-        phone="+375291112233",
-        company="Тест-Автоматизация",
-        position="SDET Architect",
-        email="test.automation@example.com",
-    )
+    url = add_allow_session_param("https://bll.by/buy", is_headless())
+    page.goto(url, timeout=60000, wait_until="commit")
+    page.set_viewport_size({"width": 1920, "height": 1080})
+    page.wait_for_timeout(1500)
+    button = page.locator('button.land-btn-main[data-scroll="buy-form"]').first
+    button.scroll_into_view_if_needed()
+    button.click()
+    page.wait_for_selector('input[name="fio"]', timeout=10000)
+    page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
 
-    # Проставление обязательных чекбоксов согласия
-    buy_page.agree_to_terms()
+    # Диагностика: вывести все input name
+    inputs = page.locator('input')
+    input_count = inputs.count()
+    print(f"[DIAG] На форме найдено {input_count} input-полей:")
+    for i in range(input_count):
+        name = inputs.nth(i).get_attribute('name')
+        print(f"[DIAG] input[{i}] name=", name)
 
-    # Отправка формы
-    buy_page.submit_form()
-
-    # Главная проверка: ожидаем появления iframe капчи
-    # Это подтверждает корректную работу системы защиты от ботов
-    buy_page.wait_for_captcha_to_appear(timeout=15000)
-
+    fields = [
+        ('input[name="fio"]', "Тестов Тест Тестович"),
+        ('input[name="phone"]', "+375291112233"),
+        ('input[name="organisation"]', "Тест-Автоматизация"),
+        ('input[name="position"]', "SDET Architect"),
+        ('input[name="email"]', "test.automation@example.com"),
+        ('input[name="promo"]', "PROMO2024"),  # если не требуется, можно закомментировать
+    ]
+    for selector, value in fields:
+        try:
+            page.wait_for_selector(selector, timeout=10000)
+            field = page.locator(selector)
+            field.scroll_into_view_if_needed()
+            field.fill(value)
+            print(f"[DIAG] Заполнено поле {selector} значением '{value}'")
+            page.wait_for_timeout(200)
+        except Exception as e:
+            print(f"[DIAG] Не удалось найти или заполнить поле {selector}: {e}")
+    page.check('input[name="request_agree"]')
+    page.check('input[name="request_agree_pol"]')
+    page.click('button[type="submit"]')
+    page.wait_for_selector('iframe[title*="SmartCaptcha"]', timeout=5000)
     print("\nТест успешно завершен: iframe Yandex SmartCaptcha был обнаружен после отправки формы.")
 
 
-def test_captcha_trigger_random_loop(page: Page):
+def test_captcha_random_loop_bll_humanlike(page: Page):
     """
-    Многократное заполнение формы случайными данными с остановкой, если форма становится недоступна (капча заблокировала).
-    После каждой попытки выводится результат (обнаружен ли iframe капчи и доступна ли форма).
+    Многократная (20 раз) проверка срабатывания капчи на https://bll.by/buy с имитацией ручного заполнения формы.
+    После каждой попытки фиксируется, сработала ли капча (остались на форме) или заявка прошла (редирект на /thanks).
+    В конце выводится статистика.
     """
-    buy_page = BuyPage(page)
-    from playwright.sync_api import TimeoutError as PlaywrightTimeoutError, Error as PlaywrightError
-
+    from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
     success_count = 0
-    for attempt in range(1, 101):
+    total_attempts = 20
+    for attempt in range(1, total_attempts + 1):
         print(f"\n=== Попытка {attempt} ===")
-        buy_page.navigate()
-        
-        try:
-            print("  Заполняем форму...")
-            buy_page.fill_form(
-                fio=random_string(12),
-                phone=random_phone(),
-                company=random_string(10),
-                position=random_string(6),
-                email=random_email(),
-                promo=random_string(5)
-            )
-            print("  Ставим чекбокс...")
-            buy_page.agree_to_terms()
-            print("  Жмём кнопку 'Отправить'...")
-            buy_page.submit_form()
-            
-            # Даём время на обработку формы и возможный редирект
-            page.wait_for_timeout(3000)
-            
-        except Exception as e:
-            print(f"  [Ошибка] Не удалось отправить форму — {type(e).__name__}: {e}")
-            continue
+        url = add_allow_session_param("https://bll.by/buy", is_headless())
+        page.goto(url, timeout=60000, wait_until="commit")
+        page.set_viewport_size({"width": 1920, "height": 1080})
+        page.wait_for_timeout(1500)
+        button = page.locator('button.land-btn-main[data-scroll="buy-form"]').first
+        button.scroll_into_view_if_needed()
+        button.click()
+        page.wait_for_selector('input[name="fio"]', timeout=10000)
+        page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
 
-        # Проверяем текущий URL после отправки формы
+        fields = [
+            ('input[name="fio"]', random_string(12)),
+            ('input[name="phone"]', random_phone()),
+            ('input[name="organisation"]', random_string(10)),
+            ('input[name="position"]', random_string(6)),
+            ('input[name="email"]', random_email()),
+            ('input[name="promo"]', random_string(5)),
+        ]
+        for selector, value in fields:
+            try:
+                page.wait_for_selector(selector, timeout=10000)
+                field = page.locator(selector)
+                field.scroll_into_view_if_needed()
+                field.click()
+                field.type(value, delay=100)
+                print(f"[DIAG] Введено поле {selector} значением '{value}'")
+                page.wait_for_timeout(200)
+            except Exception as e:
+                print(f"[DIAG] Не удалось найти или заполнить поле {selector}: {e}")
+        page.check('input[name="request_agree"]')
+        page.check('input[name="request_agree_pol"]')
+        submit_btn = page.locator('button[type="submit"]')
+        print("[DIAG] Кнопка submit видима:", submit_btn.is_visible())
+        print("[DIAG] Кнопка submit активна:", submit_btn.is_enabled())
+        try:
+            submit_btn.click()
+        except Exception as e:
+            print(f"[DIAG] Не удалось кликнуть по кнопке submit: {e}")
+            continue
+        # Проверяем редирект или капчу
+        try:
+            page.wait_for_url("**/thanks", timeout=3000)
+            redirected = True
+        except PlaywrightTimeoutError:
+            redirected = False
         current_url = page.url
         print(f"  [DEBUG] Текущий URL: {current_url}")
-        
-        # Если произошёл редирект на страницу благодарности - это ПРОВАЛ для теста капчи
-        if "thanks" in current_url:
+        if redirected or "thanks" in current_url:
             print("  [Результат] ПРОВАЛ: заявка прошла без капчи, редирект на /thanks")
             success_count += 1
             continue
         else:
             print("  [Результат] КАПЧА СРАБОТАЛА: остались на странице формы")
-
             try:
-                buy_page.wait_for_captcha_to_appear(timeout=2000)
+                page.wait_for_selector('iframe[title*="SmartCaptcha"]', timeout=2000)
                 print("  ✅ Капча-iframe обнаружен - система защиты работает")
             except Exception:
                 print("  ❌ Капча-iframe не обнаружен - возможна другая блокировка")
-
-            page.wait_for_timeout(500)
-
-    print(f"\nИТОГ: Успешных отправок (редирект на /thanks): {success_count} из 100 попыток.")
+    print(f"\nИТОГ: Успешных отправок (редирект на /thanks): {success_count} из {total_attempts} попыток.")

@@ -6,6 +6,7 @@ from playwright.sync_api import Page
 from framework.bii_buy_page import BiiBuyPage
 import random
 import string
+from framework.utils.url_utils import add_allow_session_param, is_headless
 
 def random_string(length=8):
     return ''.join(random.choices(string.ascii_letters, k=length))
@@ -33,7 +34,8 @@ def test_form_submission_triggers_captcha_bii(page: Page) -> None:
     """
     # 1. Инициализация и переход на страницу
     buy_page = BiiBuyPage(page)
-    buy_page.navigate()
+    url = add_allow_session_param("https://bii.by/buy", is_headless())
+    page.goto(url)
     
     # Заполнение формы данными. 
     buy_page.fill_form(
