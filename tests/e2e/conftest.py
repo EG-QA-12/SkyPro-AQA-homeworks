@@ -17,6 +17,9 @@ from typing import Generator
 import pytest
 from playwright.sync_api import Browser, BrowserContext, Page
 
+# Импорт фикстур из фреймворка
+from framework.fixtures import isolated_context
+
 # sys.path теперь настраивается в корневом conftest.py
 
 
