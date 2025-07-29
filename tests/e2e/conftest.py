@@ -9,18 +9,22 @@
 Базовая конфигурация (sys.path, переменные окружения) наследуется
 из корневого conftest.py.
 """
-from __future__ import annotations
 
-import os
 from typing import Generator
 
 import pytest
-from playwright.sync_api import Browser, BrowserContext, Page
+from playwright.sync_api import Browser, Page
 
 # Импорт фикстур из фреймворка
 from framework.fixtures import isolated_context
+from framework.utils.reporting.allure_utils import allure_step
 
-# sys.path теперь настраивается в корневом conftest.py
+
+# Экспорт фикстур для использования в тестах
+__all__ = [
+    'isolated_context',
+    'allure_step',
+]
 
 
 @pytest.fixture(scope="session")
@@ -31,7 +35,9 @@ def browser_context_args(browser_context_args: dict) -> dict:
     """
     args = {
         **browser_context_args,
-        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "user_agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+        ),
         "viewport": {"width": 1920, "height": 1080},
         "ignore_https_errors": True,
         "java_script_enabled": True,
