@@ -28,6 +28,7 @@ def test_navigation():
         print("    arguments={}")
         print(")")
         print("\nMake sure your MCP client is connected to use these tools!")
+        print("See docs/guides/MCP_SERVERS_GUIDE.md for complete documentation.")
         return True
     except Exception as e:
         print(f"Error: {e}")
