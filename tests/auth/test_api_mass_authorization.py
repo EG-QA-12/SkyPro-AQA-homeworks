@@ -14,7 +14,6 @@ from pathlib import Path
 
 from config.secrets_manager import SecretsManager
 from framework.utils.simple_api_auth import mass_api_auth
-from framework.utils.cookie_constants import COOKIE_NAME
 from framework.utils.reporting.allure_utils import ui_test
 
 # Загрузка тестовых пользователей
@@ -110,8 +109,12 @@ def test_api_mass_authorization() -> None:
             browser_time_estimate = len(TEST_USERS) * 10  # Примерно 10 сек на пользователя в браузере
             speedup = browser_time_estimate / elapsed_time if elapsed_time > 0 else 0
             
-            print(f"   🚀 Ускорение по сравнению с браузером: ~{speedup:.1f}x")
-            print(f"   💰 Экономия времени: ~{browser_time_estimate - elapsed_time:.1f} секунд")
+            print(
+                f"   🚀 Ускорение по сравнению с браузером: ~{speedup:.1f}x"
+            )
+            print(
+                f"   💰 Экономия времени: ~{browser_time_estimate - elapsed_time:.1f} секунд"
+            )
         
         with allure.step("Итоговая валидация"):
             # Основные проверки
@@ -119,7 +122,9 @@ def test_api_mass_authorization() -> None:
             assert stats['success_rate'] >= 50, f"Процент успеха слишком низкий: {stats['success_rate']:.1f}%"
             
             # Успешная авторизация админа критична
-            admin_results = [r for r in successful_users if r['username'] == 'admin']
+            admin_results = [
+                r for r in successful_users if r['username'] == 'admin'
+            ]
             if admin_results:
                 print(f"   ✅ Критичная авторизация админа: успешна")
     
