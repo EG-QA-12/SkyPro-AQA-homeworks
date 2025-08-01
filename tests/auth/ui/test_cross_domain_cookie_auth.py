@@ -5,12 +5,12 @@ from playwright.sync_api import BrowserContext, Page
 from framework.utils.auth_utils import get_random_user_cookie, is_guest, is_authorized
 
 @pytest.mark.parametrize("url", [
-    "https://bll.by/",
-    "https://ca.bll.by/",
-    "https://expert.bll.by/",
-    "https://cp.bll.by/",
-    "https://gz.bll.by/",
-    "https://bonus.bll.by/",
+    "https://bll.by/",           # Основной - главная страница (документы)
+    "https://ca.bll.by/",        # Центр авторизации, личный кабинет
+    "https://expert.bll.by/",    # Сообщество и эксперты
+    "https://cp.bll.by/",        # Проверка контрагента
+    "https://gz.bll.by/",        # Закупки
+    "https://bonus.bll.by/",     # Бонусная система
 ])
 @allure.title("Проверка cookie-авторизации на {url}")
 def test_cookie_auth_on_domain(isolated_context: Tuple[BrowserContext, Page], url: str, allure_step) -> None:
