@@ -1,18 +1,5 @@
 {
   "mcpServers": {
-    "server-sequential-thinking": {
-      "command": "cmd",
-      "args": [
-        "/c",
-        "npx",
-        "-y",
-        "@smithery/cli@latest",
-        "run",
-        "@smithery-ai/server-sequential-thinking",
-        "--key",
-        "far-angelfish-LeI7K9"
-      ]
-    },
     "context7": {
       "command": "npx",
       "args": [
@@ -54,16 +41,6 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-puppeteer"
-      ]
-    },
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@playwright/mcp@latest",
-        "--browser=",
-        "--headless=",
-        "--viewport-size="
       ]
     }
   }
