@@ -232,6 +232,107 @@ use_mcp_tool("playwright-mcp", "browser_navigate", {"url": "..."})
 4. **Комбинируйте инструменты** для максимальной эффективности
 5. **Обрабатывайте ошибки** - проверяйте возвращаемые значения
 
+## Пример интеграции в тесты
+
+### Использование Playwright MCP в тесте
+```python
+import pytest
+from playwright.sync_api import expect
+
+def test_login_with_mcp(page, use_mcp_tool):
+    # Навигация на страницу логина
+    use_mcp_tool(
+        server_name="playwright-mcp",
+        tool_name="browser_navigate",
+        arguments={"url": "https://bll.by/login"}
+    )
+    
+    # Ввод логина
+    use_mcp_tool(
+        server_name="playwright-mcp",
+        tool_name="browser_type",
+        arguments={
+            "element": "Поле ввода логина",
+            "ref": "input[name='login']",
+            "text": "test_user"
+        }
+    )
+    
+    # Ввод пароля
+    use_mcp_tool(
+        server_name="playwright-mcp",
+        tool_name="browser_type",
+        arguments={
+            "element": "Поле ввода пароля",
+            "ref": "input[name='password']",
+            "text": "secure_password"
+        }
+    )
+    
+    # Клик по кнопке входа
+    use_mcp_tool(
+        server_name="playwright-mcp",
+        tool_name="browser_click",
+        arguments={
+            "element": "Кнопка 'Войти'",
+            "ref": "button:has-text('Войти')"
+        }
+    )
+    
+    # Проверка успешной авторизации
+    use_mcp_tool(
+        server_name="playwright-mcp",
+        tool_name="browser_wait_for",
+        arguments={"text": "Добро пожаловать"}
+    )
+    
+    # Получение скриншота для отчета
+    screenshot = use_mcp_tool(
+        server_name="playwright-mcp",
+        tool_name="browser_take_screenshot",
+        arguments={"filename": "screenshots/login_success.png"}
+    )
+    
+    # Проверка URL
+    expect(page).to_have_url("https://bll.by/dashboard")
+```
+
+### Использование Firecrawl для поиска информации
+```python
+def test_content_verification(use_mcp_tool):
+    # Поиск информации на сайте
+    search_results = use_mcp_tool(
+        server_name="firecrawl-mcp",
+        tool_name="firecrawl_search",
+        arguments={
+            "query": "новости проекта BLL",
+            "limit": 3
+        }
+    )
+    
+    # Проверка наличия нужной информации
+    assert any("BLL" in result['title'] for result in search_results), \
+        "Не найдены новости проекта BLL"
+```
+
+### Использование Context7 для получения документации
+```python
+def test_documentation_lookup(use_mcp_tool):
+    # Получение документации по Playwright
+    docs = use_mcp_tool(
+        server_name="github.com/upstash/context7-mcp",
+        tool_name="get-library-docs",
+        arguments={
+            "context7CompatibleLibraryID": "/microsoft/playwright",
+            "tokens": 5000
+        }
+    )
+    
+    # Проверка наличия ключевых разделов
+    assert "Locator" in docs, "Не найдена документация по Locator"
+    assert "Page" in docs, "Не найдена документация по Page"
+```
+
 ## Устранение неполадок
 
 ### Сервер не запускается

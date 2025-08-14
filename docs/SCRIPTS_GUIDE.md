@@ -82,6 +82,29 @@ python scripts/maintenance/flexible_auth.py --user <username> --headless
 - `--headless` - запуск в headless режиме
 - `--save-cookies` - сохранить cookies после авторизации
 
+### 6. MCP-интеграция
+Скрипты могут взаимодействовать с MCP-серверами для расширения возможностей:
+
+1. **playwright_mcp_runner.py** - Запуск тестов через Playwright MCP
+```bash
+python scripts/playwright_mcp_runner.py --test auth --browser chrome
+```
+
+2. **firecrawl_web_analyzer.py** - Анализ веб-контента через Firecrawl MCP
+```bash
+python scripts/firecrawl_web_analyzer.py --url https://bll.by --depth 2
+```
+
+3. **context7_docs_searcher.py** - Поиск документации через Context7 MCP
+```bash
+python scripts/context7_docs_searcher.py --library playwright --query "locator methods"
+```
+
+**Общие параметры MCP-скриптов:**
+- `--mcp-server` - выбор MCP-сервера (playwright, firecrawl, context7)
+- `--threads` - количество потоков для параллельного выполнения
+- `--debug` - вывод отладочной информации
+
 ## 📝 Примеры использования для Junior QA
 
 ### Пример 1: Проверка всех сохраненных cookies
@@ -109,6 +132,18 @@ python scripts/maintenance/run_csv_auth_gui.py
 python scripts/maintenance/run_tests_with_allure.py tests/integration/
 
 # Отчет откроется автоматически в браузере
+```
+
+### Пример 4: Использование MCP-скриптов
+```bash
+# Анализ сайта через Firecrawl MCP
+python scripts/firecrawl_web_analyzer.py --url https://bll.by --depth 2
+
+# Поиск документации по Playwright
+python scripts/context7_docs_searcher.py --library playwright --query "locator methods"
+
+# Запуск тестов через Playwright MCP
+python scripts/playwright_mcp_runner.py --test auth --browser chrome
 ```
 
 ## ⚠️ Важные замечания
