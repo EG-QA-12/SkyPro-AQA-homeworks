@@ -4,7 +4,8 @@ import json
 import requests
 import csv
 import re
-from framework.utils.auth_cookie_provider import get_auth_cookies
+from framework.utils.auth_cookie_provider import get_session_cookie
+from framework.utils.cookie_constants import COOKIE_NAME
 
 CSV_PATH = Path("scripts/data/burger_menu_links_admin.csv")
 COOKIES_PATH = Path("cookies/admin_cookies.json")
@@ -16,8 +17,10 @@ with open(CSV_PATH, encoding="utf-8") as f:
     for row in reader:
         links.append((row["Текст ссылки"].strip(), row["URL"].strip()))
 
-# Загрузка куки для Admin (берём только test_joint_session)
-admin_cookies = get_auth_cookies(role="admin")
+# Загрузка куки для Admin (в формате, совместимом с requests)
+_session_cookie = get_session_cookie(role="admin")
+assert _session_cookie, "Не удалось получить авторизационную куку для admin"
+admin_cookies = {COOKIE_NAME: _session_cookie}
 
 @pytest.mark.parametrize("link_text,url", links)
 def test_burger_menu_link_requests(link_text, url):

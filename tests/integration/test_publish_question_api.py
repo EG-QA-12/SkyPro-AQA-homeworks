@@ -257,6 +257,41 @@ def test_publish_question(case_index: int):
             headers=headers,
             timeout=10
         )
+        # Авто‑ретрай на 401/419: реавторизация и повторная попытка 1 раз
+        if response.status_code in (401, 419):
+            new_cookie = auth_manager._api_login_for_role(os.getenv("TEST_ROLE", "admin"))  # type: ignore[attr-defined]
+            assert new_cookie, "Не удалось выполнить реавторизацию admin для повторной публикации"
+
+            # Переинициализируем CSRF-токены на новой сессии/куке
+            tokens = _fetch_csrf_tokens(parser.session, new_cookie)
+            xsrf_token = unquote(tokens.get('xsrf_cookie') or '') if tokens.get('xsrf_cookie') else None
+            form_token = tokens.get('form_token')
+
+            headers = {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Accept': 'application/json, text/javascript, */*; q=0.01',
+                'Accept-Language': 'ru-RU,ru;q=0.9,en;q=0.8',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Origin': BASE_URL,
+                'Referer': f'{BASE_URL}/admin/posts/new',
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+            if xsrf_token:
+                headers['X-XSRF-TOKEN'] = xsrf_token
+            if form_token:
+                headers['X-CSRF-TOKEN'] = form_token
+
+            extra = []  # type: List[Tuple[str, str]]
+            if form_token:
+                extra.append(('_token', form_token))
+            params_list = generate_params_list(question['id'], extra_params=extra)
+
+            response = parser.session.post(
+                f"{BASE_URL}{PUBLISH_ENDPOINT}",
+                data=params_list,
+                headers=headers,
+                timeout=10
+            )
     except Exception as e:
         pytest.fail(f"Ошибка при отправке запроса: {str(e)}")
     
