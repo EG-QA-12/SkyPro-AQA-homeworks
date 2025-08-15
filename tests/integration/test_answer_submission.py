@@ -41,6 +41,7 @@
 import pytest
 import os
 import allure
+from typing import Set
 from framework.utils.answer_utils import (
     select_question,
     submit_answer,
@@ -65,71 +66,74 @@ def _get_num_answers_env() -> int:
     except (ValueError, TypeError):
         return 1
 
-@allure.title("Отправка ответа на вопрос и его проверка")
-@allure.description(
-    "Тест выполняет полный E2E сценарий: авторизация, выбор вопроса по критерию, "
-    "отправка ответа и проверка его появления в панели модерации с корректным статусом."
-)
 @allure.feature("API Тестирование")
 @pytest.mark.api
-@pytest.mark.parametrize("run_index", range(_get_num_answers_env()))
-@pytest.mark.parametrize(
-    "selection_mode, description",
-    SELECTION_MODES,
-    ids=[mode[0] for mode in SELECTION_MODES],
-)
-def test_submit_answer_and_verify(selection_mode: str, description: str, run_index: int):
+class TestAnswerSubmission:
     """
-    Выполняет полный цикл: выбор вопроса, ответ и проверка в админ-панели.
-
-    Args:
-        selection_mode: Критерий выбора вопроса (latest, zero_answers, by_author).
-        description: Человекочитаемое описание тестового случая.
-        run_index: Индекс итерации для массового запуска.
+    Группирует тесты по отправке ответов для управления общим состоянием.
     """
-    # Динамически изменяем title в Allure для наглядности
-    allure.dynamic.title(f"{description} (Запуск #{run_index + 1})")
 
-    print(f"\n--- Начало теста: {description} (Запуск #{run_index + 1}) ---")
-    auth_manager = SmartAuthManager()
+    answered_question_ids: Set[int] = set()
 
-    # --- Arrange (Подготовка) ---
-
-    # 1. Получаем куку эксперта для отправки ответа
-    # Примечание: для локального запуска этого теста требуется настроить учетные данные
-    # для роли 'expert' (через ENV переменные или в auth_config.json)
-    # ВРЕМЕННОЕ РЕШЕНИЕ: Используем 'admin', чтобы проверить логику теста.
-    # TODO: Вернуть 'expert' после настройки локальных учетных данных.
-    current_role = "admin"
-    expert_cookie = auth_manager.get_valid_session_cookie(role=current_role)
-    assert expert_cookie, f"Не удалось получить валидную сессионную куку для роли '{current_role}'"
-
-    # 2. Выбираем вопрос по заданному критерию
-    question_data = select_question(selection_mode, expert_cookie)
-    assert (
-        question_data and "id" in question_data
-    ), f"Не удалось найти вопрос по критерию '{selection_mode}'"
-    question_id = question_data["id"]
-    print(f"Выбран вопрос ID: {question_id} ('{question_data['text'][:50]}...')")
-
-    # --- Act (Действие) ---
-
-    # 3. Отправляем ответ, авторизовавшись под экспертом
-    answer_id, submitted_text = submit_answer(
-        question_id=question_data["id"], session_cookie=expert_cookie, role=current_role
+    @allure.title("Отправка ответа на вопрос и его проверка")
+    @allure.description(
+        "Тест выполняет полный E2E сценарий: авторизация, выбор вопроса по критерию, "
+        "отправка ответа и проверка его появления в панели модерации с корректным статусом."
     )
-    assert answer_id is not None, "Не удалось отправить ответ (submit_answer провалился)"
-
-    # --- Assert (Проверка) ---
-
-    # 4. Проверяем наличие ответа в админ-панели под админом
-    admin_cookie = auth_manager.get_valid_session_cookie(role="admin")
-    assert admin_cookie, "Не удалось получить валидную сессионную куку Администратора для проверки"
-
-    verified = verify_answer_in_admin_panel(
-        answer_text=submitted_text, admin_cookie=admin_cookie
+    @pytest.mark.parametrize("run_index", range(_get_num_answers_env()))
+    @pytest.mark.parametrize(
+        "selection_mode, description",
+        SELECTION_MODES,
+        ids=[mode[0] for mode in SELECTION_MODES],
     )
-    assert verified, "Отправленный ответ не найден в панели модерации или не имеет нужной маркировки"
-    print("✅ Проверка в админ-панели прошла успешно.")
-    print(f"--- Тест '{description}' завершен успешно ---")
+    def test_submit_answer_and_verify(
+        self, selection_mode: str, description: str, run_index: int
+    ):
+        """
+        Выполняет полный цикл: выбор вопроса, ответ и проверка в админ-панели.
+        """
+        allure.dynamic.title(f"{description} (Запуск #{run_index + 1})")
+
+        print(f"\n--- Начало теста: {description} (Запуск #{run_index + 1}) ---")
+        auth_manager = SmartAuthManager()
+
+        # --- Arrange (Подготовка) ---
+        current_role = "admin"
+        expert_cookie = auth_manager.get_valid_session_cookie(role=current_role)
+        assert expert_cookie, f"Не удалось получить валидную сессионную куку для роли '{current_role}'"
+
+        # Выбираем вопрос, исключая те, на которые уже ответили в этой сессии
+        question_data = select_question(
+            selection_mode,
+            expert_cookie,
+            exclude_ids=list(self.answered_question_ids),
+        )
+        if not (question_data and "id" in question_data):
+            pytest.skip(
+                f"Не удалось найти УНИКАЛЬНЫЙ вопрос по критерию '{selection_mode}'. "
+                f"Уже использованы: {self.answered_question_ids}"
+            )
+
+        question_id = question_data["id"]
+        print(f"Выбран вопрос ID: {question_id} ('{question_data['text'][:50]}...')")
+
+        # Добавляем ID в множество использованных, чтобы не повторяться
+        self.answered_question_ids.add(question_id)
+
+        # --- Act (Действие) ---
+        answer_id, submitted_text = submit_answer(
+            question_id=question_id, session_cookie=expert_cookie, role=current_role
+        )
+        assert answer_id is not None, "Не удалось отправить ответ (submit_answer провалился)"
+
+        # --- Assert (Проверка) ---
+        admin_cookie = auth_manager.get_valid_session_cookie(role="admin")
+        assert admin_cookie, "Не удалось получить валидную сессионную куку Администратора для проверки"
+
+        verified = verify_answer_in_admin_panel(
+            answer_text=submitted_text, admin_cookie=admin_cookie
+        )
+        assert verified, "Отправленный ответ не найден в панели модерации или не имеет нужной маркировки"
+        print("✅ Проверка в админ-панели прошла успешно.")
+        print(f"--- Тест '{description}' завершен успешно ---")
 

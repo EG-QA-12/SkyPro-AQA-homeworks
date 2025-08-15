@@ -36,7 +36,10 @@ BASE_URL = "https://expert.bll.by"
 
 
 def select_question(
-    selection_mode: str, session_cookie: str, author_nickname: str = "Admin"
+    selection_mode: str,
+    session_cookie: str,
+    author_nickname: str = "Admin",
+    exclude_ids: Optional[List[int]] = None,
 ) -> Optional[Dict]:
     """
     Выбирает вопрос по указанному критерию, получая данные со страницы со списком вопросов.
@@ -45,6 +48,7 @@ def select_question(
         selection_mode: Критерий выбора ('latest', 'zero_answers', 'by_author').
         session_cookie: Сессионная кука для авторизации.
         author_nickname: Никнейм автора для поиска (используется с 'by_author').
+        exclude_ids: Список ID вопросов, которые нужно исключить из выборки.
 
     Returns:
         Словарь с данными о вопросе или None, если ничего не найдено.
@@ -113,13 +117,30 @@ def select_question(
 
         logger.info(f"Всего найдено и распарсено вопросов: {len(all_questions)}")
 
+        # ---- Новая логика: фильтрация по exclude_ids ----
+        if exclude_ids:
+            filtered_questions = [q for q in all_questions if q.get("id") not in exclude_ids]
+            if not filtered_questions:
+                logger.warning(
+                    f"После исключения ID {exclude_ids} не осталось кандидатов для выбора."
+                )
+                return None
+            logger.info(
+                f"Исключено {len(all_questions) - len(filtered_questions)} вопросов. "
+                f"Осталось кандидатов: {len(filtered_questions)}"
+            )
+            search_pool = filtered_questions
+        else:
+            search_pool = all_questions
+        # --------------------------------------------------
+
         # Фильтрация по критерию
         if selection_mode == "latest":
             # Сортируем по ID в обратном порядке (предполагаем, что больший ID = более новый)
-            return sorted(all_questions, key=lambda q: q["id"], reverse=True)[0]
+            return sorted(search_pool, key=lambda q: q["id"], reverse=True)[0]
 
         if selection_mode == "zero_answers":
-            zero_answer_questions = [q for q in all_questions if q["answers_count"] == 0]
+            zero_answer_questions = [q for q in search_pool if q["answers_count"] == 0]
             if not zero_answer_questions:
                 logger.warning("Не найдено вопросов с 0 ответов.")
                 return None
@@ -128,7 +149,7 @@ def select_question(
 
         if selection_mode == "by_author":
             author_questions = [
-                q for q in all_questions if q["author"].lower() == author_nickname.lower()
+                q for q in search_pool if q["author"].lower() == author_nickname.lower()
             ]
             if not author_questions:
                 logger.warning(f"Не найдено вопросов от автора '{author_nickname}'.")
