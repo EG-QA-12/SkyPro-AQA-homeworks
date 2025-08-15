@@ -54,8 +54,8 @@ import requests
 import allure
 import contextlib
 import io
-from typing import Dict, List, Optional, Tuple
-from framework.utils.html_parser import ModerationPanelParser
+from typing import Dict, List, Optional, Tuple, Any
+from framework.utils.html_parser import ModerationPanelParser, fetch_csrf_tokens_from_panel
 from framework.utils.smart_auth_manager import SmartAuthManager
 from urllib.parse import urlencode, unquote
 
@@ -142,44 +142,6 @@ def generate_params_list(question_id: str, extra_params: Optional[List[Tuple[str
     return params_list
 
 
-def _fetch_csrf_tokens(session: requests.Session, session_cookie: str) -> Dict[str, Optional[str]]:
-    """
-    Получает CSRF-токены с админ-страницы: cookie XSRF-TOKEN и hidden _token из HTML.
-
-    Args:
-        session: Сессия requests для повторного использования кук/заголовков
-        session_cookie: Значение куки test_joint_session
-
-    Returns:
-        Dict[str, Optional[str]]: {'xsrf_cookie': str|None, 'form_token': str|None}
-    """
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'ru-RU,ru;q=0.9,en;q=0.8',
-        'Referer': f'{BASE_URL}/admin/posts/new',
-    }
-    # Устанавливаем сессионную куку
-    session.cookies.set('test_joint_session', session_cookie)
-    resp = session.get(f"{BASE_URL}/admin/posts/new", headers=headers, timeout=10)
-    xsrf_cookie = resp.cookies.get('XSRF-TOKEN') or session.cookies.get('XSRF-TOKEN')
-
-    form_token = None
-    try:
-        from bs4 import BeautifulSoup
-        soup = BeautifulSoup(resp.text or "", 'html.parser')
-        meta = soup.select_one('meta[name="csrf-token"]')
-        if meta and meta.get('content'):
-            form_token = meta['content']
-        if not form_token:
-            hidden = soup.select_one('input[name="_token"]')
-            if hidden and hidden.get('value'):
-                form_token = hidden['value']
-    except Exception:
-        form_token = None
-
-    return {'xsrf_cookie': xsrf_cookie, 'form_token': form_token}
-
 @allure.title("Публикация вопроса через админ-API")
 @allure.description("Тестирование публикации вопроса через POST /admin/posts/update")
 @allure.feature("API тестирование")
@@ -208,24 +170,22 @@ def test_publish_question(case_index: int):
         pytest.fail("Не удалось получить данные панели модерации")
     
     # 3. Выбираем вопрос для публикации
-    mode = os.getenv("PUBLISH_MODE", "latest")
-    marker = os.getenv("PUBLISH_MARKER")
-    user = os.getenv("PUBLISH_USER")
-    
+    # Получаем параметры из окружения для выбора вопроса
+    mode = os.getenv("PUBLISH_MODE", "latest").lower()
+    value = os.getenv("PUBLISH_MARKER") if mode == "by_marker" else os.getenv("PUBLISH_USER") if mode == "by_user" else None
+
+    # Вызываем функцию select_question с параметрами
     try:
-        question = select_question(entries, mode, marker, user)
-        allure.dynamic.title(f"Публикация вопроса (ID: {question.get('id', 'N/A')})")
-        
-        # Логируем выбор
-        logger.info(f"Выбран вопрос: ID={question.get('id')}, "
-                   f"Пользователь={question.get('user')}, "
-                   f"Текст={question.get('text')[:50]}...")
+        question = select_question(entries, mode=mode, marker=value, user=value)
     except ValueError as e:
         pytest.fail(str(e))
     
     # 4. Формируем тело запроса
+    # Устанавливаем полученную куку в сессию парсера для последующих запросов
+    parser.session.cookies.set("test_joint_session", session_cookie)
+
     # Получаем CSRF-токены с админ-страницы и готовим заголовки
-    tokens = _fetch_csrf_tokens(parser.session, session_cookie)
+    tokens = fetch_csrf_tokens_from_panel(parser.session, BASE_URL)
     xsrf_token = unquote(tokens.get('xsrf_cookie') or '') if tokens.get('xsrf_cookie') else None
     form_token = tokens.get('form_token')
 
@@ -259,11 +219,16 @@ def test_publish_question(case_index: int):
         )
         # Авто‑ретрай на 401/419: реавторизация и повторная попытка 1 раз
         if response.status_code in (401, 419):
-            new_cookie = auth_manager._api_login_for_role(os.getenv("TEST_ROLE", "admin"))  # type: ignore[attr-defined]
+            # Используем auth_manager для обновления своей сессии
+            new_cookie = auth_manager._perform_api_login(os.getenv("TEST_ROLE", "admin"))
             assert new_cookie, "Не удалось выполнить реавторизацию admin для повторной публикации"
 
+            # Синхронизируем сессию парсера с обновленной сессией auth_manager
+            parser.session.cookies.clear()
+            parser.session.cookies.update(auth_manager.session.cookies)
+
             # Переинициализируем CSRF-токены на новой сессии/куке
-            tokens = _fetch_csrf_tokens(parser.session, new_cookie)
+            tokens = fetch_csrf_tokens_from_panel(parser.session, BASE_URL)
             xsrf_token = unquote(tokens.get('xsrf_cookie') or '') if tokens.get('xsrf_cookie') else None
             form_token = tokens.get('form_token')
 

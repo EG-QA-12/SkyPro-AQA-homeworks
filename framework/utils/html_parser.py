@@ -11,6 +11,7 @@ from typing import List, Dict, Optional, Any
 import re
 import logging
 from datetime import datetime, timedelta
+from urllib.parse import unquote
 
 logger = logging.getLogger(__name__)
 
@@ -93,6 +94,43 @@ class HtmlParser:
             Optional[str]: Значение атрибута или None
         """
         return element.get(attribute) if element else None
+
+
+def fetch_csrf_tokens_from_panel(session: requests.Session, base_url: str) -> Dict[str, Any]:
+    """
+    Получает CSRF-токены с админ-страницы и ее HTML-содержимое.
+    
+    Args:
+        session: Сессия requests, которая уже содержит необходимые куки для авторизации.
+        base_url: Базовый URL сайта.
+
+    Returns:
+        Словарь с токенами и HTML-контентом.
+    """
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    }
+    # Используем сессию как есть, предполагая, что куки уже установлены
+    resp = session.get(
+        f"{base_url}/admin/posts/new", 
+        headers=headers, 
+        timeout=10
+    )
+    
+    html_content = resp.text or ""
+    # Важно также получить XSRF-TOKEN из ответа, так как он может обновиться
+    xsrf_cookie = resp.cookies.get('XSRF-TOKEN') or session.cookies.get('XSRF-TOKEN')
+    form_token = None
+    try:
+        soup = BeautifulSoup(html_content, 'html.parser')
+        hidden = soup.select_one('input[name="_token"]')
+        if hidden and hidden.get('value'):
+            form_token = hidden['value']
+    except Exception:
+        form_token = None
+
+    return {'xsrf_cookie': xsrf_cookie, 'form_token': form_token, 'html_content': html_content}
 
 
 class ModerationPanelParser(HtmlParser):
@@ -363,6 +401,59 @@ class ModerationPanelParser(HtmlParser):
             if text_fragment.lower() in entry['text'].lower():
                 return entry
                 
+        return None
+
+    def find_entry_in_panel(
+        self,
+        session_cookie: str,
+        *,
+        entry_type: Optional[str] = None,
+        user: Optional[str] = None,
+        text_contains: Optional[str] = None,
+        text_not_contains: Optional[str] = None,
+        limit: int = 100,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Находит самую свежую запись в панели модерации по гибким критериям.
+
+        Args:
+            session_cookie: Кука для авторизации.
+            entry_type: Ожидаемый тип записи (например, '?' или 'П').
+            user: Имя пользователя для фильтрации.
+            text_contains: Подстрока, которая должна быть в тексте.
+            text_not_contains: Подстрока, которой НЕ должно быть в тексте.
+            limit: Глубина поиска (количество последних записей).
+
+        Returns:
+            Словарь с данными найденной записи или None, если ничего не найдено.
+        """
+        entries = self.get_moderation_panel_data(session_cookie, limit=limit)
+
+        # Сортируем по свежести: сначала по timestamp, потом по ID
+        sorted_entries = sorted(
+            entries,
+            key=lambda x: (
+                x.get("timestamp", 0),
+                int(x.get("id", 0)) if x.get("id") and x.get("id").isdigit() else 0,
+            ),
+            reverse=True,
+        )
+
+        for entry in sorted_entries:
+            # Применяем фильтры
+            if entry_type and entry.get("type") != entry_type:
+                continue
+            if user and (entry.get("user") or "").lower() != user.lower():
+                continue
+            entry_text_lower = (entry.get("text") or "").lower()
+            if text_contains and text_contains.lower() not in entry_text_lower:
+                continue
+            if text_not_contains and text_not_contains.lower() in entry_text_lower:
+                continue
+            
+            # Если все проверки пройдены, это наша цель
+            return entry
+
         return None
 
 
