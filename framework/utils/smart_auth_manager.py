@@ -43,6 +43,55 @@ class SmartAuthManager:
 
         return None
 
+    def submit_answer_with_retry(self, session_cookie: str, role: str, payload: Dict) -> Dict:
+        """Отправляет ответ на вопрос с авто-ретраем при 401/419.
+
+        Args:
+            session_cookie: Значение авторизационной куки.
+            role: Роль пользователя для реавторизации.
+            payload: Данные для POST-запроса (включая CSRF-токен).
+
+        Returns:
+            Словарь с результатом операции.
+        """
+        base_url = "https://expert.bll.by"
+        url = f"{base_url}/questions?allow-session=2"
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Origin": base_url,
+            "Referer": f"{base_url}/questions/answers/{payload['question_id']}",
+            "X-Requested-With": "XMLHttpRequest",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        }
+
+        def do_post(cookie_value: str) -> requests.Response:
+            return requests.post(
+                url,
+                data=payload,
+                headers=headers,
+                cookies={"test_joint_session": cookie_value},
+                timeout=15,
+                allow_redirects=False,
+            )
+
+        try:
+            resp = do_post(session_cookie)
+
+            if resp.status_code in (401, 419):
+                print(f"Получен статус {resp.status_code}. Попытка реавторизации для роли '{role}'...")
+                new_cookie = self.get_valid_session_cookie(role=role)
+                if new_cookie:
+                    resp = do_post(new_cookie)
+
+            return {
+                "success": resp.status_code in (200, 301, 302),
+                "status_code": resp.status_code,
+                "response_text": resp.text,
+            }
+        except requests.RequestException as e:
+            return {"success": False, "status_code": 0, "response_text": str(e)}
+
+
     def test_question_submission(self, session_cookie: str, question_text: str, role: str = "admin") -> Dict:
         """Отправляет вопрос через публичный endpoint с авто-ретраем при 401.
 

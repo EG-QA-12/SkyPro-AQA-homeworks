@@ -23,6 +23,7 @@ from bs4 import BeautifulSoup
 
 from framework.utils.question_factory import QuestionFactory
 from framework.utils.html_parser import ModerationPanelParser
+from framework.utils.smart_auth_manager import SmartAuthManager
 
 
 # Создаем логгер для нашего модуля
@@ -140,24 +141,26 @@ def select_question(
         return None
 
     except requests.RequestException as e:
-        logger.error(f"Ошибка при запросе к странице вопросов: {e}")
+        logger.error(f"Сетевая ошибка при запросе к странице вопросов: {e}")
         return None
 
 
 def submit_answer(
-    question_id: int, session_cookie: str
+    question_id: int, session_cookie: str, role: str
 ) -> Tuple[Optional[int], str]:
     """
-    Отправляет ответ на вопрос.
+    Готовит и отправляет ответ на вопрос, используя SmartAuthManager для отказоустойчивости.
 
     Args:
         question_id: ID вопроса, на который нужно ответить.
         session_cookie: Сессионная кука для авторизации.
+        role: Роль пользователя, необходимая для возможной реавторизации.
 
     Returns:
         Кортеж (ID отправленного ответа, Текст отправленного ответа).
         В случае ошибки ID будет None.
     """
+    auth_manager = SmartAuthManager()
     answer_text = QuestionFactory().generate_answer_text()
     question_page_url = f"{BASE_URL}/questions/answers/{question_id}?allow-session=2"
 
@@ -182,7 +185,7 @@ def submit_answer(
             logger.error(f"Не удалось найти CSRF-токен на странице вопроса {question_page_url}")
             return None, answer_text
 
-        # 3. Готовим и отправляем данные
+        # 3. Готовим payload и делегируем отправку SmartAuthManager
         payload = {
             "t": "1063102",
             "d": "0",
@@ -190,34 +193,23 @@ def submit_answer(
             "p": answer_text,
             "_token": csrf_token,
         }
-        headers = {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Origin": BASE_URL,
-            "Referer": question_page_url,
-            "X-Requested-With": "XMLHttpRequest",
-        }
 
-        post_response = session.post(
-            QUESTIONS_PAGE_URL,
-            data=payload,
-            headers=headers,
-            timeout=10,
-            allow_redirects=False,
+        result = auth_manager.submit_answer_with_retry(
+            session_cookie=session_cookie, role=role, payload=payload
         )
-        post_response.raise_for_status()
 
-        # 4. Проверяем успешность. Успешный ответ должен перенаправить на страницу вопроса.
-        if post_response.status_code in (301, 302, 200): # 200 тоже может быть успехом, если ответ идет через JS
-            logger.info(f"Ответ на вопрос ID {question_id} успешно отправлен. Статус: {post_response.status_code}")
-            # В реальном приложении ID ответа может прийти в теле ответа или быть в URL редиректа
-            # Пока возвращаем фиктивный ID для демонстрации
-            return 99999, answer_text
+        if result.get("success"):
+            logger.info(f"Ответ на вопрос ID {question_id} успешно отправлен. Статус: {result.get('status_code')}")
+            return 99999, answer_text # Возвращаем фиктивный ID
 
-        logger.error(f"Ошибка отправки ответа. Статус: {post_response.status_code}, Ответ: {post_response.text[:500]}")
+        logger.error(
+            f"Ошибка отправки ответа. Статус: {result.get('status_code')}, "
+            f"Ответ: {result.get('response_text', '')[:500]}"
+        )
         return None, answer_text
 
     except requests.RequestException as e:
-        logger.error(f"Сетевая ошибка при отправке ответа: {e}")
+        logger.error(f"Сетевая ошибка при подготовке к отправке ответа: {e}")
         return None, answer_text
 
 
