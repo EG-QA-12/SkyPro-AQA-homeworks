@@ -41,7 +41,7 @@
 import pytest
 import os
 import allure
-from typing import Set
+from typing import Set, List, Tuple, Any
 from framework.utils.answer_utils import (
     select_question,
     submit_answer,
@@ -66,6 +66,29 @@ def _get_num_answers_env() -> int:
     except (ValueError, TypeError):
         return 1
 
+def _generate_answer_test_params() -> List[Tuple[str, str, int]]:
+    """
+    Генерирует параметры для теста, циклически проходя по режимам выбора вопросов.
+
+    Returns:
+        Список кортежей: (selection_mode, description, run_index_in_mode).
+    """
+    num_total_runs = _get_num_answers_env()
+    params = []
+    mode_index = 0
+
+    for i in range(num_total_runs):
+        selection_mode, description = SELECTION_MODES[mode_index]
+        params.append((selection_mode, description, i))
+        mode_index = (mode_index + 1) % len(SELECTION_MODES) # Циклический переход к следующему режиму
+    return params
+
+# Применяем новую параметризацию
+_answer_test_params = _generate_answer_test_params()
+_answer_test_ids = [
+    f"{mode[0]}_{mode[2]}" for mode in _answer_test_params
+]
+
 @allure.feature("API Тестирование")
 @pytest.mark.api
 class TestAnswerSubmission:
@@ -80,17 +103,21 @@ class TestAnswerSubmission:
         "Тест выполняет полный E2E сценарий: авторизация, выбор вопроса по критерию, "
         "отправка ответа и проверка его появления в панели модерации с корректным статусом."
     )
-    @pytest.mark.parametrize("run_index", range(_get_num_answers_env()))
     @pytest.mark.parametrize(
-        "selection_mode, description",
-        SELECTION_MODES,
-        ids=[mode[0] for mode in SELECTION_MODES],
+        "selection_mode, description, run_index",
+        _answer_test_params,
+        ids=_answer_test_ids,
     )
     def test_submit_answer_and_verify(
         self, selection_mode: str, description: str, run_index: int
     ):
         """
         Выполняет полный цикл: выбор вопроса, ответ и проверка в админ-панели.
+
+        Args:
+            selection_mode: Критерий выбора вопроса (latest, zero_answers, by_author).
+            description: Человекочитаемое описание тестового случая.
+            run_index: Индекс итерации для массового запуска (сквозной).
         """
         allure.dynamic.title(f"{description} (Запуск #{run_index + 1})")
 
