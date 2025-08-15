@@ -2,6 +2,7 @@ import os
 import time
 from typing import Dict, Optional, Any
 import requests
+import logging
 from framework.utils.auth_cookie_provider import AuthCookieProvider
 from framework.utils.auth_utils import validate_cookie
 from framework.utils.html_parser import fetch_csrf_tokens_from_panel
@@ -9,6 +10,8 @@ from framework.utils.enums import AnswerPublicationType
 from urllib.parse import unquote
 # Импортируем APIAuthManager напрямую
 from framework.utils.api_auth import APIAuthManager
+
+logger = logging.getLogger(__name__)
 
 
 class SmartAuthManager:

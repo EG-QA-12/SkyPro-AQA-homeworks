@@ -124,9 +124,16 @@ def fetch_csrf_tokens_from_panel(session: requests.Session, base_url: str) -> Di
     form_token = None
     try:
         soup = BeautifulSoup(html_content, 'html.parser')
-        hidden = soup.select_one('input[name="_token"]')
-        if hidden and hidden.get('value'):
-            form_token = hidden['value']
+        # Основной способ: ищем токен в скрытом поле формы
+        hidden_input = soup.select_one('input[name="_token"]')
+        if hidden_input and hidden_input.get('value'):
+            form_token = hidden_input['value']
+        else:
+            # Запасной способ: ищем токен в мета-теге
+            meta_tag = soup.select_one('meta[name="csrf-token"]')
+            if meta_tag and meta_tag.get('content'):
+                form_token = meta_tag['content']
+
     except Exception:
         form_token = None
 
