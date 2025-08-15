@@ -2,7 +2,8 @@ import json
 import os
 import logging
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
+import re
 
 from .cookie_constants import COOKIE_NAME
 
@@ -24,6 +25,30 @@ class AuthCookieProvider:
 
     Все пути и операции имеют минимальные побочные эффекты и снабжены логированием.
     """
+    _config: Optional[Dict[str, Any]] = None
+
+    def _load_config(self) -> Dict[str, Any]:
+        """Загружает и кэширует конфигурацию авторизации из JSON-файла."""
+        if self._config is not None:
+            return self._config
+
+        project_root = Path(__file__).resolve().parents[2]
+        config_path = project_root / "config" / "auth_config.json"
+        if not config_path.exists():
+            logger.error(f"Файл конфигурации не найден: {config_path}")
+            self._config = {}
+            return self._config
+        
+        try:
+            raw_content = config_path.read_text('utf-8')
+            self._config = json.loads(raw_content)
+            logger.info(f"Конфигурация авторизации успешно загружена из {config_path}")
+        except (json.JSONDecodeError, OSError) as e:
+            logger.error(f"Ошибка чтения или парсинга auth_config.json: {e}")
+            self._config = {}
+        
+        return self._config
+
 
     def get_auth_cookie(self, role: str = "admin") -> Optional[str]:
         """Возвращает значение куки `test_joint_session` для указанной роли.
@@ -46,13 +71,13 @@ class AuthCookieProvider:
             logger.debug("Используется кука из локального файла")
             return file_cookie
 
-        # 3) API-логин (если заданы креды в ENV)
-        api_cookie = self._get_cookie_via_api_login()
+        # 3) API-логин (если заданы креды в ENV или конфиге)
+        api_cookie = self._get_cookie_via_api_login(role)
         if api_cookie:
-            logger.info("Кука получена через API-логин")
+            logger.info(f"Кука для роли '{role}' получена через API-логин")
             return api_cookie
 
-        logger.error("Не удалось получить авторизационную куку ни одним из способов")
+        logger.error(f"Не удалось получить авторизационную куку для роли '{role}' ни одним из способов")
         return None
 
     # ------------------------ Вспомогательные методы ------------------------ #
@@ -104,28 +129,54 @@ class AuthCookieProvider:
                 logger.warning("Не удалось прочитать %s: %s", json_path, exc)
         return None
 
-    def _get_cookie_via_api_login(self) -> Optional[str]:
-        """Выполняет API-логин, если заданы `API_USERNAME` и `API_PASSWORD`.
+    def _get_cookie_via_api_login(self, role: str) -> Optional[str]:
+        """Выполняет API-логин для указанной роли.
+        
+        Ищет учетные данные в следующем порядке:
+        1. Переменные окружения (например, API_USERNAME_EXPERT, API_PASSWORD_EXPERT)
+        2. Общие переменные окружения (API_USERNAME, API_PASSWORD)
+        3. Файл `config/auth_config.json`
 
         Returns:
             Значение авторизационной куки или ``None`` при неуспехе.
         """
-        username = os.getenv("API_USERNAME")
-        password = os.getenv("API_PASSWORD")
-        if not username or not password:
+        config = self._load_config()
+        role_key = role.upper()
+
+        # Определяем username и password
+        username = (
+            os.getenv(f"API_USERNAME_{role_key}") or
+            os.getenv("API_USERNAME") or
+            config.get("users", {}).get(role, {}).get("username")
+        )
+        password = (
+            os.getenv(f"API_PASSWORD_{role_key}") or
+            os.getenv("API_PASSWORD") or
+            config.get("users", {}).get(role, {}).get("password")
+        )
+
+        if not username or not password or "REPLACE_WITH_REAL" in (password or ""):
+            logger.warning(f"Учетные данные для роли '{role}' не найдены или являются плейсхолдерами.")
             return None
 
-        # Импортируем здесь, чтобы избежать циклических зависимостей при импорте модулей
+        # Импортируем здесь, чтобы избежать циклических зависимостей
         try:
             from .api_auth import APIAuthManager
         except ImportError as exc:
             logger.error("Не удалось импортировать APIAuthManager: %s", exc)
             return None
 
-        manager = APIAuthManager(base_url=os.getenv("API_BASE_URL", "https://ca.bll.by"))
+        base_url = config.get("login_url", "https://ca.bll.by")
+        manager = APIAuthManager(base_url=base_url)
+        
+        logger.info(f"Попытка API-логина для роли '{role}' с пользователем '{username}'...")
         result = manager.login_user(username=username, password=password)
+        
         if result and result.success and isinstance(result.session_token, str):
+            logger.info(f"API-логин для роли '{role}' успешен.")
             return result.session_token
+        
+        logger.error(f"API-логин для роли '{role}' не удался. Ответ: {getattr(result, 'message', 'N/A')}")
         return None
 
 

@@ -27,11 +27,20 @@ class SmartAuthManager:
             return None
         
         # Проверяем и кэшируем
-        if validate_cookie(cookie, role):
+        is_valid = validate_cookie(cookie, required_role=role)
+        if is_valid:
             self.last_valid_cookie = cookie
             self.last_validation_time = current_time
             return cookie
         
+        # Если кука из файла/ENV оказалась невалидной, пробуем обновить ее через API
+        print(f"Кука для роли '{role}' невалидна, попытка принудительного обновления через API...")
+        new_cookie = self.cookie_provider._get_cookie_via_api_login(role)
+        if new_cookie and validate_cookie(new_cookie, required_role=role):
+            self.last_valid_cookie = new_cookie
+            self.last_validation_time = time.time()
+            return new_cookie
+
         return None
 
     def test_question_submission(self, session_cookie: str, question_text: str, role: str = "admin") -> Dict:
@@ -69,8 +78,9 @@ class SmartAuthManager:
             resp = do_post(session_cookie)
 
             # Авто-ретрай на 401: реавторизация + одна повторная попытка
-            if resp.status_code == 401:
-                new_cookie = self._api_login_for_role(role)
+            if resp.status_code in (401, 419):
+                print(f"Получен статус {resp.status_code}. Попытка реавторизации для роли '{role}'...")
+                new_cookie = self.get_valid_session_cookie(role=role)
                 if new_cookie:
                     resp = do_post(new_cookie)
 
@@ -91,37 +101,8 @@ class SmartAuthManager:
             }
 
     def _api_login_for_role(self, role: str = "admin") -> Optional[str]:
-        """Выполняет прямой API‑логин для роли и возвращает новую куку сессии.
-
-        Логика: пробуем ENV-пары ``API_USERNAME_{ROLE}``/``API_PASSWORD_{ROLE}``,
-        затем ``API_USERNAME``/``API_PASSWORD``. При успехе кэш обновляется.
-
-        Args:
-            role: Роль пользователя. По умолчанию ``"admin"``.
-
-        Returns:
-            Строка с новой кукой сессии или ``None`` при неуспехе.
         """
-        # Ленивая загрузка, чтобы не создавать циклических импортов на уровне модуля
-        try:
-            from framework.utils.api_auth import APIAuthManager  # type: ignore
-        except Exception:
-            return None
-
-        role_key = (role or "admin").upper().replace("-", "_")
-        username = os.getenv(f"API_USERNAME_{role_key}") or os.getenv("API_USERNAME")
-        password = os.getenv(f"API_PASSWORD_{role_key}") or os.getenv("API_PASSWORD")
-        if not username or not password:
-            return None
-
-        base_url = os.getenv("API_BASE_URL", "https://ca.bll.by")
-        try:
-            manager = APIAuthManager(base_url=base_url)
-            result = manager.login_user(username=username, password=password)
-            if result and getattr(result, "success", False) and isinstance(getattr(result, "session_token", None), str):
-                self.last_valid_cookie = result.session_token  # type: ignore[attr-defined]
-                self.last_validation_time = time.time()
-                return result.session_token  # type: ignore[attr-defined]
-        except Exception:
-            return None
-        return None
+        DEPRECATED: Логика перенесена в AuthCookieProvider.
+        Этот метод может быть удален в будущем.
+        """
+        return self.cookie_provider._get_cookie_via_api_login(role)
