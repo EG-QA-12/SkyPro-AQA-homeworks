@@ -32,7 +32,7 @@ import allure
 from urllib.parse import unquote
 
 from framework.utils.smart_auth_manager import SmartAuthManager
-from framework.utils.html_parser import ModerationPanelParser
+from framework.utils.html_parser import ModerationPanelParser, fetch_csrf_tokens_from_panel
 from framework.utils.enums import AnswerPublicationType
 
 logger = logging.getLogger(__name__)
@@ -113,6 +113,77 @@ def test_publish_answer(
         assert answer_id, "В найденной записи ответа отсутствует ID"
         logger.info(f"Найден ответ для публикации: ID={answer_id}, Текст='{answer_to_publish.get('text', '')[:50]}...'")
 
+    with allure.step("2.5. Взятие ответа в работу (Assign)"):
+        # Используем ту же логику получения токенов, что работает в test_publish_question_api.py
+        assign_url = f"{BASE_URL}/admin/posts/assign/{answer_id}"
+        
+        # Сначала синхронизируем сессию парсера с кукой администратора
+        fx_panel_parser.session.cookies.set("test_joint_session", session_cookie)
+        
+        # Получаем свежие CSRF-токены для assign-запроса
+        tokens = fetch_csrf_tokens_from_panel(fx_panel_parser.session, BASE_URL)
+        xsrf_token = unquote(tokens.get('xsrf_cookie') or '') if tokens.get('xsrf_cookie') else None
+        
+        if not xsrf_token:
+            pytest.fail("Не удалось получить XSRF-токен для assign-запроса")
+        
+        assign_headers = {
+            'Accept': '*/*',
+            'Accept-Language': 'ru-RU,ru;q=0.9,en;q=0.8',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Origin': BASE_URL,
+            'Referer': f'{BASE_URL}/admin/posts/new',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRF-TOKEN': tokens.get('form_token'),
+            'X-XSRF-TOKEN': xsrf_token,
+        }
+        
+        try:
+            assign_response = fx_panel_parser.session.patch(
+                assign_url,
+                headers=assign_headers,
+                timeout=10
+            )
+            
+            # Если получили 401/419, пробуем переавторизоваться (по аналогии с test_publish_question_api.py)
+            if assign_response.status_code in (401, 419):
+                logger.warning(f"Получен статус {assign_response.status_code} при assign. Попытка реавторизации...")
+                
+                # Получаем новую куку
+                auth_manager = SmartAuthManager()
+                new_cookie = auth_manager.get_valid_session_cookie(role="admin")
+                if not new_cookie:
+                    pytest.fail("Не удалось получить новую куку для повторного assign")
+                
+                # Обновляем сессию парсера
+                fx_panel_parser.session.cookies.clear()
+                fx_panel_parser.session.cookies.set("test_joint_session", new_cookie)
+                
+                # Получаем новые токены и повторяем запрос
+                tokens = fetch_csrf_tokens_from_panel(fx_panel_parser.session, BASE_URL)
+                xsrf_token = unquote(tokens.get('xsrf_cookie') or '') if tokens.get('xsrf_cookie') else None
+                
+                if xsrf_token:
+                    assign_headers['X-XSRF-TOKEN'] = xsrf_token
+                    assign_headers['X-CSRF-TOKEN'] = tokens.get('form_token')
+                    assign_response = fx_panel_parser.session.patch(
+                        assign_url,
+                        headers=assign_headers,
+                        timeout=10
+                    )
+            
+            allure.attach(
+                f"URL: {assign_url}\nStatus: {assign_response.status_code}\nResponse: {assign_response.text}",
+                name="Assign API Response",
+                attachment_type=allure.attachment_type.TEXT
+            )
+            
+            assert assign_response.status_code == 200, f"Не удалось 'взять в работу' ответ ID={answer_id}. Статус: {assign_response.status_code}"
+            logger.info(f"Успешно 'взят в работу' ответ ID={answer_id}")
+            
+        except requests.RequestException as e:
+            pytest.fail(f"Ошибка при выполнении assign для ответа ID={answer_id}: {str(e)}")
+
     with allure.step("3. Отправка запроса на публикацию"):
         payload = {
             'id': answer_id,
@@ -124,6 +195,10 @@ def test_publish_answer(
             'delete_reason': 0,
             'hand_over_moderator': '',
         }
+        
+        # Синхронизируем сессию SmartAuthManager с сессией парсера перед публикацией
+        fx_auth_manager.session.cookies.clear()
+        fx_auth_manager.session.cookies.update(fx_panel_parser.session.cookies)
         
         # Делегируем отправку SmartAuthManager для отказоустойчивости
         result = fx_auth_manager.publish_answer_with_retry(
