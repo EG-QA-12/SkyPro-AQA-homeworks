@@ -2,7 +2,7 @@ import json
 import os
 import logging
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 import re
 
 from .cookie_constants import COOKIE_NAME
@@ -50,11 +50,12 @@ class AuthCookieProvider:
         return self._config
 
 
-    def get_auth_cookie(self, role: str = "admin") -> Optional[str]:
+    def get_auth_cookie(self, role: str = "admin", use_api_login: bool = True) -> Optional[str]:
         """Возвращает значение куки `test_joint_session` для указанной роли.
 
         Args:
             role: Роль пользователя (например, "admin").
+            use_api_login: Флаг, разрешающий fallback на API-логин.
 
         Returns:
             Строка со значением куки или ``None``, если получить не удалось.
@@ -71,16 +72,38 @@ class AuthCookieProvider:
             logger.debug("Используется кука из локального файла")
             return file_cookie
 
-        # 3) API-логин (если заданы креды в ENV или конфиге)
-        api_cookie = self._get_cookie_via_api_login(role)
-        if api_cookie:
-            logger.info(f"Кука для роли '{role}' получена через API-логин")
-            return api_cookie
+        # 3) API-логин (если разрешено)
+        if use_api_login:
+            api_cookie = self._get_cookie_via_api_login(role)
+            if api_cookie:
+                logger.info(f"Кука для роли '{role}' получена через API-логин")
+                return api_cookie
 
-        logger.error(f"Не удалось получить авторизационную куку для роли '{role}' ни одним из способов")
+        logger.error(f"Не удалось получить авторизационную куку для роли '{role}' (use_api_login={use_api_login})")
         return None
 
     # ------------------------ Вспомогательные методы ------------------------ #
+
+    def _get_credentials_for_role(self, role: str) -> Tuple[Optional[str], Optional[str]]:
+        """Возвращает пару (username, password) для указанной роли."""
+        config = self._load_config()
+        role_key = role.upper()
+
+        username = (
+            os.getenv(f"API_USERNAME_{role_key}") or
+            os.getenv("API_USERNAME") or
+            config.get("users", {}).get(role, {}).get("username")
+        )
+        password = (
+            os.getenv(f"API_PASSWORD_{role_key}") or
+            os.getenv("API_PASSWORD") or
+            config.get("users", {}).get(role, {}).get("password")
+        )
+
+        if not username or not password or "REPLACE_WITH_REAL" in (password or ""):
+            return None, None
+        
+        return username, password
 
     def _get_cookie_from_env(self, role: str) -> Optional[str]:
         """Пытается прочитать куку из переменных окружения.
@@ -130,32 +153,10 @@ class AuthCookieProvider:
         return None
 
     def _get_cookie_via_api_login(self, role: str) -> Optional[str]:
-        """Выполняет API-логин для указанной роли.
+        """Выполняет API-логин для указанной роли."""
+        username, password = self._get_credentials_for_role(role)
         
-        Ищет учетные данные в следующем порядке:
-        1. Переменные окружения (например, API_USERNAME_EXPERT, API_PASSWORD_EXPERT)
-        2. Общие переменные окружения (API_USERNAME, API_PASSWORD)
-        3. Файл `config/auth_config.json`
-
-        Returns:
-            Значение авторизационной куки или ``None`` при неуспехе.
-        """
-        config = self._load_config()
-        role_key = role.upper()
-
-        # Определяем username и password
-        username = (
-            os.getenv(f"API_USERNAME_{role_key}") or
-            os.getenv("API_USERNAME") or
-            config.get("users", {}).get(role, {}).get("username")
-        )
-        password = (
-            os.getenv(f"API_PASSWORD_{role_key}") or
-            os.getenv("API_PASSWORD") or
-            config.get("users", {}).get(role, {}).get("password")
-        )
-
-        if not username or not password or "REPLACE_WITH_REAL" in (password or ""):
+        if not username or not password:
             logger.warning(f"Учетные данные для роли '{role}' не найдены или являются плейсхолдерами.")
             return None
 
@@ -166,7 +167,7 @@ class AuthCookieProvider:
             logger.error("Не удалось импортировать APIAuthManager: %s", exc)
             return None
 
-        base_url = config.get("login_url", "https://ca.bll.by")
+        base_url = self._load_config().get("login_url", "https://ca.bll.by")
         manager = APIAuthManager(base_url=base_url)
         
         logger.info(f"Попытка API-логина для роли '{role}' с пользователем '{username}'...")

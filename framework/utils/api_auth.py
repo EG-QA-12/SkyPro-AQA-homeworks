@@ -193,25 +193,11 @@ class APIAuthManager:
     def _extract_cookies(self, response: requests.Response) -> Optional[Dict[str, Dict[str, Any]]]:
         """
         Извлекает куки из HTTP ответа.
-        
-        ВАЖНО: Фильтрует только авторизационную куку test_joint_session,
-        игнорируя служебные куки как XSRF-TOKEN.
-        
-        Args:
-            response: HTTP ответ от сервера
-            
-        Returns:
-            Словарь с куками в формате совместимом с Playwright
         """
         try:
             cookies_dict = {}
             
             for cookie in response.cookies:
-                # Фильтруем только нужную авторизационную куку
-                if cookie.name != COOKIE_NAME:
-                    logger.debug(f"Пропускаем служебную куку: {cookie.name}")
-                    continue
-                
                 cookie_data = {
                     'name': cookie.name,
                     'value': cookie.value,
@@ -227,7 +213,7 @@ class APIAuthManager:
                     cookie_data['expires'] = cookie.expires
                 
                 cookies_dict[cookie.name] = cookie_data
-                logger.debug(f"Извлечена авторизационная кука: {cookie.name}")
+                logger.debug(f"Извлечена кука: {cookie.name}")
             
             return cookies_dict if cookies_dict else None
             
@@ -377,18 +363,9 @@ class APIAuthManager:
             file_path: Путь к файлу для сохранения
         """
         try:
-            # Дополнительная фильтрация на случай если что-то пропустили
-            filtered_cookies = {
-                name: cookie_data for name, cookie_data in cookies.items()
-                if name == COOKIE_NAME
-            }
-            
-            if not filtered_cookies:
-                logger.warning(f"Не найдено авторизационных кук для сохранения в {file_path}")
-                return
-            
-            # Конвертируем в формат Playwright (список словарей)
-            playwright_cookies = list(filtered_cookies.values())
+            # Дополнительная фильтрация больше не нужна здесь, т.к. _extract_cookies
+            # теперь возвращает все куки. Сохраняем все, что получили.
+            playwright_cookies = list(cookies.values())
             
             # Создаем директорию если не существует
             Path(file_path).parent.mkdir(parents=True, exist_ok=True)
