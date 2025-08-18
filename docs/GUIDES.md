@@ -1,22 +1,100 @@
-# GUIDES.md
+# 📚 Руководства и документация
 
-## Contributing
-// ... content from contributing.md ...
+## 📣 ВАЖНОЕ ОБНОВЛЕНИЕ
 
-## Auth Tests Structure
-- Слито в unified_auth_tests.py
-- Удалены пустые поддиректории
+**Новый унифицированный фреймворк** 🚀 - теперь доступен для упрощения написания тестов!
+- [NEW_FRAMEWORK_GUIDE.md](NEW_FRAMEWORK_GUIDE.md) - Руководство по новому фреймворку
+- [framework/README.md](../framework/README.md) - Документация фреймворка
+- [tests/integration/test_new_framework_example.py](../tests/integration/test_new_framework_example.py) - Примеры использования
 
-## Auth Management Guide
-// ... content from README.md ...
-## Bulk Auth Details
-// ... content from BULK_AUTH_README.md ...
+## 📖 Основные руководства
 
-## Projects Overview
-// ... content from projects/README.md ...
+- [TESTING_GUIDE.md](TESTING_GUIDE.md) - Основное руководство по тестированию
+- [SCRIPTS_GUIDE.md](SCRIPTS_GUIDE.md) - Руководство по скриптам
+- [auth_testing_guide.md](auth_testing_guide.md) - Руководство по тестированию авторизации
 
-## Tests Overview
-// ... content from tests_overview.md ... 
+## 🎯 Руководства по компонентам
 
-## Testing Guide
-// ... content from TESTING_GUIDE.md ... 
+### 🧪 Тестирование
+- [REFERENCE.md](REFERENCE.md) - Справочник по тестированию
+- [E2E_qases.xlsx](E2E_qases.xlsx) - Тест-кейсы E2E
+
+### 🛠️ Инструменты и скрипты
+- [CLI_insrtructions.md](CLI_insrtructions.md) - Инструкции по CLI
+- [QUICK_TESTING_GUIDE.md](../scripts/QUICK_TESTING_GUIDE.md) - Быстрое тестирование
+
+### 🔧 Техническая документация
+- [guides/](guides/) - Дополнительные руководства
+  - [MCP_SERVERS_GUIDE.md](guides/MCP_SERVERS_GUIDE.md) - Руководство по MCP серверам
+  - [PLAYWRIGHT_MCP_TESTING_GUIDE.md](guides/PLAYWRIGHT_MCP_TESTING_GUIDE.md) - Тестирование с Playwright MCP
+  - [README_cookie_tester.md](guides/README_cookie_tester.md) - Руководство по cookie tester
+
+## 📁 Структура документации
+
+```
+docs/
+├── Основные руководства (этот файл)
+├── NEW_FRAMEWORK_GUIDE.md          # Новый фреймворк ✨
+├── TESTING_GUIDE.md                # Основы тестирования
+├── SCRIPTS_GUIDE.md                # Работа со скриптами
+├── auth_testing_guide.md           # Авторизация
+├── REFERENCE.md                    # Справочник
+├── CLI_insrtructions.md            # CLI инструкции
+├── E2E_qases.xlsx                  # Тест-кейсы
+├── guides/                         # Дополнительные руководства
+│   ├── MCP_SERVERS_GUIDE.md
+│   ├── PLAYWRIGHT_MCP_TESTING_GUIDE.md
+│   └── README_cookie_tester.md
+└── images/                         # Изображения (если есть)
+```
+
+## 🚀 Быстрый старт с новым фреймворком
+
+### 1. Изучение документации
+```bash
+# Откройте руководство по новому фреймворку
+docs/NEW_FRAMEWORK_GUIDE.md
+
+# Изучите примеры тестов
+tests/integration/test_new_framework_example.py
+```
+
+### 2. Запуск примеров
+```bash
+# Запуск примеров нового фреймворка
+pytest tests/integration/test_new_framework_example.py -v
+
+# С Allure отчетами
+pytest tests/integration/test_new_framework_example.py -v --alluredir=./allure-results
+allure serve ./allure-results
+```
+
+### 3. Использование фикстур
+```python
+# Пример использования новых фикстур
+def test_with_new_framework(admin_client, fresh_question):
+    response = admin_client.publish_question(fresh_question['id'])
+    assert response.success
+```
+
+## 📋 Рекомендации по использованию
+
+### Для новых тестов
+1. **Используйте новый фреймворк** - он проще и надежнее
+2. **Смотрите примеры** в `test_new_framework_example.py`
+3. **Читайте документацию** в `NEW_FRAMEWORK_GUIDE.md`
+
+### Для существующих тестов
+1. **Постепенная миграция** - переписывайте по мере необходимости
+2. **Используйте фикстуры** из `framework/new_fixtures/`
+3. **Наследуйтесь от базовых классов** из `framework/test_bases/`
+
+## 🆘 Поддержка
+
+При возникновении вопросов:
+- Обратитесь к Lead SDET Architect
+- Создайте issue в репозитории
+- Изучите примеры в `tests/integration/test_new_framework_example.py`
+
+---
+*Документация регулярно обновляется. Последнее обновление: 2025*

@@ -1,5 +1,32 @@
 # BLL Tests: Фреймворк автоматизации тестирования
 
+## 📣 ВАЖНОЕ ОБНОВЛЕНИЕ
+
+**Новый унифицированный фреймворк** 🚀 - теперь доступен для упрощения написания тестов!
+- [framework/README.md](framework/README.md) - Документация фреймворка
+- [docs/NEW_FRAMEWORK_GUIDE.md](docs/NEW_FRAMEWORK_GUIDE.md) - Руководство по новому фреймворку
+- [docs/MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) - Руководство по миграции
+- [docs/QUESTION_ANSWER_EXAMPLES.md](docs/QUESTION_ANSWER_EXAMPLES.md) - Примеры вопросов и ответов
+- [tests/integration/test_new_framework_example.py](tests/integration/test_new_framework_example.py) - Примеры использования
+- [tests/integration/test_question_search_filter.py](tests/integration/test_question_search_filter.py) - Тесты поиска и фильтрации
+- [tests/integration/test_question_answer_new.py](tests/integration/test_question_answer_new.py) - Тесты ответов на вопросы
+- [tests/integration/test_publish_question_new.py](tests/integration/test_publish_question_new.py) - Тесты публикации вопросов
+- [tests/integration/test_publish_answer_new.py](tests/integration/test_publish_answer_new.py) - Тесты публикации ответов
+
+## 🚀 Быстрый старт с новым фреймворком
+
+### ⚡ Самые быстрые команды:
+```bash
+# Быстрый запуск (15 секунд)
+scripts/run_tests_quick.bat
+
+# Параллельный запуск (20 секунд)
+scripts/run_tests_parallel.bat
+
+# Запуск примеров нового фреймворка
+pytest tests/integration/test_new_framework_example.py -v
+```
+
 ## 🏗️ Структура проекта
 
 ```

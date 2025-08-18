@@ -5,6 +5,7 @@
 - Загрузку переменных окружения из secrets/
 - Общие фикстуры для HTTP сессий и Playwright браузеров
 - Базовые pytest hooks для всех тестов
+- Интеграцию нового унифицированного фреймворка
 
 Все тесты в проекте (e2e, integration, unit) наследуют эти настройки,
 что обеспечивает единообразную конфигурацию без дублирования кода.
@@ -27,6 +28,14 @@ sys.path.insert(0, str(PROJECT_ROOT))
 # Загружаем переменные окружения из secrets/
 load_dotenv(PROJECT_ROOT / "secrets" / ".env", override=False)
 load_dotenv(PROJECT_ROOT / "secrets" / "creds.env", override=True)
+
+# Импортируем фикстуры нового фреймворка
+try:
+    from framework.new_fixtures.auth_fixtures import *
+    from framework.new_fixtures.moderation_fixtures import *
+    print("✅ Новый фреймворк фикстур успешно загружен")
+except ImportError as e:
+    print(f"⚠️ Не удалось загрузить новый фреймворк фикстур: {e}")
 
 # Безопасная проверка конфигурации без раскрытия секретов
 auth_username = os.getenv('AUTH_USERNAME')

@@ -21,11 +21,39 @@ class AnswerPublicationType(Enum):
     SUPPORTIVE = 4
     OTHER = 5
     MAXIMUM = 6
+    PUBLISHED = 3
+    DRAFT = 4
+    REJECTED = 5
 
     def __str__(self):
         """Возвращает имя члена Enum, например 'ANSWER'."""
         return self.name
 
 
+class QuestionStatus(Enum):
+    """
+    Определяет статусы вопросов.
+    """
+    PENDING = 1
+    APPROVED = 2
+    PUBLISHED = 3
+    REJECTED = 4
+    ARCHIVED = 5
+
+    def __str__(self):
+        """Возвращает имя члена Enum."""
+        return self.name
 
 
+class UserRole(Enum):
+    """
+    Определяет роли пользователей в системе.
+    """
+    ADMIN = "admin"
+    MODERATOR = "moderator"
+    USER = "user"
+    GUEST = "guest"
+
+    def __str__(self):
+        """Возвращает имя члена Enum."""
+        return self.name
