@@ -196,15 +196,83 @@ def test_publish_answer(
             'hand_over_moderator': '',
         }
         
-        # Синхронизируем сессию SmartAuthManager с сессией парсера перед публикацией
-        fx_auth_manager.session.cookies.clear()
-        fx_auth_manager.session.cookies.update(fx_panel_parser.session.cookies)
-        
-        # Делегируем отправку SmartAuthManager для отказоустойчивости
-        result = fx_auth_manager.publish_answer_with_retry(
-            role="admin",
-            payload=payload
+        # Публикуем напрямую через сессию парсера (как в тесте вопросов)
+        tokens = fetch_csrf_tokens_from_panel(fx_panel_parser.session, BASE_URL)
+        xsrf_token = unquote(tokens.get('xsrf_cookie') or '') if tokens.get('xsrf_cookie') else None
+        form_token = tokens.get('form_token')
+
+        direct_payload = dict(payload)
+        if form_token:
+            direct_payload['_token'] = form_token
+
+        pub_headers = {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept-Language': 'ru-RU,ru;q=0.9,en;q=0.8',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Origin': BASE_URL,
+            'Referer': f'{BASE_URL}/admin/posts/new',
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+        if xsrf_token:
+            pub_headers['X-XSRF-TOKEN'] = xsrf_token
+        if form_token:
+            pub_headers['X-CSRF-TOKEN'] = form_token
+
+        response = fx_panel_parser.session.post(
+            f"{BASE_URL}{PUBLISH_ENDPOINT}",
+            data=direct_payload,
+            headers=pub_headers,
+            timeout=10
         )
+
+        if response.status_code in (401, 419):
+            new_cookie = fx_auth_manager.get_valid_session_cookie(role='admin')
+            assert new_cookie, 'Не удалось выполнить реавторизацию admin для повторной публикации'
+
+            fx_panel_parser.session.cookies.clear()
+            fx_panel_parser.session.cookies.set('test_joint_session', new_cookie)
+
+            tokens = fetch_csrf_tokens_from_panel(fx_panel_parser.session, BASE_URL)
+            xsrf_token = unquote(tokens.get('xsrf_cookie') or '') if tokens.get('xsrf_cookie') else None
+            form_token = tokens.get('form_token')
+
+            pub_headers = {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Accept': 'application/json, text/javascript, */*; q=0.01',
+                'Accept-Language': 'ru-RU,ru;q=0.9,en;q=0.8',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Origin': BASE_URL,
+                'Referer': f'{BASE_URL}/admin/posts/new',
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+            if xsrf_token:
+                pub_headers['X-XSRF-TOKEN'] = xsrf_token
+            if form_token:
+                pub_headers['X-CSRF-TOKEN'] = form_token
+
+            direct_payload = dict(payload)
+            if form_token:
+                direct_payload['_token'] = form_token
+
+            response = fx_panel_parser.session.post(
+                f"{BASE_URL}{PUBLISH_ENDPOINT}",
+                data=direct_payload,
+                headers=pub_headers,
+                timeout=10
+            )
+
+        # Приводим к прежнему формату результата
+        try:
+            json_response = response.json() if response.status_code == 200 else None
+        except Exception:
+            json_response = None
+        result = {
+            'success': response.status_code == 200 and (json_response or {}).get('success') is True,
+            'status_code': response.status_code,
+            'json_response': json_response,
+            'response_text': response.text,
+        }
 
     with allure.step("4. Проверка ответа API"):
         allure.attach(str(payload), name="Request Payload", attachment_type=allure.attachment_type.TEXT)
