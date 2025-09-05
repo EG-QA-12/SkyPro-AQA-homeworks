@@ -6,6 +6,8 @@
 - [framework/README.md](framework/README.md) - Документация фреймворка
 - [docs/NEW_FRAMEWORK_GUIDE.md](docs/NEW_FRAMEWORK_GUIDE.md) - Руководство по новому фреймворку
 - [docs/MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) - Руководство по миграции
+- [docs/auth_testing_guide.md](docs/auth_testing_guide.md) - Руководство по тестированию авторизации
+- [docs/auth_api_reference.md](docs/auth_api_reference.md) - Справочник API системы авторизации
 - [docs/QUESTION_ANSWER_EXAMPLES.md](docs/QUESTION_ANSWER_EXAMPLES.md) - Примеры вопросов и ответов
 - [tests/integration/test_new_framework_example.py](tests/integration/test_new_framework_example.py) - Примеры использования
 - [tests/integration/test_question_search_filter.py](tests/integration/test_question_search_filter.py) - Тесты поиска и фильтрации
@@ -160,6 +162,7 @@ python scripts/maintenance/run_csv_auth_gui.py
 3. **Документирование**: Всегда добавляйте docstrings к новым функциям
 4. **Тестирование**: Один тест = одна проверка
 5. **Структура**: Следуйте существующей архитектуре проекта
+6. **Авторизация**: Используйте встроенные механизмы авторизации фреймворка
 
 В случае вопросов или неполадок, начните с чтения документации в каждой ключевой папке!
 ---

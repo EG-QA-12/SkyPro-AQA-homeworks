@@ -56,6 +56,23 @@ allure serve ./allure-results
 - Retry логику для 401/419 ошибок
 - Типизированные ответы
 
+##### Система авторизации
+BaseAPIClient интегрирован с системой авторизации, которая поддерживает несколько источников получения кук:
+1. **Переменные окружения**: `SESSION_COOKIE_{ROLE}` или `SESSION_COOKIE`
+2. **Локальные файлы**: `cookies/{role}_session.txt` или `cookies/{role}_cookies.json`
+3. **API-логин**: автоматический логин через `APIAuthManager`
+
+При инициализации клиент автоматически получает валидную сессионную куку через `SmartAuthManager`,
+который реализует интеллектуальное кэширование и обновление сессий.
+
+```python
+from framework.api.base_client import BaseAPIClient
+
+# Клиент автоматически авторизуется при создании
+client = BaseAPIClient(base_url="https://expert.bll.by", role="admin")
+response = client.get("/admin/posts")
+```
+
 ```python
 from framework.api.base_client import BaseAPIClient
 
