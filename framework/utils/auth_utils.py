@@ -1,7 +1,9 @@
 """Утилиты для работы с авторизационными куками и сессиями.
 
-Модуль предоставляет функции для сохранения/загрузки значения авторизационной
-куки, а также универсальную проверку валидности куки без сетевых запросов.
+Модуль предоставляет функции для:
+- Сохранения/загрузки значения авторизационной куки
+- Работы с путями к файлам кук 
+- Универсальной проверки валидности куки без сетевых запросов
 
 Функции спроектированы с акцентом на простоту и устойчивость:
 - Не зависят от внешних сервисов (нет сетевых проверок);
@@ -68,7 +70,9 @@ def save_cookie(cookie: str, path: str) -> None:
         OSError: Ошибки файловой системы при записи.
     """
     if not validate_cookie(cookie, required_role="any"):
-        raise ValueError("Невалидное значение куки: пусто или слишком короткое")
+        raise ValueError(
+            "Невалидное значение куки: пусто или слишком короткое"
+        )
     file_path = Path(path)
     file_path.parent.mkdir(parents=True, exist_ok=True)
     file_path.write_text(cookie, encoding="utf-8")
@@ -90,7 +94,9 @@ def load_cookie(path: str) -> str:
     """
     value = Path(path).read_text(encoding="utf-8").strip()
     if not value:
-        raise ValueError(f"Файл {path} прочитан, но значение куки пустое")
+        raise ValueError(
+            f"Файл {path} прочитан, но значение куки пустое"
+        )
     return value
 
 
@@ -103,6 +109,20 @@ class SecureAuthManager:
 
     def __init__(self) -> None:
         self.cookies: Dict[str, str] = {}
+
+
+def get_cookie_path(role: str) -> str:
+    """Возвращает стандартный путь к файлу с куками для роли.
+    
+    Args:
+        role: Роль пользователя (admin, user, moderator)
+    
+    Returns:
+        Абсолютный путь к файлу с куками
+    """
+    base_dir = Path(__file__).parent.parent
+    cookies_dir = base_dir / "cookies"
+    return str(cookies_dir / f"{role}_session.txt")
 
 
 class UnifiedAuthManager:

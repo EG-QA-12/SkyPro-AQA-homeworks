@@ -59,6 +59,17 @@ class BaseAPIClient:
             logger.info(f"Сессия инициализирована для роли: {self.role}")
         else:
             logger.warning(f"Не удалось инициализировать сессию для роли: {self.role}")
+            
+    def _clear_session_cookies(self) -> None:
+        """Очистка авторизационных кук из сессии."""
+        self.session.cookies.clear()
+        logger.info(f"Куки сессии очищены для роли: {self.role}")
+        
+    def _set_session_cookie(self, session_cookie: str) -> None:
+        """Установка авторизационной куки в сессию."""
+        self._clear_session_cookies()
+        self.session.cookies.set("test_joint_session", session_cookie)
+        logger.info(f"Установлена кука сессии для роли: {self.role}")
     
     def _get_csrf_tokens(self) -> Dict[str, Optional[str]]:
         """
