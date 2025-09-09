@@ -2,9 +2,9 @@
 
 ## 📚 Документация
 
+- [docs/FRAMEWORK_GUIDE.md](docs/FRAMEWORK_GUIDE.md) - Руководство по фреймворку
 - [docs/auth_testing_guide.md](docs/auth_testing_guide.md) - Руководство по тестированию авторизации
 - [docs/auth_api_reference.md](docs/auth_api_reference.md) - Справочник API системы авторизации
-- [docs/MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) - Руководство по миграции
 - [docs/QUESTION_ANSWER_EXAMPLES.md](docs/QUESTION_ANSWER_EXAMPLES.md) - Примеры вопросов и ответов
 
 ## 🚀 Быстрый старт с новым фреймворком
