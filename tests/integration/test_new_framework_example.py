@@ -32,8 +32,8 @@ class TestQuestionManagement(APITestBase):
             self.logger.info(f"Создание вопроса: {test_question}")
         
         with allure.step("Создание вопроса через API"):
-            result = self.admin_client.create_test_question(test_question)
-            assert result is True, "Не удалось создать вопрос через API"
+            response = self.admin_client.create_test_question(test_question)
+            assert response.success is True, f"Не удалось создать вопрос через API: {response.text}"
             
             self.logger.info("✅ Вопрос успешно создан")
         
@@ -71,8 +71,8 @@ class TestModerationWorkflow(APITestBase):
             )
             self.logger.info(f"Создание вопроса: {test_question}")
             
-            result = self.admin_client.create_test_question(test_question)
-            assert result is True, "Не удалось создать вопрос"
+            response = self.admin_client.create_test_question(test_question)
+            assert response.success is True, f"Не удалось создать вопрос: {response.text}"
         
         with allure.step("2. Поиск вопроса для модерации"):
             questions = self.moder_client.search_questions(query=test_question)
@@ -87,11 +87,11 @@ class TestModerationWorkflow(APITestBase):
         
         with allure.step("3. Ответ на вопрос"):
             answer_text = "Спасибо за ваш вопрос. Вот подробный ответ..."
-            result = self.moder_client.answer_question(
+            response = self.moder_client.answer_question(
                 question_id=question_id,
                 answer_text=answer_text
             )
-            assert result is True, "Не удалось ответить на вопрос"
+            assert response.success is True, f"Не удалось ответить на вопрос: {response.text}"
             
             self.logger.info("✅ Ответ на вопрос отправлен")
         
@@ -146,8 +146,9 @@ class TestUserRoles(APITestBase):
             assert client is not None, f"Клиент для роли {role.value} не найден"
         
         with allure.step("Получение списка вопросов"):
-            questions = client.get_questions(limit=10)
-            assert questions is not None, "Получение вопросов вернуло None"
+            # Используем search_questions вместо get_questions
+            questions = client.search_questions(query=None, limit=10)
+            assert questions is not None, "Поиск вопросов вернул None"
             
             self.logger.info(
                 f"Роль {role.value} получила {len(questions)} вопросов"

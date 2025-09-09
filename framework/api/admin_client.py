@@ -416,7 +416,7 @@ class AdminAPIClient(BaseAPIClient):
         self,
         question_text: str,
         allow_session: bool = True
-    ) -> bool:
+    ) -> APIResponse:
         """
         Создание тестового вопроса через публичный endpoint.
         
@@ -425,29 +425,21 @@ class AdminAPIClient(BaseAPIClient):
             allow_session: Использовать allow-session параметр
             
         Returns:
-            bool: True если вопрос успешно создан
+            APIResponse: Ответ API
         """
-        try:
-            data = {'p': question_text}
-            
-            headers = {
-                'Referer': f'{self.base_url}/',
-                'Origin': self.base_url,
-            }
-            
-            # Формируем URL с параметром allow-session если нужно
-            endpoint = '/questions'
-            if allow_session:
-                endpoint += '?allow-session=2'
-            
-            response = self.post(endpoint, data=data, headers=headers)
-            
-            logger.info(f"Создание тестового вопроса: статус {response.status_code}")
-            # Проверяем успешность по статусу
-            return response.status_code in [200, 201, 302]
-        except Exception as e:
-            logger.error(f"Ошибка создания тестового вопроса: {e}")
-            return False
+        data = {'p': question_text}
+        
+        headers = {
+            'Referer': f'{self.base_url}/',
+            'Origin': self.base_url,
+        }
+        
+        # Формируем URL с параметром allow-session если нужно
+        endpoint = '/questions'
+        if allow_session:
+            endpoint += '?allow-session=2'
+        
+        return self.post(endpoint, data=data, headers=headers)
     
     def answer_question(
         self,
@@ -455,7 +447,7 @@ class AdminAPIClient(BaseAPIClient):
         answer_text: str,
         publication_type: AnswerPublicationType = AnswerPublicationType.ANSWER,
         allow_session: bool = True
-    ) -> bool:
+    ) -> APIResponse:
         """
         Ответ на вопрос через админ-панель.
         
@@ -466,49 +458,42 @@ class AdminAPIClient(BaseAPIClient):
             allow_session: Использовать allow-session параметр
             
         Returns:
-            bool: True если ответ успешно отправлен
+            APIResponse: Ответ API
         """
-        try:
-            # Получаем CSRF токены
-            tokens = self._get_csrf_tokens()
-            
-            # Формируем данные для запроса
-            data = {
-                'id': str(question_id),
-                'status_id': str(publication_type.value),
-                'rejection_reason_id': '0',
-                'moder_msg': answer_text,  # Текст ответа в moder_msg
-                'delete_reason': '0',
-            }
-            
-            # Добавляем CSRF токен если есть
-            if tokens.get('form_token'):
-                data['_token'] = tokens['form_token']
-            
-            # Устанавливаем заголовки
-            headers = {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'X-Requested-With': 'XMLHttpRequest',
-                'Referer': f'{self.base_url}/admin/posts/new',
-            }
-            
-            if tokens.get('xsrf_token'):
-                headers['X-XSRF-TOKEN'] = tokens['xsrf_token']
-            if tokens.get('form_token'):
-                headers['X-CSRF-TOKEN'] = tokens['form_token']
-            
-            # Выполняем запрос
-            response = self.post(
-                '/admin/posts/update',
-                data=data,
-                headers=headers
-            )
-            
-            logger.info(f"Ответ на вопрос {question_id}: статус {response.status_code}")
-            return response.status_code == 200
-        except Exception as e:
-            logger.error(f"Ошибка ответа на вопрос {question_id}: {e}")
-            return False
+        # Получаем CSRF токены
+        tokens = self._get_csrf_tokens()
+        
+        # Формируем данные для запроса
+        data = {
+            'id': str(question_id),
+            'status_id': str(publication_type.value),
+            'rejection_reason_id': '0',
+            'moder_msg': answer_text,  # Текст ответа в moder_msg
+            'delete_reason': '0',
+        }
+        
+        # Добавляем CSRF токен если есть
+        if tokens.get('form_token'):
+            data['_token'] = tokens['form_token']
+        
+        # Устанавливаем заголовки
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Referer': f'{self.base_url}/admin/posts/new',
+        }
+        
+        if tokens.get('xsrf_token'):
+            headers['X-XSRF-TOKEN'] = tokens['xsrf_token']
+        if tokens.get('form_token'):
+            headers['X-CSRF-TOKEN'] = tokens['form_token']
+        
+        # Выполняем запрос
+        return self.post(
+            '/admin/posts/update',
+            data=data,
+            headers=headers
+        )
     
     def submit_answer(
         self,
