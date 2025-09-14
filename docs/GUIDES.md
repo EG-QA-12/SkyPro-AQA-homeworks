@@ -20,3 +20,9 @@
 
 ## Testing Guide
 См. [`docs/TESTING_GUIDE.md`](TESTING_GUIDE.md)
+
+## MCP Testing Guide
+См. [`docs/guides/MCP_SERVERS_GUIDE.md`](guides/MCP_SERVERS_GUIDE.md)
+
+## Playwright MCP Testing Guide
+См. [`docs/guides/PLAYWRIGHT_MCP_TESTING_GUIDE.md`](guides/PLAYWRIGHT_MCP_TESTING_GUIDE.md)

@@ -31,7 +31,7 @@ MCP_CONFIGS: Dict[str, Dict[str, Any]] = {
         "args": ["@playwright/mcp@latest"],
         "description": "MCP-сервер для Playwright."
     },
-    "filesystem": {
+    "github.com/modelcontextprotocol/servers/tree/main/src/filesystem": {
         "command": "cmd",
         "args": [
             "/c", "npx", "-y", "@modelcontextprotocol/server-filesystem", "d:\\Bll_tests\\"

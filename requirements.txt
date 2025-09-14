@@ -4,7 +4,7 @@ beautifulsoup4==4.12.3
 # Остальные зависимости
 allure-pytest==2.14.3
 argparse==1.4.0
-certifi==2025.1.27
+certifi==2025.7.9
 greenlet==3.1.1
 packaging==24.2
 pathlib==1.0.1
@@ -15,8 +15,6 @@ pluggy==1.6.0
 psycopg2==2.9.10
 pydantic==2.10.4
 pytest==8.4.0
-pytest-allure==1.0.2
-pytest-allure-adaptor==1.7.10
 pytest-html==4.1.1
 pytest-playwright==0.6.2
 pytest-repeat==0.9.3
@@ -32,8 +30,8 @@ tornado==6.4.2
 urllib3==2.2.3
 
 # Code quality tools
-black==24.12.0
-autoflake==2.4.0
+black==25.1.0
+autoflake==2.3.1
 autopep8==2.3.1
 docformatter==1.8.0
 flake8==7.1.1

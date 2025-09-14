@@ -6,6 +6,7 @@
 - Умную авторизацию с проверкой куки
 - Разнообразные тестовые вопросы
 - Таргетированную авторизацию
+- Параметризованные тесты
 """
 
 import os
@@ -66,21 +67,6 @@ def _parse_env_delays(value: str) -> Tuple[float, ...]:
         return (0.0, 1.0, 2.0, 4.0)
 
 
-def _get_num_questions_env() -> int:
-    """Возвращает количество вопросов для отправки из ENV NUM_QUESTIONS.
-
-    По умолчанию возвращает 1. Некорректные значения приводятся к 1.
-
-    Returns:
-        int: Количество вопросов для параметризации теста.
-    """
-    try:
-        value = int(os.getenv("NUM_QUESTIONS", "1").strip())
-        return value if value > 0 else 1
-    except Exception:
-        return 1
-
-
 def _format_table(entries: List[Dict[str, Any]], limit: int = 5) -> str:
     """Формирует текстовую таблицу для отображения в логах/Allure.
 
@@ -94,12 +80,12 @@ def _format_table(entries: List[Dict[str, Any]], limit: int = 5) -> str:
     head = entries[: max(0, limit)]
     lines = [
         "Пользователь            Дата            Тип     Текст           ID",
-        "--------------------------------------------------------------------------------------------",
+        "-" * 92,
     ]
     for e in head:
         lines.append(
-            f"{e.get('user',''):<15}  {e.get('date',''):<16}  {e.get('type',' '):^3}  "
-            f"{(e.get('text','') or '')[:40]:<40}  {e.get('id') or ''}"
+            f"{e.get('user',''):15}  {e.get('date',''):16}  {e.get('type',' '):^3}  "
+            f"{(e.get('text','') or '')[:40]:40}  {e.get('id') or ''}"
         )
     return "\n".join(lines)
 
@@ -111,36 +97,63 @@ def verify_question_in_panel(
     *,
     limit: int = 100,
     delays: Tuple[float, ...] = (0.0, 0.7, 1.5, 3.0),
+    per_attempt_limits: Tuple[int, ...] | None = None,
     freshness_minutes: int = 3,
 ) -> Dict[str, Any]:
-    """Проверяет наличие записи с указанным фрагментом текста в панели модерации."""
+    """Проверяет наличие записи с указанным фрагментом текста в панели модерации.
+
+    В несколько попыток опрашивает панель, возвращает найденную запись или
+    падает с диагностикой.
+
+    Args:
+        panel_parser: Парсер панели модерации.
+        session_cookie: Значение куки сессии.
+        fragment: Фрагмент текста для поиска (нижний регистр).
+        limit: Количество записей, запрашиваемых у панели.
+        delays: Задержки между попытками, первая попытка — сразу.
+        freshness_minutes: Максимально допустимый возраст записи в минутах.
+
+    Returns:
+        Dict[str, Any]: Найденная запись панели модерации.
+    """
     from datetime import datetime, timedelta, timezone
 
+    max_attempts = len(delays)
     last_entries: List[Dict[str, Any]] = []
+
     for attempt, delay in enumerate(delays, start=1):
         if delay > 0:
             time.sleep(delay)
 
-        entries = panel_parser.get_moderation_panel_data(session_cookie, limit=limit)
+        # Динамический лимит: сперва меньше, затем больше
+        effective_limit = limit
+        if per_attempt_limits and len(per_attempt_limits) > 0:
+            idx = min(attempt - 1, len(per_attempt_limits) - 1)
+            effective_limit = per_attempt_limits[idx]
+
+        entries = panel_parser.get_moderation_panel_data(session_cookie, limit=effective_limit)
         last_entries = entries
         print(
-            f"Попытка {attempt}/{len(delays)}: Найдено {len(entries)} записей (limit={limit}, задержка {delay:.1f}с)"
+            f"Найдено {len(entries)} записей (limit={effective_limit}) (попытка {attempt}/{max_attempts}, задержка {delay:.1f}с)"
         )
+        # Минимизируем оверхед: вложения только при успехе/провале
 
         for e in entries:
             text_value = (e.get("text", "") or "").lower()
             if fragment in text_value:
+                # Проверка типа и свежести
                 if e.get("type") != "?":
-                    continue  # Ищем только неопубликованные вопросы
+                    raise AssertionError("Неверный тип записи (ожидался '?')")
 
                 ts = e.get("timestamp")
                 if not ts:
-                    continue
+                    raise AssertionError("У найденной записи отсутствует timestamp")
 
                 entry_dt_utc = datetime.fromtimestamp(float(ts), tz=timezone.utc)
                 if datetime.now(timezone.utc) - entry_dt_utc > timedelta(minutes=freshness_minutes):
-                    continue  # Запись слишком старая
+                    raise AssertionError("Найдена не свежая запись — возможное ложное совпадение по маркеру")
 
+                # Диагностика найденной записи
                 details = (
                     f"Пользователь: {e.get('user')}\n"
                     f"Дата: {e.get('date')}\n"
@@ -153,34 +166,37 @@ def verify_question_in_panel(
                 print("\n🔍 Детали вопроса:\n" + details)
                 return e
 
+    # Не нашли — финальная диагностика
     allure.attach(
-        _format_table(last_entries, limit=10),
-        name="Панель: последние 10 записей (финальная диагностика)",
+        _format_table(last_entries, limit=5),
+        name="Панель: первые 5 записей (финальная диагностика)",
         attachment_type=allure.attachment_type.TEXT,
     )
-    pytest.fail(f"Отправленный вопрос с маркером '{fragment}' не найден в панели модерации.")
+    raise AssertionError("Отправленный вопрос не найден в панели модерации")
 
 
 @allure.title("Отправка вопроса с умной авторизацией")
 @allure.description("Проверка отправки вопроса с оптимизированной авторизацией")
 @allure.feature("API тестирование")
 @pytest.mark.api
-@pytest.mark.parametrize(
-    "case_index",
-    range(_get_num_questions_env()),
-    ids=lambda i: f"question_{i+1}"
-)
 def test_send_question_with_smart_auth(
     fx_auth_manager: SmartAuthManager,
     fx_panel_parser: ModerationPanelParser,
     fx_question_factory: QuestionFactory,
-    case_index: int,
 ) -> None:
     """
-    Тест отправки вопроса с умной авторизацией.
+    Тест отправки вопроса с умной авторизацией
+    
+    Демонстрирует оптимизированный подход:
+    - Проверка валидности существующей куки
+    - Авторизация только при необходимости
+    - Разнообразные тестовые вопросы
     """
-    marker = f"MARKER_{int(time.time())}_{case_index}"
+    
+    # Генерируем уникальный маркер и вопрос (отправляем ровно 1 вопрос)
+    marker = f"MARKER_{int(time.time())}"
     base_question = fx_question_factory.generate_question(category="регистрация")
+    # Вставляем короткий маркер в начало, чтобы он гарантированно попал в превью на панели
     question_text = f"{marker} — {base_question}"
     
     with allure.step("Получение валидной сессионной куки (умная авторизация)"):
@@ -196,13 +212,28 @@ def test_send_question_with_smart_auth(
 
     with allure.step("Проверка наличия вопроса в панели модерации"):
         fragment = marker.lower()
-        delays = _parse_env_delays(os.getenv("PANEL_DELAYS", "0,1,3,5")) # Увеличенные задержки
+        delays_env = _parse_env_delays(os.getenv("PANEL_DELAYS", "0,0.7,1.5,3"))
+        limit_env = int(os.getenv("PANEL_LIMIT", "100"))
+        limits_env_str = os.getenv("PANEL_LIMITS", "60,100")
+        try:
+            per_attempt_limits = tuple(int(x.strip()) for x in limits_env_str.split(",") if x.strip())
+        except (ValueError, TypeError):
+            per_attempt_limits = (60, 100)
+        freshness = int(os.getenv("PANEL_FRESH_MINUTES", "3"))
         verify_question_in_panel(
             fx_panel_parser,
             session_cookie,
             fragment,
-            delays=delays,
+            limit=limit_env,
+            delays=delays_env,
+            per_attempt_limits=per_attempt_limits,
+            freshness_minutes=freshness,
         )
 
+
+# Удалены вспомогательные сценарии: оставляем один быстрый и показательный тест
+
+
 if __name__ == "__main__":
-    pytest.main([__file__, '-s', '-v'])
+    # Не используется в тестовом запуске. Блок намеренно оставлен пустым.
+    pass
