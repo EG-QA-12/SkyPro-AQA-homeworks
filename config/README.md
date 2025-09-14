@@ -54,6 +54,12 @@ AUTH_DOMAIN=test.example.com
 TEST_ENVIRONMENT=dev
 DEBUG_MODE=false
 HEADLESS=true
+
+# ДОПОЛНИТЕЛЬНЫЕ НАСТРОЙКИ
+API_BASE_URL=https://api.test.example.com
+BROWSER_TYPE=chromium
+SCREENSHOT_ON_FAILURE=true
+ALLURE_REPORTS=true
 ```
 
 ### 4. Проверьте настройку
