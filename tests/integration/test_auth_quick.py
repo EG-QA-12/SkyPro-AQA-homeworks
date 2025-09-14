@@ -126,7 +126,7 @@ def test_smart_auth_manager():
     
     # Проверяем методы менеджера
     assert hasattr(manager, 'get_valid_session_cookie')
-    assert hasattr(manager, '_perform_api_login')
+    assert hasattr(manager, '_perform_auth_and_get_cookie')
     print("✅ Методы SmartAuthManager доступны")
 
 
