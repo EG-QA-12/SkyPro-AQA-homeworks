@@ -3,7 +3,6 @@ import allure
 from typing import Tuple
 from playwright.sync_api import BrowserContext, Page
 from framework.utils.auth_utils import get_random_user_cookie, is_guest, is_authorized
-from framework.utils.reporting.allure_utils import allure_step
 
 @pytest.mark.parametrize("url", [
     "https://bll.by/",
@@ -14,7 +13,7 @@ from framework.utils.reporting.allure_utils import allure_step
     "https://bonus.bll.by/",
 ])
 @allure.title("Проверка cookie-авторизации на {url}")
-def test_cookie_auth_on_domain(isolated_context: Tuple[BrowserContext, Page], url: str) -> None:
+def test_cookie_auth_on_domain(isolated_context: Tuple[BrowserContext, Page], url: str, allure_step) -> None:
     """
     Тест проверки авторизации через cookies на разных доменах.
     
@@ -36,6 +35,7 @@ def test_cookie_auth_on_domain(isolated_context: Tuple[BrowserContext, Page], ur
         isolated_context: Кортеж из изолированного BrowserContext и Page,
             гарантирующий чистое состояние браузера для каждого теста
         url: URL домена для тестирования (параметризовано через pytest.mark.parametrize)
+        allure_step: Fixture для создания шагов в Allure отчете
         
     Returns:
         None: Тест использует assert для проверки условий

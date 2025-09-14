@@ -14,7 +14,8 @@ from .auth_fixtures import (
     authenticated_admin,
     authenticated_user,
     auth_page,
-    quick_auth
+    quick_auth,
+    isolated_context
 )
 
 __all__ = [
@@ -23,5 +24,6 @@ __all__ = [
     'authenticated_admin', 
     'authenticated_user',
     'auth_page',
-    'quick_auth'
+    'quick_auth',
+    'isolated_context'
 ]
