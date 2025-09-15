@@ -10,6 +10,7 @@
 - [docs/TESTING/BEST_PRACTICES.md](docs/TESTING/BEST_PRACTICES.md) - Лучшие практики тестирования
 - [docs/guides/PLAYWRIGHT_MCP_TESTING_GUIDE.md](docs/guides/PLAYWRIGHT_MCP_TESTING_GUIDE.md) - Руководство по тестированию с Playwright
 - [docs/guides/GIT_BRANCHING_STRATEGY.md](docs/guides/GIT_BRANCHING_STRATEGY.md) - Стратегия ветвления Git
+- [docs/MIGRATION/MIGRATION_GUIDE.md](docs/MIGRATION/MIGRATION_GUIDE.md) - Миграция на новую систему авторизации
 
 ## 🚀 Быстрый старт с новым фреймворком
 
