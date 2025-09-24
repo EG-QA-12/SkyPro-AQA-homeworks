@@ -1,3 +1,0 @@
-# Не коммитить чувствительные данные
-/data/creds.env
-/data/cookies.json

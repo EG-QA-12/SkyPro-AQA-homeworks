@@ -18,13 +18,12 @@ Fixtures:
     authenticated_user: Контекст с обычным авторизованным пользователем
     clean_context: Контекст без авторизации (чистые cookies)
 """
-
 import pytest
 from typing import Generator, Optional
 from pathlib import Path
 
 from playwright.sync_api import Browser, BrowserContext, Page
-from ..utils.auth_utils import load_user_cookie, save_user_cookie, clear_all_cookies, check_cookie_validity
+from ..utils.auth_utils import load_cookie, save_cookie, clear_all_cookies, check_cookie_validity
 from ..app.pages.login_page import LoginPage
 
 
@@ -105,7 +104,7 @@ def authenticated_admin(browser: Browser) -> Generator[BrowserContext, None, Non
     context = browser.new_context()
     
     # Пытаемся загрузить существующие cookies администратора
-    if load_user_cookie(context, "admin"):
+    if load_cookie(context, "admin"):
         # Проверяем валидность загруженных cookies
         page = context.new_page()
         page.goto("https://bll.by/")  # Базовый URL приложения
@@ -135,7 +134,7 @@ def authenticated_admin(browser: Browser) -> Generator[BrowserContext, None, Non
         page.wait_for_timeout(2000)
         
         # Сохраняем cookies для будущего использования
-        save_user_cookie(context, "admin")
+        save_cookie(context, "admin")
     
     try:
         yield context
@@ -166,7 +165,7 @@ def authenticated_user(browser: Browser) -> Generator[BrowserContext, None, None
     context = browser.new_context()
     
     # Пытаемся загрузить существующие cookies пользователя
-    if load_user_cookie(context, "user"):
+    if load_cookie(context, "user"):
         page = context.new_page()
         page.goto("https://bll.by/")
         
@@ -190,7 +189,7 @@ def authenticated_user(browser: Browser) -> Generator[BrowserContext, None, None
     if user_credentials:
         login_page.login(user_credentials["username"], user_credentials["password"])
         page.wait_for_timeout(2000)
-        save_user_cookie(context, "user")
+        save_cookie(context, "user")
     
     try:
         yield context
@@ -317,7 +316,7 @@ def quick_auth(browser: Browser):
     def _auth(username: str) -> BrowserContext:
         context = browser.new_context()
         
-        if load_user_cookie(context, username):
+        if load_cookie(context, username):
             page = context.new_page()
             page.goto("https://bll.by/")
             

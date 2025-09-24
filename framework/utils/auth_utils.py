@@ -15,6 +15,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Dict
 
+# Импортируем функции из auth_cookie_provider для обратной совместимости
+from .auth_cookie_provider import get_session_cookie, get_auth_cookies
 
 def validate_cookie(cookie: str, required_role: str) -> bool:
     """Проверяет базовую валидность значения авторизационной куки.
@@ -98,6 +100,109 @@ def load_cookie(path: str) -> str:
             f"Файл {path} прочитан, но значение куки пустое"
         )
     return value
+
+
+def load_user_cookie(context, username: str) -> bool:
+    """
+    Загружает куки пользователя из файла.
+    
+    Args:
+        context: Контекст браузера
+        username: Имя пользователя
+        
+    Returns:
+        bool: True если куки успешно загружены
+    """
+    try:
+        # Получаем путь к файлу куков пользователя
+        project_root = Path(__file__).parent.parent.parent
+        cookies_dir = project_root / "cookies"
+        cookie_file = cookies_dir / f"{username}_session.txt"
+        
+        if cookie_file.exists():
+            cookie_value = load_cookie(str(cookie_file))
+            if cookie_value:
+                # Добавляем куки в контекст
+                context.add_cookies([{
+                    "name": "test_joint_session",
+                    "value": cookie_value,
+                    "domain": ".bll.by",
+                    "path": "/"
+                }])
+                return True
+    except Exception as e:
+        print(f"Ошибка при загрузке куков пользователя {username}: {e}")
+    
+    return False
+
+
+def save_user_cookie(context, username: str) -> None:
+    """
+    Сохраняет куки пользователя в файл.
+    
+    Args:
+        context: Контекст браузера
+        username: Имя пользователя
+    """
+    try:
+        # Получаем куки из контекста
+        cookies = context.cookies()
+        
+        # Ищем куку test_joint_session
+        for cookie in cookies:
+            if cookie.get("name") == "test_joint_session":
+                # Сохраняем значение куки
+                project_root = Path(__file__).parent.parent.parent
+                cookies_dir = project_root / "cookies"
+                cookies_dir.mkdir(exist_ok=True)
+                cookie_file = cookies_dir / f"{username}_session.txt"
+                save_cookie(cookie.get("value", ""), str(cookie_file))
+                break
+    except Exception as e:
+        print(f"Ошибка при сохранении куков пользователя {username}: {e}")
+
+
+def clear_all_cookies(context) -> None:
+    """
+    Очищает все куки из контекста.
+    
+    Args:
+        context: Контекст браузера
+    """
+    try:
+        context.clear_cookies()
+    except Exception as e:
+        print(f"Ошибка при очистке куков: {e}")
+
+
+def check_cookie_validity(context, username: str) -> bool:
+    """
+    Проверяет валидность куки пользователя.
+    
+    Args:
+        context: Контекст браузера
+        username: Имя пользователя
+        
+    Returns:
+        bool: True если кука валидна
+    """
+    try:
+        # Создаем новую страницу для проверки
+        page = context.new_page()
+        page.goto("https://bll.by/")
+        
+        # Проверяем наличие элемента, который виден только авторизованным пользователям
+        # Например, кнопка выхода или имя пользователя
+        logout_button = page.locator("a[href*='logout'], a:has-text('Выйти')")
+        profile_link = page.locator("a[href*='/user/profile'], a:has-text('Профиль')")
+        
+        is_valid = logout_button.count() > 0 or profile_link.count() > 0
+        
+        page.close()
+        return is_valid
+    except Exception as e:
+        print(f"Ошибка при проверке валидности куки пользователя {username}: {e}")
+        return False
 
 
 class SecureAuthManager:
