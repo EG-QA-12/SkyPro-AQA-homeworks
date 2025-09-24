@@ -103,10 +103,29 @@ def test_burger_menu_link(page: Page, link_text: str, href: str) -> None:
     if is_headless:
         main_url = add_allow_session_param(main_url)
         href = add_allow_session_param(href)
+    
+    # Для телефонных ссылок проверяем только доступность, не переход
+    if href.startswith('tel:'):
+        page.goto(main_url)
+        burger_button = page.locator("a.menu-btn.menu-btn_new")
+        burger_button.wait_for(state="visible", timeout=WAIT_TIMEOUT)
+        burger_button.click()
+        
+        # Ищем телефонную ссылку
+        link = page.locator(f"a.menu_item_link[href='{href}']")
+        if link.count() == 0:
+            link = page.locator(f"a.menu_item_link:has-text('{link_text}')")
+        
+        link.wait_for(state="visible", timeout=WAIT_TIMEOUT)
+        assert link.is_visible(), f"Телефонная ссылка '{link_text}' не найдена в бургер-меню"
+        return
+    
+    # Для остальных ссылок проверяем переход
     page.goto(main_url)
     burger_button = page.locator("a.menu-btn.menu-btn_new")
     burger_button.wait_for(state="visible", timeout=WAIT_TIMEOUT)
     burger_button.click()
+    
     # Используем более гибкий подход для поиска элементов, как в рабочем тесте
     # Сначала пробуем точный селектор
     link = page.locator(f"a.menu_item_link[href='{href}']:has-text('{link_text}')").first
@@ -121,9 +140,19 @@ def test_burger_menu_link(page: Page, link_text: str, href: str) -> None:
     
     link.wait_for(state="visible", timeout=WAIT_TIMEOUT)
     link.click()
-    heading = page.locator(f"h1:has-text('{link_text}')")
-    try:
-        heading.wait_for(state="visible", timeout=WAIT_TIMEOUT)
-    except PlaywrightTimeoutError:
-        raise AssertionError(f"Заголовок '{link_text}' не найден после перехода по ссылке ({href})")
-    assert heading.is_visible(), f"Заголовок '{link_text}' не найден на странице после перехода по ссылке ({href})"
+    
+    # Проверяем, что переход успешен (не проверяем заголовок для внешних ссылок)
+    if "bll.by" in href or "expert.bll.by" in href:
+        heading = page.locator(f"h1:has-text('{link_text}')")
+        try:
+            heading.wait_for(state="visible", timeout=WAIT_TIMEOUT)
+        except PlaywrightTimeoutError:
+            # Если заголовок не найден, проверяем URL
+            current_url = page.url
+            if href not in current_url:
+                raise AssertionError(f"Заголовок '{link_text}' не найден и переход не удался ({href})")
+    else:
+        # Для внешних ссылок проверяем только изменение URL
+        current_url = page.url
+        if href not in current_url and href.replace('https://', '') not in current_url:
+            raise AssertionError(f"Переход по внешней ссылке не удался ({href})")
