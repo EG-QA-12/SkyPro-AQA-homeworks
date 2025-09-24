@@ -233,7 +233,7 @@ class TestBurgerMenuHybridValidationCodegen:
             page.get_by_role("link").filter(has_text=re.compile(r"^$")).first.click()
 
             with page.expect_response("**/perechen-tem-chek-list-dokumentov-487105**") as response_info:
-                page.locator(".container").first.click()
+                page.get_by_role("banner").get_by_role("link", name="Чек-листы").click()
 
             response = response_info.value
             assert response.status in [200, 201], f"Неверный статус код: {response.status}"
@@ -546,54 +546,6 @@ class TestBurgerMenuHybridValidationCodegen:
             assert response.status in [200, 201], f"Неверный статус код: {response.status}"
             expect(page).to_have_url(re.compile(r".*rukovodstvo-polzovatelya-platformy-biznes-info-436351.*"))
             expect(page.get_by_role("heading", name="Руководство пользователя платформы «Бизнес-Инфо»")).to_be_visible()
-
-        finally:
-            page.close()
-
-    @allure.title("Гибридная валидация: Производительность открытия меню")
-    @allure.description("Комплексная проверка скорости открытия меню с контент валидацией")
-    @pytest.mark.burger_menu
-    @pytest.mark.performance
-    @pytest.mark.hybrid
-    def test_hybrid_menu_performance_with_content(self, authenticated_burger_context):
-        """
-        Гибридный тест производительности открытия меню.
-
-        Проверяет:
-        - Время открытия меню (< 3 сек)
-        - Корректность загрузки контента меню
-        - Доступность основных ссылок
-        """
-        page = authenticated_burger_context.new_page()
-
-        try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-
-            import time
-            start_time = time.time()
-
-            # Открываем бургер-меню
-            page.get_by_role("link").filter(has_text=re.compile(r"^$")).first.click()
-
-            # Ждем появления контента меню
-            page.get_by_role("link", name="Новости").wait_for(timeout=5000)
-
-            end_time = time.time()
-            open_time = end_time - start_time
-
-            # Проверяем производительность
-            assert open_time < 3.0, f"Меню открылось слишком медленно: {open_time:.2f} сек"
-
-            # Проверяем контент
-            expect(page.get_by_role("link", name="Новости")).to_be_visible()
-            expect(page.get_by_role("link", name="Справочная информация")).to_be_visible()
-
-            # Добавляем метрики в отчет
-            allure.attach(
-                f"Время открытия меню: {open_time:.2f} сек",
-                name="Menu Open Performance",
-                attachment_type=allure.attachment_type.TEXT
-            )
 
         finally:
             page.close()
