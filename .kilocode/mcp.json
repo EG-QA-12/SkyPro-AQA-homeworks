@@ -55,6 +55,16 @@
         "PUPPETEER_EXECUTABLE_PATH": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
         "CHROME_BIN": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
       }
+    },
+    "chrome-devtools-remote": {
+      "command": "npx",
+      "args": [
+        "chrome-devtools-mcp@latest",
+        "--browserUrl=http://127.0.0.1:9222"
+      ],
+      "env": {
+        "CHROME_PATH": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+      }
     }
   }
 }
