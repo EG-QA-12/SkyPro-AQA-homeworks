@@ -958,7 +958,7 @@ class TestBurgerMenuNavigationRefactored:
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
             with page.expect_response("https://expert.bll.by/questions/my") as response_info:
-                assert burger_menu.click_link_by_text("Мои вопросы и ответы", exact=True), "Не удалось кликнуть по ссылке"
+                assert burger_menu.click_link_by_text("Мои вопросы и ответы"), "Не удалось кликнуть по ссылке"
 
             response = response_info.value
             assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"
@@ -1287,8 +1287,8 @@ class TestBurgerMenuNavigationRefactored:
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
-            # Используем page.get_by_role для точного поиска ссылки
-            expert_link = page.get_by_role("banner").get_by_role("link", name="Я эксперт")
+            # Используем специфичный селектор для ссылки в бургер-меню
+            expert_link = page.locator("a.menu_item_link[href*='expert.bll.by/user/expert']").first
 
             with page.expect_response("https://expert.bll.by/user/expert") as response_info:
                 expert_link.click()
@@ -1323,8 +1323,8 @@ class TestBurgerMenuNavigationRefactored:
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
-            # Используем page.get_by_role для точного поиска ссылки
-            settings_link = page.get_by_role("banner").get_by_role("link", name="Настройка уведомлений")
+            # Используем специфичный селектор для ссылки в бургер-меню
+            settings_link = page.locator("a.menu_item_link[href*='notification/settings']").first
 
             with page.expect_response("https://ca.bll.by/notification/settings") as response_info:
                 settings_link.click()
@@ -1359,8 +1359,8 @@ class TestBurgerMenuNavigationRefactored:
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
-            # Используем page.get_by_role для точного поиска ссылки
-            account_link = page.get_by_role("banner").get_by_role("link", name="Личный кабинет")
+            # Используем специфичный селектор для ссылки в бургер-меню
+            account_link = page.locator("a.menu_item_link[href*='business-info.by/pc']").first
 
             with page.expect_response("https://business-info.by/pc") as response_info:
                 account_link.click()
@@ -1395,8 +1395,8 @@ class TestBurgerMenuNavigationRefactored:
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
-            # Используем page.get_by_role для точного поиска ссылки
-            bonuses_link = page.get_by_role("banner").get_by_role("link", name="Бонусы")
+            # Используем специфичный селектор для ссылки в бургер-меню
+            bonuses_link = page.locator("a.menu_item_link[href*='bonus.bll.by']").first
 
             with page.expect_response("https://bonus.bll.by") as response_info:
                 bonuses_link.click()

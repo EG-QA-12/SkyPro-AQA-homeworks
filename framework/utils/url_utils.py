@@ -14,14 +14,31 @@ def is_headless() -> bool:
     """Определяет, запущен ли тест в headless-режиме.
 
     Возвращает True, если тесты запущены в headless-режиме. Проверяет переменную окружения HEADLESS
-    или другие параметры запуска (можно доработать под нужды проекта).
+    или анализирует аргументы pytest для определения headless режима.
 
     Returns:
         bool: True, если headless, иначе False.
     """
     import os
-    value = os.getenv("HEADLESS", "false").lower()
-    return value in ("1", "true", "yes")
+
+    # Сначала проверяем явную переменную окружения
+    headless_env = os.getenv("HEADLESS", "").lower()
+    if headless_env in ("1", "true", "yes"):
+        return True
+    if headless_env in ("0", "false", "no"):
+        return False
+
+    # Если переменная не установлена, проверяем аргументы pytest
+    # pytest хранит аргументы в sys.argv или в переменных окружения
+    pytest_args = os.getenv("PYTEST_CURRENT_ARGS", "")
+    if "--headed" in pytest_args:
+        return False
+    if "--headless" in pytest_args or "headless" in pytest_args:
+        return True
+
+    # По умолчанию считаем headless=True для CI/CD сред
+    # или если явно не указан --headed
+    return True
 
 
 def add_allow_session_param(url: str, headless: bool = True) -> str:

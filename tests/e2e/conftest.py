@@ -122,8 +122,8 @@ def burger_menu_page(authenticated_burger_context: BrowserContext) -> Generator[
     """
     page = authenticated_burger_context.new_page()
     
-    # Переходим на главную страницу с параметром allow-session
-    main_url = add_allow_session_param("https://bll.by/", is_headless())
+    # Переходим на главную страницу с параметром allow-session (всегда для E2E тестов)
+    main_url = add_allow_session_param("https://bll.by/", headless=True)
     page.goto(main_url, wait_until="domcontentloaded")
     
     burger_menu_page_obj = BurgerMenuPage(page)
@@ -147,8 +147,8 @@ def main_page_with_burger(authenticated_burger_context: BrowserContext) -> Gener
     """
     page = authenticated_burger_context.new_page()
     
-    # Переходим на главную страницу с параметром allow-session
-    main_url = add_allow_session_param("https://bll.by/", is_headless())
+    # Переходим на главную страницу с параметром allow-session (всегда для E2E тестов)
+    main_url = add_allow_session_param("https://bll.by/", headless=True)
     page.goto(main_url, wait_until="domcontentloaded")
     
     main_page_obj = MainPage(page)
