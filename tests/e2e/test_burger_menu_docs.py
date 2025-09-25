@@ -565,3 +565,270 @@ class TestBurgerMenuNavigationRefactored:
 
         finally:
             page.close()
+
+    @allure.title("Навигация: Видеоответы")
+    @allure.description("Проверка перехода в Видеоответы - статус код и ID URL")
+    @pytest.mark.burger_menu
+    @pytest.mark.navigation
+    @pytest.mark.refactored
+    def test_video_answers_navigation(self, authenticated_burger_context):
+        """
+        Проверка навигации в раздел "Видеоответы".
+
+        Проверяет:
+        - Статус код: 200
+        - URL ID: 490299
+        """
+        page = authenticated_burger_context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            page.goto("https://bll.by/", wait_until="domcontentloaded")
+            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+
+            with page.expect_response("**/videootvety-490299**") as response_info:
+                assert burger_menu.click_link_by_text("Видеоответы"), "Не удалось кликнуть по ссылке"
+
+            response = response_info.value
+            assert response.status in [200, 201], f"Неверный статус код: {response.status}"
+
+            current_url = page.url
+            assert burger_menu.compare_docs_url_with_id(current_url, "490299"), \
+                f"URL не содержит ожидаемый ID 490299: {current_url}"
+
+        finally:
+            page.close()
+
+    @allure.title("Навигация: Закупки")
+    @allure.description("Проверка перехода в Закупки - статус код и URL")
+    @pytest.mark.burger_menu
+    @pytest.mark.navigation
+    @pytest.mark.refactored
+    def test_procurement_navigation(self, authenticated_burger_context):
+        """
+        Проверка навигации в раздел "Закупки".
+
+        Проверяет:
+        - Статус код: 200
+        - URL: https://gz.bll.by (внешний домен)
+        """
+        page = authenticated_burger_context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            page.goto("https://bll.by/", wait_until="domcontentloaded")
+            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+
+            with page.expect_response("https://gz.bll.by") as response_info:
+                assert burger_menu.click_link_by_text("Закупки"), "Не удалось кликнуть по ссылке"
+
+            response = response_info.value
+            assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"
+
+            # Для внешнего домена проверяем, что URL содержит gz.bll.by (учитывая редиректы на авторизацию)
+            current_url = page.url
+            assert "gz.bll.by" in current_url, f"URL не содержит gz.bll.by: {current_url}"
+
+        finally:
+            page.close()
+
+    @allure.title("Навигация: Главная страница")
+    @allure.description("Проверка перехода на Главную страницу - статус код и URL")
+    @pytest.mark.burger_menu
+    @pytest.mark.navigation
+    @pytest.mark.refactored
+    def test_home_page_navigation(self, authenticated_burger_context):
+        """
+        Проверка навигации на главную страницу.
+
+        Проверяет:
+        - Статус код: 200
+        - URL: https://bll.by (возврат на главную)
+        """
+        page = authenticated_burger_context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            # Сначала перейдем на другую страницу
+            page.goto("https://bll.by/docs", wait_until="domcontentloaded")
+            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+
+            # Ищем ссылку "Главная страница" по селектору a.menu_bl_ttl-main
+            home_link = page.locator("a.menu_bl_ttl-main").first
+
+            with page.expect_response("https://bll.by/") as response_info:
+                home_link.click()
+
+            response = response_info.value
+            assert response.status in [200, 201], f"Неверный статус код: {response.status}"
+
+            # Проверка возврата на главную страницу
+            expect(page).to_have_url("https://bll.by/")
+
+        finally:
+            page.close()
+
+    @allure.title("Навигация: О Платформе")
+    @allure.description("Проверка перехода в О Платформе - статус код и URL")
+    @pytest.mark.burger_menu
+    @pytest.mark.navigation
+    @pytest.mark.refactored
+    def test_about_platform_navigation(self, authenticated_burger_context):
+        """
+        Проверка навигации в раздел "О Платформе".
+
+        Проверяет:
+        - Статус код: 200
+        - URL: https://bll.by/about
+        """
+        page = authenticated_burger_context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            page.goto("https://bll.by/", wait_until="domcontentloaded")
+            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+
+            with page.expect_response("**/about**") as response_info:
+                assert burger_menu.click_link_by_text("О Платформе"), "Не удалось кликнуть по ссылке"
+
+            response = response_info.value
+            assert response.status in [200, 201], f"Неверный статус код: {response.status}"
+
+            # Точное сравнение для статического URL
+            expect(page).to_have_url("https://bll.by/about")
+
+        finally:
+            page.close()
+
+    @allure.title("Навигация: Купить")
+    @allure.description("Проверка перехода в Купить - статус код и URL")
+    @pytest.mark.burger_menu
+    @pytest.mark.navigation
+    @pytest.mark.refactored
+    def test_buy_navigation(self, authenticated_burger_context):
+        """
+        Проверка навигации в раздел "Купить".
+
+        Проверяет:
+        - Статус код: 200
+        - URL: https://bll.by/buy
+        """
+        page = authenticated_burger_context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            page.goto("https://bll.by/", wait_until="domcontentloaded")
+            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+
+            with page.expect_response("**/buy**") as response_info:
+                assert burger_menu.click_link_by_text("Купить"), "Не удалось кликнуть по ссылке"
+
+            response = response_info.value
+            assert response.status in [200, 201], f"Неверный статус код: {response.status}"
+
+            # Точное сравнение для страницы покупки
+            expect(page).to_have_url("https://bll.by/buy")
+
+        finally:
+            page.close()
+
+    @allure.title("Навигация: Мероприятия")
+    @allure.description("Проверка перехода в Мероприятия - статус код и ID URL")
+    @pytest.mark.burger_menu
+    @pytest.mark.navigation
+    @pytest.mark.refactored
+    def test_events_navigation(self, authenticated_burger_context):
+        """
+        Проверка навигации в раздел "Мероприятия".
+
+        Проверяет:
+        - Статус код: 200
+        - URL ID: 471630
+        """
+        page = authenticated_burger_context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            page.goto("https://bll.by/", wait_until="domcontentloaded")
+            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+
+            # Ищем ссылку "Мероприятия" по селектору a.menu_bl_ttl-events
+            events_link = page.locator("a.menu_bl_ttl-events").first
+
+            with page.expect_response("**/471630**") as response_info:
+                events_link.click()
+
+            response = response_info.value
+            assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"
+
+            current_url = page.url
+            assert burger_menu.compare_docs_url_with_id(current_url, "471630"), \
+                f"URL не содержит ожидаемый ID 471630: {current_url}"
+
+        finally:
+            page.close()
+
+    @allure.title("Навигация: Поиск в базе документов")
+    @allure.description("Проверка перехода в Поиск в базе документов - статус код и URL")
+    @pytest.mark.burger_menu
+    @pytest.mark.navigation
+    @pytest.mark.refactored
+    def test_document_search_navigation(self, authenticated_burger_context):
+        """
+        Проверка навигации в раздел "Поиск в базе документов".
+
+        Проверяет:
+        - Статус код: 200
+        - URL: https://bll.by/docs
+        """
+        page = authenticated_burger_context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            page.goto("https://bll.by/", wait_until="domcontentloaded")
+            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+
+            with page.expect_response("**/docs**") as response_info:
+                assert burger_menu.click_link_by_text("Поиск в базе документов"), "Не удалось кликнуть по ссылке"
+
+            response = response_info.value
+            assert response.status in [200, 201], f"Неверный статус код: {response.status}"
+
+            # Точное сравнение для страницы поиска документов
+            expect(page).to_have_url("https://bll.by/docs")
+
+        finally:
+            page.close()
+
+    @allure.title("Навигация: Поиск в сообществе")
+    @allure.description("Проверка перехода в Поиск в сообществе - статус код и URL")
+    @pytest.mark.burger_menu
+    @pytest.mark.navigation
+    @pytest.mark.refactored
+    def test_community_search_navigation(self, authenticated_burger_context):
+        """
+        Проверка навигации в раздел "Поиск в сообществе".
+
+        Проверяет:
+        - Статус код: 200
+        - URL: https://expert.bll.by/questions (внешний домен)
+        """
+        page = authenticated_burger_context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            page.goto("https://bll.by/", wait_until="domcontentloaded")
+            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+
+            with page.expect_response("https://expert.bll.by/questions") as response_info:
+                assert burger_menu.click_link_by_text("Поиск в сообществе"), "Не удалось кликнуть по ссылке"
+
+            response = response_info.value
+            assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"
+
+            # Для внешнего домена сообщества проверяем, что URL содержит expert.bll.by
+            current_url = page.url
+            assert "expert.bll.by" in current_url, f"URL не содержит expert.bll.by: {current_url}"
+
+        finally:
+            page.close()
