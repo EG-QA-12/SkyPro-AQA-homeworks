@@ -42,6 +42,19 @@
         "-y",
         "@modelcontextprotocol/server-puppeteer"
       ]
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": [
+        "chrome-devtools-mcp@latest",
+        "--executablePath=C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "--isolated"
+      ],
+      "env": {
+        "CHROME_PATH": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "PUPPETEER_EXECUTABLE_PATH": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "CHROME_BIN": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+      }
     }
   }
 }
