@@ -732,6 +732,41 @@ class TestBurgerMenuNavigationRefactored:
         finally:
             page.close()
 
+    @allure.title("Навигация: Получить демодоступ")
+    @allure.description("Проверка перехода в Получить демодоступ - статус код и URL")
+    @pytest.mark.burger_menu
+    @pytest.mark.navigation
+    @pytest.mark.refactored
+    def test_demo_access_navigation(self, authenticated_burger_context):
+        """
+        Проверка навигации в раздел "Получить демодоступ".
+
+        Проверяет:
+        - Статус код: 200
+        - URL: https://bll.by/buy?request
+        """
+        page = authenticated_burger_context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            page.goto("https://bll.by/", wait_until="domcontentloaded")
+            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+
+            # Используем page.get_by_role для точного поиска ссылки "Получить демодоступ"
+            demo_link = page.get_by_role("link", name="Получить демодоступ")
+
+            with page.expect_response("**/buy?request**") as response_info:
+                demo_link.click()
+
+            response = response_info.value
+            assert response.status in [200, 201], f"Неверный статус код: {response.status}"
+
+            # Точное сравнение для страницы демодоступа
+            expect(page).to_have_url("https://bll.by/buy?request")
+
+        finally:
+            page.close()
+
     @allure.title("Навигация: Мероприятия")
     @allure.description("Проверка перехода в Мероприятия - статус код и ID URL")
     @pytest.mark.burger_menu
