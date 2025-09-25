@@ -389,7 +389,7 @@ class TestBurgerMenuNavigationRefactored:
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
             with page.expect_response("**/goryachie-temy-200085**") as response_info:
-                assert burger_menu.click_link_by_text("Горячие темы"), "Не удалось кликнуть по ссылке"
+                page.locator("a.menu_item_link[href*='goryachie-temy-200085']").first.click()
 
             response = response_info.value
             assert response.status in [200, 201], f"Неверный статус код: {response.status}"
@@ -455,7 +455,7 @@ class TestBurgerMenuNavigationRefactored:
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
             with page.expect_response("**/poleznye-ssylki-219924**") as response_info:
-                assert burger_menu.click_link_by_text("Полезные ссылки"), "Не удалось кликнуть по ссылке"
+                page.locator("a.menu_item_link[href*='poleznye-ssylki-219924']").first.click()
 
             response = response_info.value
             assert response.status in [200, 201], f"Неверный статус код: {response.status}"
@@ -1126,7 +1126,10 @@ class TestBurgerMenuNavigationRefactored:
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
             with page.expect_response("**/favorites**") as response_info:
-                assert burger_menu.click_link_by_text("Подборки и закладки"), "Не удалось кликнуть по ссылке"
+                favorites_link = page.locator("a.menu_item_link[href*='favorites']").first
+                favorites_link.scroll_into_view_if_needed()
+                page.wait_for_timeout(1000)  # Подождать после прокрутки
+                favorites_link.click()
 
             response = response_info.value
             assert response.status in [200, 201], f"Неверный статус код: {response.status}"
@@ -1158,7 +1161,7 @@ class TestBurgerMenuNavigationRefactored:
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
             with page.expect_response("**/docs/control**") as response_info:
-                assert burger_menu.click_link_by_text("Документы на контроле"), "Не удалось кликнуть по ссылке"
+                page.locator("a.menu_item_link[href*='docs/control']").first.click()
 
             response = response_info.value
             assert response.status in [200, 201], f"Неверный статус код: {response.status}"
@@ -1190,7 +1193,7 @@ class TestBurgerMenuNavigationRefactored:
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
             with page.expect_response("https://ca.bll.by/notification/reminder") as response_info:
-                assert burger_menu.click_link_by_text("Напоминания"), "Не удалось кликнуть по ссылке"
+                page.locator("a.menu_item_link[href*='notification/reminder']").first.click()
 
             response = response_info.value
             assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"
@@ -1223,7 +1226,7 @@ class TestBurgerMenuNavigationRefactored:
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
             with page.expect_response("**/docs/new**") as response_info:
-                assert burger_menu.click_link_by_text("Новые документы"), "Не удалось кликнуть по ссылке"
+                page.locator("a.menu_item_link[href*='docs/new']").first.click()
 
             response = response_info.value
             assert response.status in [200, 201], f"Неверный статус код: {response.status}"
@@ -1255,7 +1258,7 @@ class TestBurgerMenuNavigationRefactored:
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
             with page.expect_response("https://ca.bll.by/user/profile") as response_info:
-                assert burger_menu.click_link_by_text("Мои данные"), "Не удалось кликнуть по ссылке"
+                page.locator("a.menu_item_link[href*='ca.bll.by/user/profile']").first.click()
 
             response = response_info.value
             assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"
@@ -1291,6 +1294,8 @@ class TestBurgerMenuNavigationRefactored:
             expert_link = page.locator("a.menu_item_link[href*='expert.bll.by/user/expert']").first
 
             with page.expect_response("https://expert.bll.by/user/expert") as response_info:
+                expert_link.scroll_into_view_if_needed()
+                page.wait_for_timeout(1000)
                 expert_link.click()
 
             response = response_info.value
@@ -1327,6 +1332,8 @@ class TestBurgerMenuNavigationRefactored:
             settings_link = page.locator("a.menu_item_link[href*='notification/settings']").first
 
             with page.expect_response("https://ca.bll.by/notification/settings") as response_info:
+                settings_link.scroll_into_view_if_needed()
+                page.wait_for_timeout(1000)
                 settings_link.click()
 
             response = response_info.value
@@ -1363,6 +1370,8 @@ class TestBurgerMenuNavigationRefactored:
             account_link = page.locator("a.menu_item_link[href*='business-info.by/pc']").first
 
             with page.expect_response("https://business-info.by/pc") as response_info:
+                account_link.scroll_into_view_if_needed()
+                page.wait_for_timeout(1000)
                 account_link.click()
 
             response = response_info.value
@@ -1399,6 +1408,8 @@ class TestBurgerMenuNavigationRefactored:
             bonuses_link = page.locator("a.menu_item_link[href*='bonus.bll.by']").first
 
             with page.expect_response("https://bonus.bll.by") as response_info:
+                bonuses_link.scroll_into_view_if_needed()
+                page.wait_for_timeout(1000)
                 bonuses_link.click()
 
             response = response_info.value
