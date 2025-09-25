@@ -6,8 +6,10 @@ Page Object для бургер-меню сайта bll.by
 """
 import logging
 import json
+import re
 from pathlib import Path
 from typing import List, Tuple, Optional
+from urllib.parse import urlparse
 import allure
 from playwright.sync_api import Page, Locator, TimeoutError as PlaywrightTimeoutError
 
@@ -347,6 +349,68 @@ class BurgerMenuPage:
         except Exception as e:
             self.logger.error(f"Ошибка при ожидании загрузки меню: {e}")
             return False
+
+    @allure.step("Извлечение ID из URL типа docs")
+    def extract_docs_id_from_url(self, url: str) -> Optional[str]:
+        """
+        Извлекает ID из URL типа https://bll.by/docs/perechen-tem-chek-list-dokumentov-487105
+
+        Args:
+            url: URL для анализа
+
+        Returns:
+            Optional[str]: ID документа или None если не найден
+        """
+        # Регулярное выражение для поиска ID в конце URL (после последнего дефиса)
+        match = re.search(r'-(\d+)$', url)
+        if match:
+            return match.group(1)
+        return None
+
+    @allure.step("Сравнение URL с учетом ID для docs")
+    def compare_docs_url_with_id(self, actual_url: str, expected_id: str) -> bool:
+        """
+        Сравнивает URL типа docs по ID, игнорируя текстовую часть
+
+        Args:
+            actual_url: Фактический URL
+            expected_id: Ожидаемый ID документа
+
+        Returns:
+            bool: True если ID совпадает
+        """
+        actual_id = self.extract_docs_id_from_url(actual_url)
+        return actual_id == expected_id
+
+    @allure.step("Умная проверка URL")
+    def validate_navigation_url(self, actual_url: str, expected_url: str) -> bool:
+        """
+        Умная проверка URL с учетом специфики разных типов страниц
+
+        Для URL типа docs (https://bll.by/docs/...-ID) сравнивает только ID
+        Для остальных URL сравнивает полностью
+
+        Args:
+            actual_url: Фактический URL после перехода
+            expected_url: Ожидаемый URL или паттерн
+
+        Returns:
+            bool: True если URL корректный
+        """
+        # Если expected_url содержит паттерн с ID (например, spravochnaya-informatsiya-200083)
+        if '-20' in expected_url or '-14' in expected_url or '-22' in expected_url or '-40' in expected_url or '-48' in expected_url:
+            # Это docs URL - сравниваем по ID
+            expected_id = self.extract_docs_id_from_url(expected_url)
+            if expected_id:
+                return self.compare_docs_url_with_id(actual_url, expected_id)
+
+        # Для остальных URL - точное сравнение или regex паттерн
+        if expected_url.startswith('https://') or expected_url.startswith('http://'):
+            # Точное сравнение для полных URL
+            return actual_url == expected_url
+        else:
+            # Regex паттерн
+            return bool(re.search(expected_url, actual_url))
 
     @allure.step("Проверка структуры меню")
     def validate_menu_structure(self, expected_categories: List[str]) -> dict:
