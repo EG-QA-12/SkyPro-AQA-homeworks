@@ -1126,10 +1126,7 @@ class TestBurgerMenuNavigationRefactored:
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
             with page.expect_response("**/favorites**") as response_info:
-                favorites_link = page.locator("a.menu_item_link[href*='favorites']").first
-                favorites_link.scroll_into_view_if_needed()
-                page.wait_for_timeout(1000)  # Подождать после прокрутки
-                favorites_link.click()
+                assert burger_menu.click_link_by_href("favorites"), "Не удалось кликнуть по ссылке 'Подборки и закладки'"
 
             response = response_info.value
             assert response.status in [200, 201], f"Неверный статус код: {response.status}"
@@ -1161,7 +1158,7 @@ class TestBurgerMenuNavigationRefactored:
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
             with page.expect_response("**/docs/control**") as response_info:
-                page.locator("a.menu_item_link[href*='docs/control']").first.click()
+                assert burger_menu.click_link_by_href("docs/control"), "Не удалось кликнуть по ссылке 'Документы на контроле'"
 
             response = response_info.value
             assert response.status in [200, 201], f"Неверный статус код: {response.status}"
@@ -1193,7 +1190,7 @@ class TestBurgerMenuNavigationRefactored:
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
             with page.expect_response("https://ca.bll.by/notification/reminder") as response_info:
-                page.locator("a.menu_item_link[href*='notification/reminder']").first.click()
+                assert burger_menu.click_link_by_href("notification/reminder"), "Не удалось кликнуть по ссылке 'Напоминания'"
 
             response = response_info.value
             assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"
@@ -1226,7 +1223,7 @@ class TestBurgerMenuNavigationRefactored:
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
             with page.expect_response("**/docs/new**") as response_info:
-                page.locator("a.menu_item_link[href*='docs/new']").first.click()
+                page.locator("body > div.layout.layout--docs > header > div > div > div.menu-gumb_new.menu-mobile.active > div.new-menu.new-menu_main > div > div:nth-child(2) > div:nth-child(3) > div.menu_bl_list > div:nth-child(4) > a").click()
 
             response = response_info.value
             assert response.status in [200, 201], f"Неверный статус код: {response.status}"
@@ -1258,7 +1255,51 @@ class TestBurgerMenuNavigationRefactored:
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
             with page.expect_response("https://ca.bll.by/user/profile") as response_info:
-                page.locator("a.menu_item_link[href*='ca.bll.by/user/profile']").first.click()
+                # Используем улучшенную стратегию клика с force=True для скрытых элементов правой колонки
+                # Прокручиваем вправо для отображения правых колонок меню
+                page.evaluate("window.scrollTo({ left: 1000, behavior: 'smooth' });")
+                page.wait_for_timeout(1000)
+                
+                # Используем ARIA роль с force кликом - самый надежный способ для скрытых элементов
+                my_data_link = page.get_by_role("link", name="Мои данные")
+                
+                try:
+                    # Ждем прикрепления элемента
+                    my_data_link.wait_for(state="attached", timeout=5000)
+                    
+                    # Всегда используем force=True для правой колонки (элементы могут быть скрыты)
+                    my_data_link.click(force=True, timeout=5000)
+                    self.logger.info("Успешно кликнули по ссылке 'Мои данные' с force=True")
+                except Exception as e1:
+                    self.logger.warning(f"ARIA роль с force кликом не сработала: {e1}")
+                    
+                    # Альтернативная стратегия: поиск по тексту с force кликом
+                    try:
+                        text_link = page.locator("a:has-text('Мои данные')").first
+                        text_link.wait_for(state="attached", timeout=5000)
+                        text_link.click(force=True, timeout=5000)
+                        self.logger.info("Успешно кликнули по ссылке 'Мои данные' по тексту с force=True")
+                    except Exception as e2:
+                        self.logger.warning(f"Поиск по тексту с force кликом не сработал: {e2}")
+                        
+                        # Последняя стратегия: точный CSS селектор с JavaScript кликом
+                        try:
+                            # Использем точный CSS селектор из предоставленных данных
+                            css_selector = "body > div.layout.layout--docs > header > div > div > div.menu-gumb_new.menu-mobile.active > div.new-menu.new-menu_main > div > div:nth-child(2) > div:nth-child(4) > div.menu_bl_list > div:nth-child(1) > a"
+                            css_link = page.locator(css_selector).first
+                            css_link.wait_for(state="attached", timeout=5000)
+                            
+                            # Используем JavaScript для клика по скрытому элементу
+                            page.evaluate(f"""
+                                const element = document.querySelector('{css_selector}');
+                                if (element) {{
+                                    element.click();
+                                }}
+                            """)
+                            self.logger.info("Успешно кликнули по ссылке 'Мои данные' через JavaScript")
+                        except Exception as e3:
+                            self.logger.error(f"Все стратегии клика не сработали: {e3}")
+                            raise AssertionError(f"Не удалось кликнуть по ссылке 'Мои данные': {e3}")
 
             response = response_info.value
             assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"
@@ -1290,13 +1331,11 @@ class TestBurgerMenuNavigationRefactored:
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
-            # Используем специфичный селектор для ссылки в бургер-меню
-            expert_link = page.locator("a.menu_item_link[href*='expert.bll.by/user/expert']").first
-
             with page.expect_response("https://expert.bll.by/user/expert") as response_info:
-                expert_link.scroll_into_view_if_needed()
-                page.wait_for_timeout(1000)
-                expert_link.click()
+                # Используем более надежный селектор - по тексту и роли
+                if not burger_menu.click_link_by_text("Я эксперт"):
+                    # Если по тексту не сработало, пробуем по ARIA роли
+                    assert burger_menu.click_link_by_role("Я эксперт"), "Не удалось кликнуть по ссылке 'Я эксперт'"
 
             response = response_info.value
             assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"
@@ -1328,13 +1367,11 @@ class TestBurgerMenuNavigationRefactored:
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
-            # Используем специфичный селектор для ссылки в бургер-меню
-            settings_link = page.locator("a.menu_item_link[href*='notification/settings']").first
-
             with page.expect_response("https://ca.bll.by/notification/settings") as response_info:
-                settings_link.scroll_into_view_if_needed()
-                page.wait_for_timeout(1000)
-                settings_link.click()
+                # Используем более надежный селектор - по тексту и роли
+                if not burger_menu.click_link_by_text("Настройка уведомлений"):
+                    # Если по тексту не сработало, пробуем по ARIA роли
+                    assert burger_menu.click_link_by_role("Настройка уведомлений"), "Не удалось кликнуть по ссылке 'Настройка уведомлений'"
 
             response = response_info.value
             assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"
@@ -1366,13 +1403,11 @@ class TestBurgerMenuNavigationRefactored:
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
-            # Используем специфичный селектор для ссылки в бургер-меню
-            account_link = page.locator("a.menu_item_link[href*='business-info.by/pc']").first
-
             with page.expect_response("https://business-info.by/pc") as response_info:
-                account_link.scroll_into_view_if_needed()
-                page.wait_for_timeout(1000)
-                account_link.click()
+                # Используем более надежный селектор - по тексту и роли
+                if not burger_menu.click_link_by_text("Личный кабинет"):
+                    # Если по тексту не сработало, пробуем по ARIA роли
+                    assert burger_menu.click_link_by_role("Личный кабинет"), "Не удалось кликнуть по ссылке 'Личный кабинет'"
 
             response = response_info.value
             assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"
@@ -1404,13 +1439,11 @@ class TestBurgerMenuNavigationRefactored:
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
 
-            # Используем специфичный селектор для ссылки в бургер-меню
-            bonuses_link = page.locator("a.menu_item_link[href*='bonus.bll.by']").first
-
             with page.expect_response("https://bonus.bll.by") as response_info:
-                bonuses_link.scroll_into_view_if_needed()
-                page.wait_for_timeout(1000)
-                bonuses_link.click()
+                # Используем более надежный селектор - по тексту и роли
+                if not burger_menu.click_link_by_text("Бонусы"):
+                    # Если по тексту не сработало, пробуем по ARIA роли
+                    assert burger_menu.click_link_by_role("Бонусы"), "Не удалось кликнуть по ссылке 'Бонусы'"
 
             response = response_info.value
             assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"

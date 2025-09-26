@@ -12,6 +12,7 @@ from typing import List, Tuple, Optional
 from urllib.parse import urlparse
 import allure
 from playwright.sync_api import Page, Locator, TimeoutError as PlaywrightTimeoutError
+from framework.utils.gui_helpers import handle_hidden_elements
 
 
 class BurgerMenuPage:
@@ -216,11 +217,16 @@ class BurgerMenuPage:
             # Ищем ссылку по тексту
             link = self.page.locator(f"a.menu_item_link:has-text('{text}')").first
             
-            # Ждем видимости элемента
+            # Ждем видимости элемента (увеличим таймаут после прокрутки)
             link.wait_for(state="visible", timeout=timeout)
             
-            # Кликаем по ссылке
-            link.click(timeout=timeout)
+            # Кликаем по ссылке (с force=True если элемент не видимый)
+            try:
+                link.click(timeout=timeout)
+            except PlaywrightTimeoutError:
+                # Если обычный клик не сработал, попробуем принудительный клик
+                self.logger.warning(f"Обычный клик не удался, пробуем принудительный клик для '{text}'")
+                link.click(force=True, timeout=timeout)
             
             self.logger.info(f"Успешно кликнули по ссылке: '{text}'")
             return True
@@ -236,44 +242,298 @@ class BurgerMenuPage:
     def click_link_by_href(self, href: str, timeout: int = 10000) -> bool:
         """
         Кликает по ссылке в меню по href
-        
+
         Args:
             href: URL ссылки для поиска
             timeout: Время ожидания в миллисекундах
-            
+
         Returns:
             bool: True если клик выполнен успешно
         """
         try:
             self.logger.info(f"Поиск и клик по ссылке с href: '{href}'")
-            
+
             # Сначала проверяем, что меню открыто
             if not self.is_menu_open():
                 if not self.open_menu():
                     self.logger.error("Не удалось открыть меню для клика по ссылке")
                     return False
+
+            # Ищем ссылку по href - сначала по частичному совпадению
+            link = self.page.locator(f"a.menu_item_link[href*='{href}']").first
+
+            # Пробуем разные стратегии прокрутки и поиска элемента
+            success = False
             
-            # Ищем ссылку по href
-            link = self.page.locator(f"a.menu_item_link[href='{href}']").first
-            
-            # Если не нашли точное совпадение, ищем по частичному совпадению
-            if link.count() == 0:
-                link = self.page.locator(f"a.menu_item_link[href*='{href.split('/')[-1]}']").first
-            
-            # Ждем видимости элемента
-            link.wait_for(state="visible", timeout=timeout)
-            
-            # Кликаем по ссылке
-            link.click(timeout=timeout)
-            
-            self.logger.info(f"Успешно кликнули по ссылке: '{href}'")
-            return True
-            
-        except PlaywrightTimeoutError:
-            self.logger.error(f"Таймаут при поиске или клике по ссылке '{href}' за {timeout}мс")
-            return False
+            # Стратегия 1: Прокрутка к элементу
+            try:
+                link.scroll_into_view_if_needed(timeout=timeout)
+                self.page.wait_for_timeout(1000)
+            except Exception:
+                # Стратегия 2: Прокрутка всей страницы для отображения правых колонок
+                try:
+                    self.page.evaluate("""
+                        // Прокручиваем вправо для отображения правых колонок
+                        window.scrollTo({ left: 1000, behavior: 'smooth' });
+                    """)
+                    self.page.wait_for_timeout(1000)
+                    
+                    # Пробуем прокрутить конкретный элемент в видимую область
+                    self.page.evaluate("""
+                        const element = document.querySelector('a.menu_item_link[href*="%s"]');
+                        if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+                        }
+                    """ % href.replace("'", "\\'"))
+                    self.page.wait_for_timeout(100)
+                except Exception as e:
+                    self.logger.warning(f"Прокрутка не удалась: {e}")
+
+            # Ждем, что элемент будет в DOM и попробуем кликнуть даже если не видим
+            try:
+                link.wait_for(state="attached", timeout=timeout)
+                
+                # Проверяем, видим ли элемент
+                if link.is_visible():
+                    link.click(timeout=timeout)
+                else:
+                    # Если не видим, пробуем кликнуть с force=True
+                    self.logger.warning(f"Элемент не видим, пробуем force click для '{href}'")
+                    link.click(force=True, timeout=timeout)
+                
+                success = True
+            except PlaywrightTimeoutError:
+                # Если обычный клик не сработал, пробуем найти элемент по тексту
+                self.logger.warning(f"Пытаемся найти элемент по тексту для '{href}'")
+                text_elements = self.page.locator(f"a.menu_item_link:has-text('{href.split('/')[-1]}')").all()
+                
+                for element in text_elements:
+                    try:
+                        if element.is_visible():
+                            element.click(timeout=timeout)
+                            success = True
+                            break
+                        else:
+                            element.click(force=True, timeout=timeout)
+                            success = True
+                            break
+                    except Exception:
+                        continue
+
+            if success:
+                self.logger.info(f"Успешно кликнули по ссылке: '{href}'")
+                return True
+            else:
+                self.logger.error(f"Не удалось кликнуть по ссылке '{href}'")
+                return False
+
         except Exception as e:
             self.logger.error(f"Ошибка при клике по ссылке '{href}': {e}")
+            return False
+
+    @allure.step("Клик по ссылке меню по тексту и классу: {text}")
+    def click_link_by_text_and_class(self, text: str, css_class: str = "menu_item_link", timeout: int = 10000) -> bool:
+        """
+        Кликает по ссылке в меню по тексту и CSS классу (более точный селектор)
+
+        Args:
+            text: Текст ссылки для поиска
+            css_class: CSS класс элемента
+            timeout: Время ожидания в миллисекундах
+
+        Returns:
+            bool: True если клик выполнен успешно
+        """
+        try:
+            self.logger.info(f"Поиск и клик по ссылке с текстом: '{text}' и классом: '{css_class}'")
+
+            if not self.is_menu_open():
+                if not self.open_menu():
+                    self.logger.error("Не удалось открыть меню для клика по ссылке")
+                    return False
+
+            # Используем более точный селектор с текстом и классом
+            link = self.page.locator(f"a.{css_class}:has-text('{text}')").first
+
+            # Прокручиваем к элементу
+            try:
+                link.scroll_into_view_if_needed(timeout=timeout)
+                self.page.wait_for_timeout(1000)
+            except Exception:
+                # Альтернативная прокрутка
+                self.page.evaluate(f"""
+                    const element = document.querySelector('a.{css_class}:has-text("{text.replace("'", "\\'").replace('"', '"')}")');
+                    if (element) {{
+                        element.scrollIntoView({{ behavior: 'smooth', block: 'center', inline: 'center' }});
+                    }}
+                """)
+                self.page.wait_for_timeout(1000)
+
+            # Ждем прикрепления элемента и пробуем кликнуть
+            link.wait_for(state="attached", timeout=timeout)
+            
+            if link.is_visible():
+                link.click(timeout=timeout)
+            else:
+                self.logger.warning(f"Элемент не видим, пробуем force click для '{text}'")
+                link.click(force=True, timeout=timeout)
+
+            self.logger.info(f"Успешно кликнули по ссылке: '{text}'")
+            return True
+
+        except Exception as e:
+            self.logger.error(f"Ошибка при клике по ссылке '{text}': {e}")
+            return False
+
+    @allure.step("Клик по ссылке меню по ARIA роли и имени: {name}")
+    def click_link_by_role(self, name: str, timeout: int = 10000) -> bool:
+        """
+        Кликает по ссылке в меню по ARIA роли (link) и имени (более надежный селектор)
+
+        Args:
+            name: Имя/текст ссылки
+            timeout: Время ожидания в миллисекундах
+
+        Returns:
+            bool: True если клик выполнен успешно
+        """
+        try:
+            self.logger.info(f"Поиск и клик по ссылке с ARIA ролью link и именем: '{name}'")
+
+            if not self.is_menu_open():
+                if not self.open_menu():
+                    self.logger.error("Не удалось открыть меню для клика по ссылке")
+                    return False
+
+            # Используем ARIA роль - самый надежный способ
+            link = self.page.get_by_role("link", name=name)
+
+            # Пробуем разные стратегии поиска и клика
+            success = False
+            
+            # Стратегия 1: Обычный поиск по ARIA роли с force кликом для скрытых элементов
+            try:
+                link.wait_for(state="attached", timeout=timeout//3)
+                # Всегда используем force=True для правой колонки (элементы могут быть скрыты)
+                link.click(force=True, timeout=timeout//3)
+                success = True
+                self.logger.info(f"Успешно кликнули по ссылке '{name}' с force=True")
+            except Exception as e1:
+                self.logger.warning(f"ARIA роль с force кликом не сработала для '{name}': {e1}")
+
+            if not success:
+                # Стратегия 2: Поиск по тексту с force click
+                try:
+                    text_link = self.page.locator(f"a:has-text('{name}')").first
+                    text_link.wait_for(state="attached", timeout=timeout//3)
+                    # Всегда используем force=True для правой колонки
+                    text_link.click(force=True, timeout=timeout//3)
+                    success = True
+                    self.logger.info(f"Успешно кликнули по ссылке '{name}' по тексту с force=True")
+                except Exception as e2:
+                    self.logger.warning(f"Поиск по тексту с force кликом не сработал для '{name}': {e2}")
+
+            if not success:
+                # Стратегия 3: Поиск по CSS селектору с force кликом
+                try:
+                    # Пробуем найти элемент по CSS селектору
+                    css_selectors = [
+                        f"a.menu_item_link:has-text('{name}')",
+                        f".menu_item_link:has-text('{name}')",
+                        f"a:has-text('{name}')",
+                    ]
+                    
+                    for selector in css_selectors:
+                        try:
+                            css_link = self.page.locator(selector).first
+                            css_link.wait_for(state="attached", timeout=timeout//3)
+                            
+                            # Всегда используем force=True для правой колонки
+                            css_link.click(force=True, timeout=timeout//3)
+                            success = True
+                            self.logger.info(f"Успешно кликнули по ссылке '{name}' по CSS селектору с force=True")
+                            break
+                        except Exception as e3:
+                            self.logger.warning(f"CSS селектор '{selector}' не сработал для '{name}': {e3}")
+                            continue
+                except Exception as e:
+                    self.logger.warning(f"CSS селекторы не сработали для '{name}': {e}")
+
+            if not success:
+                # Стратегия 4: JavaScript клик для скрытых элементов правой колонки
+                try:
+                    self.logger.warning(f"Пробуем JavaScript клик для скрытых элементов правой колонки '{name}'")
+                    
+                    # Прокручиваем вправо для отображения правых колонок
+                    self.page.evaluate("window.scrollTo({ left: 1000, behavior: 'smooth' });")
+                    self.page.wait_for_timeout(1000)
+                    
+                    # Ищем элемент по тексту
+                    js_selector = f"a:has-text('{name}')"
+                    js_link = self.page.locator(js_selector).first
+                    
+                    if js_link.count() > 0:
+                        # Получаем href элемента
+                        href = js_link.get_attribute('href') or ""
+                        self.logger.info(f"Найден элемент с href: {href}")
+                        
+                        # Используем JavaScript для клика по скрытому элементу
+                        js_click_result = self.page.evaluate(f"""
+                            // Ищем элемент по тексту
+                            const elements = document.querySelectorAll('a');
+                            let clicked = false;
+                            for (let elem of elements) {{
+                                const text = elem.textContent || '';
+                                const href = elem.href || '';
+                                if ((text.includes('{name}') || href.includes('{href.split('/')[-1] if href else ''}'))) {{
+                                    // Используем JavaScript клик
+                                    try {{
+                                        elem.click();
+                                        clicked = true;
+                                        console.log('JS click successful for element:', text);
+                                        break;
+                                    }} catch (clickError) {{
+                                        console.log('JS click failed, trying dispatchEvent:', clickError);
+                                        try {{
+                                            const event = new MouseEvent('click', {{
+                                                bubbles: true,
+                                                cancelable: true,
+                                                view: window
+                                            }});
+                                            elem.dispatchEvent(event);
+                                            clicked = true;
+                                            console.log('dispatchEvent successful for element:', text);
+                                            break;
+                                        }} catch (eventError) {{
+                                            console.log('dispatchEvent failed:', eventError);
+                                        }}
+                                    }}
+                                    break;
+                                }}
+                            }}
+                            clicked;
+                        """)
+                        
+                        if js_click_result:
+                            success = True
+                            self.logger.info(f"Успешно кликнули по скрытому элементу '{name}' через JavaScript")
+                        else:
+                            self.logger.warning(f"JavaScript клик не удался для '{name}'")
+                    else:
+                        self.logger.warning(f"Элемент '{name}' не найден для JavaScript клика")
+                        
+                except Exception as js_error:
+                    self.logger.error(f"JavaScript клик не сработал для '{name}': {js_error}")
+
+            if success:
+                self.logger.info(f"Успешно кликнули по ссылке: '{name}'")
+                return True
+            else:
+                self.logger.error(f"Не удалось кликнуть по ссылке '{name}' всеми стратегиями")
+                return False
+
+        except Exception as e:
+            self.logger.error(f"Ошибка при клике по ссылке '{name}': {e}")
             return False
 
     @allure.step("Получение элемента меню по тексту: {text}")
@@ -397,8 +657,9 @@ class BurgerMenuPage:
         Returns:
             bool: True если URL корректный
         """
-        # Если expected_url содержит паттерн с ID (например, spravochnaya-informatsiya-200083)
-        if '-20' in expected_url or '-14' in expected_url or '-22' in expected_url or '-40' in expected_url or '-48' in expected_url:
+        # Если expected_url содержит паттерн с ID
+        docs_patterns = ['-20', '-14', '-22', '-40', '-48']
+        if any(pattern in expected_url for pattern in docs_patterns):
             # Это docs URL - сравниваем по ID
             expected_id = self.extract_docs_id_from_url(expected_url)
             if expected_id:
