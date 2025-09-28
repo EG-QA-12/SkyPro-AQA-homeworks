@@ -1,0 +1,456 @@
+Отлично! Спасибо за предоставленный код. Это хороший пример рефакторинга E2E-тестов с фокусом на стабильность (проверка только статуса и URL), но есть **много возможностей для улучшения** с точки зрения:
+
+- **DRY (Don’t Repeat Yourself)**
+- **Читаемости и поддерживаемости**
+- **Использования паттернов проектирования (Page Object, Screenplay и др.)**
+- **Упрощения логики управления контекстом и страницей**
+- **Улучшения надежности кликов и ожиданий**
+
+---
+
+## 🔍 Основные проблемы текущего кода
+
+1. **Повторяющаяся структура тестов**  
+   Каждый тест — почти идентичный блок: `goto → open_menu → click → expect_response → assert status → assert url`.
+
+2. **Ручное управление `page` и `try/finally`**  
+   Playwright уже умеет корректно управлять жизненным циклом страницы при использовании фикстур.
+
+3. **Смешение логики в тестах и Page Object**  
+   Например, в `test_my_data_navigation` — куча логики поиска элемента прямо в теле теста.
+
+4. **Ненадежные селекторы и избыточные fallback-стратегии**  
+   Использование `force=True`, `evaluate`, жестких CSS-селекторов — это "костыли", которые лучше убрать через правильную архитектуру.
+
+5. **Дублирование логики сравнения URL**  
+   Проверка ID в URL реализована вызовом метода `compare_docs_url_with_id`, но логика выбора типа проверки (точный URL vs ID) не унифицирована.
+
+---
+
+## ✅ Предложения по улучшению
+
+### 1. **Ввести параметризованный шаблонный тест**
+Вместо 40+ почти одинаковых тестов — **один параметризованный тест** с данными.
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class NavigationTarget:
+    menu_text: str
+    expected_url_pattern: str  # может быть точным URL или шаблоном с ID
+    is_docs_like: bool = False  # если True — проверяем по ID
+    expected_id: str = None
+    is_external: bool = False
+    status_codes: list = None
+
+NAVIGATION_TARGETS = [
+    NavigationTarget("Новости", "https://bll.by/news"),
+    NavigationTarget("Справочная информация", "**/spravochnaya-informatsiya-200083**", is_docs_like=True, expected_id="200083"),
+    NavigationTarget("Закупки", "https://gz.bll.by", is_external=True, status_codes=[200, 201, 301, 302]),
+    # ... остальные
+]
+```
+
+А сам тест:
+
+```python
+@pytest.mark.parametrize("target", NAVIGATION_TARGETS, ids=lambda t: t.menu_text)
+def test_burger_menu_navigation(authenticated_burger_context, target):
+    page = authenticated_burger_context.new_page()
+    burger_menu = BurgerMenuPage(page)
+
+    page.goto("https://bll.by/", wait_until="domcontentloaded")
+    assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+
+    with page.expect_response(target.expected_url_pattern) as response_info:
+        if target.is_external or not target.is_docs_like:
+            burger_menu.click_link_by_text(target.menu_text)
+        else:
+            # или обобщённый метод, который сам решает, как кликать
+            burger_menu.navigate_to(target.menu_text)
+
+    response = response_info.value
+    allowed_codes = target.status_codes or [200, 201]
+    assert response.status in allowed_codes, f"Неверный статус: {response.status}"
+
+    current_url = page.url
+    if target.is_docs_like:
+        assert burger_menu.compare_docs_url_with_id(current_url, target.expected_id), \
+            f"URL не содержит ID {target.expected_id}: {current_url}"
+    elif target.is_external:
+        domain = target.expected_url_pattern.split("://")[1].split("/")[0]
+        assert domain in current_url, f"URL не содержит {domain}: {current_url}"
+    else:
+        expect(page).to_have_url(target.expected_url_pattern)
+```
+
+> ✅ **Выгода**:  
+> - 90% дублирующего кода уходит  
+> - Добавление нового пункта меню — одна строка в `NAVIGATION_TARGETS`  
+> - Легко поддерживать, легко читать
+
+---
+
+### 2. **Убрать `try/finally` — использовать фикстуру для управления страницей**
+
+Создайте фикстуру:
+
+```python
+@pytest.fixture
+def page(authenticated_burger_context):
+    page = authenticated_burger_context.new_page()
+    yield page
+    page.close()
+```
+
+Теперь в тестах просто:
+
+```python
+def test_something(page):
+    page.goto(...)
+```
+
+Playwright + pytest сами закроют страницу.
+
+---
+
+### 3. **Улучшить Page Object: вынести логику кликов и навигации**
+
+В `BurgerMenuPage` добавьте метод:
+
+```python
+def navigate_to(self, menu_text: str) -> bool:
+    """Универсальный метод навигации по тексту пункта меню"""
+    link = self.page.get_by_role("link", name=menu_text, exact=True)
+    if link.count() == 0:
+        # fallback на текстовый поиск, если ARIA не сработал
+        link = self.page.locator(f"a:has-text('{menu_text}')").first
+    if link.is_visible():
+        link.click()
+        return True
+    return False
+```
+
+> ✅ **Выгода**:  
+> - Убирает костыли из тестов  
+> - Централизует логику взаимодействия с меню  
+> - Легко расширять (например, добавить `scroll_into_view`)
+
+---
+
+### 4. **Унифицировать проверку URL**
+
+Добавьте в `BurgerMenuPage` метод:
+
+```python
+def assert_navigation_result(self, target: NavigationTarget):
+    current_url = self.page.url
+    if target.is_docs_like:
+        assert self.compare_docs_url_with_id(current_url, target.expected_id)
+    elif target.is_external:
+        domain = urlparse(target.expected_url_pattern).netloc
+        assert domain in current_url
+    else:
+        expect(self.page).to_have_url(target.expected_url_pattern)
+```
+
+Тогда тест становится ещё короче:
+
+```python
+burger_menu.navigate_to(target.menu_text)
+burger_menu.assert_navigation_result(target)
+```
+
+---
+
+### 5. **Избегать жёстких CSS-селекторов**
+
+> ❌ `body > div.layout...nth-child(4)...` — это **антипаттерн**.  
+> Такие селекторы ломаются при любом изменении DOM.
+
+**Решение**:  
+- Договориться с фронтендом о добавлении `data-testid` или `data-qa` атрибутов  
+- Или использовать **семантические селекторы**: `get_by_role`, `get_by_text`, `get_by_label`
+
+---
+
+### 6. **Вынести домены и базовые URL в конфиг**
+
+```python
+# config.py
+BASE_URL = "https://bll.by"
+EXTERNAL_DOMAINS = {
+    "expert": "https://expert.bll.by",
+    "gz": "https://gz.bll.by",
+    "ca": "https://ca.bll.by",
+    "bonus": "https://bonus.bll.by",
+    "business": "https://business-info.by",
+}
+```
+
+Тогда в `NavigationTarget` можно писать:
+
+```python
+NavigationTarget("Закупки", EXTERNAL_DOMAINS["gz"], is_external=True)
+```
+
+---
+
+### 7. **(Опционально) Рассмотреть паттерн Screenplay**
+
+Если проект растёт, можно перейти на **Screenplay Pattern** (более декларативный, масштабируемый), но для текущего объёма — избыточно.
+
+---
+
+## 🧼 Итог: что изменится
+
+| До | После |
+|----|-------|
+| 40+ почти одинаковых тестов | 1 параметризованный тест + читаемый список целей |
+| Ручное управление `page` | Автоматическое через фикстуру |
+| Логика поиска элементов в тестах | Централизована в Page Object |
+| Жёсткие селекторы и `force=True` | Семантические селекторы, стабильные клики |
+| Дублирование проверок URL | Унифицированный метод `assert_navigation_result` |
+| Трудно добавлять новые пункты | Добавление = 1 строка в `NAVIGATION_TARGETS` |
+
+---
+
+## 💡 Рекомендация по внедрению
+
+1. Создайте `NavigationTarget` и `NAVIGATION_TARGETS`
+2. Реализуйте `BurgerMenuPage.navigate_to()` и `assert_navigation_result()`
+3. Замените 2–3 теста на параметризованный — убедитесь, что всё работает
+4. Постепенно замените остальные
+5. Удалите старые тесты
+
+---
+
+Если нужно — могу предоставить **полный рефакторинг одного теста + шаблон параметризованного теста** в виде готового кода.
+
+
+## 🎯 Цель
+Сохранить все преимущества Allure (читаемые заголовки, описания, шаги, теги), **но при этом**:
+- Убрать дублирование кода
+- Сделать тесты легко расширяемыми
+- Сохранить читаемость и информативность отчётов
+
+---
+
+## ✅ Рекомендации с Allure
+
+### 1. **Замените 40+ тестов на один параметризованный — но с динамическим Allure**
+
+Вместо:
+
+```python
+@allure.title("Навигация: Новости")
+def test_news_navigation(...): ...
+```
+
+Используйте:
+
+```python
+import allure
+import pytest
+from tests.e2e.data.navigation_targets import NAVIGATION_TARGETS
+
+@pytest.mark.parametrize("target", NAVIGATION_TARGETS, ids=lambda t: t.menu_text)
+def test_burger_menu_navigation(page, target):
+    allure.dynamic.title(f"Навигация: {target.menu_text}")
+    allure.dynamic.description(target.description or f"Проверка перехода в '{target.menu_text}'")
+    
+    # ... логика теста
+```
+
+> ✅ **Результат**: каждый запуск в Allure будет выглядеть **точно так же**, как и ваши текущие тесты.
+
+---
+
+### 2. **Добавьте описание и теги в `NavigationTarget`**
+
+Расширьте вашу dataclass:
+
+```python
+@dataclass
+class NavigationTarget:
+    menu_text: str
+    expected_url_pattern: str
+    expected_id: Optional[str] = None
+    is_external: bool = False
+    status_codes: List[int] = None
+    is_critical: bool = False
+    description: str = ""  # ← новое поле
+
+    def __post_init__(self):
+        if self.status_codes is None:
+            self.status_codes = [200, 201] if not self.is_external else [200, 201, 301, 302]
+```
+
+Пример заполнения:
+
+```python
+NavigationTarget(
+    menu_text="Справочная информация",
+    expected_url_pattern="**/spravochnaya-informatsiya-200083**",
+    expected_id="200083",
+    is_critical=True,
+    description="Проверка перехода в Справочную информацию — статус код и ID URL"
+),
+NavigationTarget(
+    menu_text="Закупки",
+    expected_url_pattern="https://gz.bll.by",
+    is_external=True,
+    description="Проверка перехода в Закупки — статус код и внешний домен"
+)
+```
+
+---
+
+### 3. **Динамически проставляйте маркеры через `pytest_collection_modifyitems` (опционально)**
+
+Если хотите сохранить `@pytest.mark.critical`, можно автоматически добавлять маркер:
+
+```python
+# conftest.py
+def pytest_collection_modifyitems(config, items):
+    for item in items:
+        if "target" in item.callspec.params:
+            target = item.callspec.params["target"]
+            if target.is_critical:
+                item.add_marker(pytest.mark.critical)
+```
+
+Но проще — просто оставить `@pytest.mark.critical` на уровне всего теста, если большинство критичны.
+
+---
+
+### 4. **Оберните действия в `@allure.step`**
+
+В `BurgerMenuPage`:
+
+```python
+from allure_commons._allure import step
+
+class BurgerMenuPage:
+    @step("Открыть бургер-меню")
+    def open_menu(self) -> bool:
+        ...
+
+    @step("Перейти по пункту меню: '{menu_text}'")
+    def navigate_to(self, menu_text: str) -> bool:
+        ...
+
+    @step("Проверить результат навигации")
+    def assert_navigation_result(self, target: NavigationTarget):
+        ...
+```
+
+> ✅ В Allure появятся **структурированные шаги**, как в ручных тест-кейсах.
+
+---
+
+### 5. **Используйте фикстуру для страницы — без `try/finally`**
+
+```python
+@pytest.fixture
+def page(authenticated_burger_context):
+    p = authenticated_burger_context.new_page()
+    yield p
+    p.close()
+```
+
+Теперь тест чище:
+
+```python
+def test_burger_menu_navigation(page, target):
+    allure.dynamic.title(...)
+    page.goto("https://bll.by/")
+    # ...
+```
+
+---
+
+### 6. **Не теряйте контекст ошибки — Allure сам добавит скриншоты при падении**
+
+Если у вас настроен `pytest-playwright` + `allure-playwright`, то при падении:
+- Allure автоматически прикрепит **скриншот**
+- **Логи консоли**
+- **Видео** (если включено)
+
+Убедитесь, что в `pytest.ini` или `conftest.py` есть:
+
+```python
+# conftest.py
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    rep = outcome.get_result()
+    if rep.when == "call" and rep.failed:
+        page = item.funcargs.get("page")
+        if page:
+            allure.attach(
+                page.screenshot(),
+                name="screenshot-on-failure",
+                attachment_type=allure.attachment_type.PNG
+            )
+```
+
+(Хотя `allure-playwright` делает это автоматически.)
+
+---
+
+## 🧩 Итоговая структура теста с Allure
+
+```python
+import allure
+import pytest
+from playwright.sync_api import expect
+from tests.e2e.data.navigation_targets import NAVIGATION_TARGETS
+from tests.e2e.pages.burger_menu_page import BurgerMenuPage
+
+@pytest.fixture
+def page(authenticated_burger_context):
+    p = authenticated_burger_context.new_page()
+    yield p
+    p.close()
+
+@pytest.mark.parametrize("target", NAVIGATION_TARGETS, ids=lambda t: t.menu_text)
+@pytest.mark.burger_menu
+@pytest.mark.navigation
+@pytest.mark.refactored
+def test_burger_menu_navigation(page, target):
+    # === Allure ===
+    allure.dynamic.title(f"Навигация: {target.menu_text}")
+    allure.dynamic.description(target.description)
+
+    # === Тест ===
+    page.goto("https://bll.by/", wait_until="domcontentloaded")
+    burger_menu = BurgerMenuPage(page)
+
+    assert burger_menu.open_menu()
+
+    with page.expect_response(target.expected_url_pattern) as response_info:
+        assert burger_menu.navigate_to(target.menu_text)
+
+    response = response_info.value
+    assert response.status in target.status_codes
+
+    burger_menu.assert_navigation_result(target)
+```
+
+---
+
+## 💡 Что вы получаете
+
+| До | После |
+|----|-------|
+| 40+ почти одинаковых тестов | **1 тест + 40 строк данных** |
+| Дублирующий код | **DRY, легко поддерживать** |
+| Allure работает | **Allure работает ещё лучше** |
+| Сложно добавлять новый пункт | **Добавление = 1 строка в `NAVIGATION_TARGETS`** |
+| Жёсткие селекторы в тестах | **Логика кликов — в Page Object** |
+
+---
+
+Если нужно — могу подготовить **полный рабочий пример** с `navigation_targets.py`, `burger_menu_page.py` и `test_burger_menu.py` в одном архиве или как PR-патч.

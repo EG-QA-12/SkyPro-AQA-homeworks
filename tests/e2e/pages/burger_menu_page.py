@@ -9,10 +9,8 @@ import json
 import re
 from pathlib import Path
 from typing import List, Tuple, Optional
-from urllib.parse import urlparse
 import allure
 from playwright.sync_api import Page, Locator, TimeoutError as PlaywrightTimeoutError
-from framework.utils.gui_helpers import handle_hidden_elements
 
 
 class BurgerMenuPage:

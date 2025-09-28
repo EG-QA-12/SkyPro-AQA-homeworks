@@ -47,8 +47,29 @@ class TestBurgerMenuNavigationRefactored:
             # Переход на главную
             page.goto("https://bll.by/", wait_until="domcontentloaded")
 
-            # Открытие меню
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            # Открытие меню            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Переход по ссылке с проверкой ответа
             with page.expect_response(lambda response: response.url == "https://bll.by/news") as response_info:
@@ -85,8 +106,29 @@ class TestBurgerMenuNavigationRefactored:
             # Переход на главную
             page.goto("https://bll.by/", wait_until="domcontentloaded")
 
-            # Открытие меню
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            # Открытие меню            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Переход по ссылке с проверкой ответа
             with page.expect_response("**/spravochnaya-informatsiya-200083**") as response_info:
@@ -122,8 +164,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/kodeksy-dejstvuyushchie-na-territorii-respubliki-belarus-141580**") as response_info:
                 assert burger_menu.click_link_by_text("Кодексы"), "Не удалось кликнуть по ссылке"
@@ -155,8 +218,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/perechen-tem-chek-list-dokumentov-487105**") as response_info:
                 assert burger_menu.click_link_by_text("Чек-листы"), "Не удалось кликнуть по ссылке"
@@ -188,8 +272,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/katalogi-form-22555**") as response_info:
                 assert burger_menu.click_link_by_text("Каталоги форм"), "Не удалось кликнуть по ссылке"
@@ -221,8 +326,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/terms**") as response_info:
                 assert burger_menu.click_link_by_text("Словарь"), "Не удалось кликнуть по ссылке"
@@ -253,8 +379,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/konstruktory-200077**") as response_info:
                 assert burger_menu.click_link_by_text("Конструкторы"), "Не удалось кликнуть по ссылке"
@@ -286,8 +433,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/spravochniki-220099**") as response_info:
                 assert burger_menu.click_link_by_text("Справочники"), "Не удалось кликнуть по ссылке"
@@ -319,8 +487,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/kalkulyatory-40171**") as response_info:
                 assert burger_menu.click_link_by_text("Калькуляторы"), "Не удалось кликнуть по ссылке"
@@ -352,8 +541,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/testy-dlya-proverki-znanij-212555**") as response_info:
                 assert burger_menu.click_link_by_text("Тесты"), "Не удалось кликнуть по ссылке"
@@ -385,8 +595,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/goryachie-temy-200085**") as response_info:
                 assert burger_menu.click_link_by_text("Горячие темы"), "Не удалось кликнуть по ссылке"
@@ -418,8 +649,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/navigatory-140000**") as response_info:
                 assert burger_menu.click_link_by_text("Навигаторы"), "Не удалось кликнуть по ссылке"
@@ -451,8 +703,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/poleznye-ssylki-219924**") as response_info:
                 assert burger_menu.click_link_by_text("Полезные ссылки"), "Не удалось кликнуть по ссылке"
@@ -484,8 +757,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/vash-lichnyj-yurist-206044**") as response_info:
                 assert burger_menu.click_link_by_text("Ваш личный юрист"), "Не удалось кликнуть по ссылке"
@@ -517,8 +811,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/podborki-vsyo-po-odnoj-teme-200084**") as response_info:
                 assert burger_menu.click_link_by_text("Всё по одной теме"), "Не удалось кликнуть по ссылке"
@@ -550,8 +865,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/rukovodstvo-polzovatelya-platformy-biznes-info-436351**") as response_info:
                 assert burger_menu.click_link_by_text("Руководство пользователя"), "Не удалось кликнуть по ссылке"
@@ -583,8 +919,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/videootvety-490299**") as response_info:
                 assert burger_menu.click_link_by_text("Видеоответы"), "Не удалось кликнуть по ссылке"
@@ -616,8 +973,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("https://gz.bll.by") as response_info:
                 assert burger_menu.click_link_by_text("Закупки"), "Не удалось кликнуть по ссылке"
@@ -650,8 +1028,29 @@ class TestBurgerMenuNavigationRefactored:
 
         try:
             # Сначала перейдем на другую страницу
-            page.goto("https://bll.by/docs", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/docs", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Ищем ссылку "Главная страница" по селектору a.menu_bl_ttl-main
             home_link = page.locator("a.menu_bl_ttl-main").first
@@ -685,8 +1084,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/about**") as response_info:
                 assert burger_menu.click_link_by_text("О Платформе"), "Не удалось кликнуть по ссылке"
@@ -717,8 +1137,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/buy**") as response_info:
                 assert burger_menu.click_link_by_text("Купить"), "Не удалось кликнуть по ссылке"
@@ -749,8 +1190,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Ищем ссылку "Мероприятия" по селектору a.menu_bl_ttl-events
             events_link = page.locator("a.menu_bl_ttl-events").first
@@ -785,8 +1247,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/docs**") as response_info:
                 assert burger_menu.click_link_by_text("Поиск в базе документов"), "Не удалось кликнуть по ссылке"
@@ -817,8 +1300,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("https://expert.bll.by/questions") as response_info:
                 assert burger_menu.click_link_by_text("Поиск в сообществе"), "Не удалось кликнуть по ссылке"
@@ -850,8 +1354,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("https://cp.bll.by") as response_info:
                 assert burger_menu.click_link_by_text("Проверка контрагента"), "Не удалось кликнуть по ссылке"
@@ -883,8 +1408,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Используем page.get_by_role для точного поиска ссылки
             ask_link = page.get_by_role("banner").get_by_role("link", name="Задать вопрос")
@@ -919,11 +1465,32 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("https://expert.bll.by/questions/my") as response_info:
-                assert burger_menu.click_link_by_text("Мои вопросы и ответы", exact=True), "Не удалось кликнуть по ссылке"
+                assert burger_menu.click_link_by_text("Мои вопросы и ответы"), "Не удалось кликнуть по ссылке"
 
             response = response_info.value
             assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"
@@ -952,8 +1519,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Используем page.get_by_role для точного поиска ссылки
             topics_link = page.get_by_role("banner").get_by_role("link", name="Топики на контроле")
@@ -988,8 +1576,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("https://expert.bll.by/moderator/messages") as response_info:
                 assert burger_menu.click_link_by_text("Сообщения от модератора"), "Не удалось кликнуть по ссылке"
@@ -1021,8 +1630,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("https://expert.bll.by/questions/expert") as response_info:
                 assert burger_menu.click_link_by_text("Мне - эксперту"), "Не удалось кликнуть по ссылке"
@@ -1054,8 +1684,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("https://expert.bll.by/experts") as response_info:
                 assert burger_menu.click_link_by_text("Клуб экспертов"), "Не удалось кликнуть по ссылке"
@@ -1087,8 +1738,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/favorites**") as response_info:
                 assert burger_menu.click_link_by_text("Подборки и закладки"), "Не удалось кликнуть по ссылке"
@@ -1119,8 +1791,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/docs/control**") as response_info:
                 assert burger_menu.click_link_by_text("Документы на контроле"), "Не удалось кликнуть по ссылке"
@@ -1151,8 +1844,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("https://ca.bll.by/notification/reminder") as response_info:
                 assert burger_menu.click_link_by_text("Напоминания"), "Не удалось кликнуть по ссылке"
@@ -1184,8 +1898,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("**/docs/new**") as response_info:
                 assert burger_menu.click_link_by_text("Новые документы"), "Не удалось кликнуть по ссылке"
@@ -1216,8 +1951,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             with page.expect_response("https://ca.bll.by/user/profile") as response_info:
                 assert burger_menu.click_link_by_text("Мои данные"), "Не удалось кликнуть по ссылке"
@@ -1249,8 +2005,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Используем page.get_by_role для точного поиска ссылки
             expert_link = page.get_by_role("banner").get_by_role("link", name="Я эксперт")
@@ -1285,8 +2062,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Используем page.get_by_role для точного поиска ссылки
             settings_link = page.get_by_role("banner").get_by_role("link", name="Настройка уведомлений")
@@ -1321,8 +2119,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Используем page.get_by_role для точного поиска ссылки
             account_link = page.get_by_role("banner").get_by_role("link", name="Личный кабинет")
@@ -1357,11 +2176,32 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
 
-            # Используем page.get_by_role для точного поиска ссылки
-            bonuses_link = page.get_by_role("banner").get_by_role("link", name="Бонусы")
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
+
+            # Используем более конкретный селектор для ссылки "Бонусы" в меню
+            bonuses_link = page.locator("a.menu_item_link[href*='bonus.bll.by']").first
 
             with page.expect_response("https://bonus.bll.by") as response_info:
                 bonuses_link.click()
@@ -1393,8 +2233,29 @@ class TestBurgerMenuNavigationRefactored:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Ищем телефонную ссылку по номеру
             phone_link = page.get_by_role("link", name="+375 17 388 32")

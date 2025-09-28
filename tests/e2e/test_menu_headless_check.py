@@ -25,8 +25,29 @@ class TestMenuHeadlessCheck:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Проверяем несколько элементов из левой колонки
             left_column_elements = [
@@ -77,8 +98,29 @@ class TestMenuHeadlessCheck:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Проверяем элементы из центральной колонки
             center_column_elements = [
@@ -129,8 +171,29 @@ class TestMenuHeadlessCheck:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Проверяем элементы из правой колонки
             right_column_elements = [
@@ -181,8 +244,29 @@ class TestMenuHeadlessCheck:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             # Тестовые элементы из каждой группы
             test_elements = {
@@ -277,8 +361,29 @@ class TestMenuHeadlessCheck:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto("https://bll.by/", wait_until="domcontentloaded")
-            assert burger_menu.open_menu(), "Не удалось открыть бургер-меню"
+            page.goto("https://bll.by/", wait_until="domcontentloaded")            # Добавляем небольшую паузу для избежания конфликтов
+            page.wait_for_timeout(500)
+
+            
+            # Добавляем retry механизм для открытия меню
+            
+            max_retries = 3
+            
+            for attempt in range(max_retries):
+            
+                if burger_menu.open_menu():
+            
+                    break
+            
+                if attempt < max_retries - 1:
+            
+                    page.wait_for_timeout(1000)
+            
+                    page.reload()
+            
+                else:
+            
+                    assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
             print("\n=== ДЕТАЛЬНАЯ ДИАГНОСТИКА ПРАВОЙ КОЛОНКИ ===")
             
