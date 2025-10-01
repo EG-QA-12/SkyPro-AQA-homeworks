@@ -145,19 +145,28 @@ class BaseBurgerMenuNavigationTest:
 
         return True
 
-    def _navigate_and_validate_right_column(self, page: Page, link_text: str, expected_url: str,
-                                          expected_status: list = [200, 201, 301, 302]) -> bool:
+    def _get_burger_menu_page(self, page: Page) -> BurgerMenuPage:
         """
-        Специальный метод для навигации по правой колонке меню с использованием ARIA ролей.
+        Создает экземпляр BurgerMenuPage для работы с меню.
 
-        Правая колонка часто содержит скрытые элементы, поэтому используем force click.
-        Поддерживает внешние домены с редиректами.
+        Args:
+            page: Экземпляр страницы Playwright
+
+        Returns:
+            BurgerMenuPage: Экземпляр страницы меню
+        """
+        return BurgerMenuPage(page)
+
+    def _navigate_and_validate_external(self, page: Page, link_text: str, expected_domain: str,
+                                      expected_status: list = [200, 201, 301, 302]) -> bool:
+        """
+        Специальный метод для навигации по внешним доменам.
 
         Args:
             page: Экземпляр страницы Playwright
             link_text: Текст ссылки для клика
-            expected_url: Ожидаемый URL после перехода
-            expected_status: Список допустимых HTTP статус кодов (включая редиректы)
+            expected_domain: Ожидаемый домен (например, "gz.bll.by")
+            expected_status: Список допустимых HTTP статус кодов
 
         Returns:
             bool: True если навигация успешна
@@ -168,33 +177,52 @@ class BaseBurgerMenuNavigationTest:
         if not self._open_menu_with_retry(page):
             assert False, "Не удалось открыть бургер-меню после нескольких попыток"
 
-        # Добавляем паузу перед кликом для визуального наблюдения
-        page.wait_for_timeout(1000)
+        # Клик по ссылке с ожиданием ответа
+        with page.expect_response(f"**{expected_domain}**") as response_info:
+            assert burger_menu.click_link_by_text(link_text), f"Не удалось кликнуть по ссылке '{link_text}'"
 
-        # Ожидаем ответ от внешнего домена (клик должен быть внутри блока expect_response)
-        try:
-            with page.expect_response(expected_url) as response_info:
-                # Клик по ссылке в правой колонке
-                assert burger_menu.click_link_by_role(link_text), f"Не удалось кликнуть по ссылке '{link_text}' в правой колонке"
+        # Проверка статус-кода
+        response = response_info.value
+        assert response.status in expected_status, f"Неверный статус код: {response.status}"
 
-            # Проверка статус кода
-            response = response_info.value
-            assert response.status in expected_status, f"Неверный статус код: {response.status}"
-        except Exception as e:
-            # Для некоторых внешних доменов ответ может не прийти вовремя
-            print(f"Предупреждение: Не удалось получить ответ для {expected_url}: {e}")
-
-        # Добавляем паузу после клика для визуального наблюдения перехода
-        page.wait_for_timeout(2000)
-
-        # Гибкая проверка URL для внешних доменов
+        # Проверка URL
         current_url = page.url
-        if "bll.by" in expected_url:
-            # Для внутренних ссылок - точное совпадение
-            expect(page).to_have_url(expected_url)
-        else:
-            # Для внешних доменов - проверяем, что URL содержит ожидаемый домен
-            assert expected_url.split('/')[2] in current_url, f"URL не содержит ожидаемый домен: {current_url}"
+        assert expected_domain in current_url, f"URL не содержит {expected_domain}: {current_url}"
+
+        return True
+
+    def _navigate_and_validate_right_column(self, page: Page, link_href: str, expected_url: str,
+                                          expected_status: list = [200, 201, 301, 302]) -> bool:
+        """
+        Специальный метод для навигации по правой колонке меню с использованием href.
+
+        Правая колонка часто содержит скрытые элементы, поэтому используем href для поиска.
+
+        Args:
+            page: Экземпляр страницы Playwright
+            link_href: href ссылки для поиска (например, "favorites")
+            expected_url: Ожидаемый URL после перехода
+            expected_status: Список допустимых HTTP статус кодов
+
+        Returns:
+            bool: True если навигация успешна
+        """
+        burger_menu = BurgerMenuPage(page)
+
+        # Открытие меню с retry
+        if not self._open_menu_with_retry(page):
+            assert False, "Не удалось открыть бургер-меню после нескольких попыток"
+
+        # Клик по ссылке с ожиданием ответа
+        with page.expect_response(expected_url) as response_info:
+            assert burger_menu.click_link_by_href(link_href), f"Не удалось кликнуть по ссылке '{link_href}'"
+
+        # Проверка статус-кода
+        response = response_info.value
+        assert response.status in expected_status, f"Неверный статус код: {response.status}"
+
+        # Проверка URL
+        expect(page).to_have_url(expected_url)
 
         return True
 
