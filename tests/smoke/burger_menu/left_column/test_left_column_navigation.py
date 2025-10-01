@@ -360,6 +360,24 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
         finally:
             page.close()
 
+    @allure.title("Навигация: Всё по одной теме")
+    @allure.description("Проверка перехода в Подборки по темам - статус код и ID URL")
+    @pytest.mark.burger_menu
+    @pytest.mark.left_column
+    @pytest.mark.stable
+    def test_topic_collections_navigation(self, authenticated_burger_context):
+        """
+        Проверка навигации в раздел "Всё по одной теме".
+        """
+        page = authenticated_burger_context.new_page()
+        try:
+            page.goto("https://bll.by/", wait_until="domcontentloaded")
+            page.wait_for_load_state("networkidle")
+            self._ensure_authenticated(page)
+            self._navigate_and_validate_docs(page, "Всё по одной теме", "200084")
+        finally:
+            page.close()
+
     @allure.title("Навигация: Руководство пользователя")
     @allure.description("Проверка перехода к руководству пользователя - статус код и ID URL")
     @pytest.mark.burger_menu
@@ -368,20 +386,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_user_guide_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Руководство пользователя".
-
-        Проверяет:
-        - Статус код: 200
-        - URL ID: 436351
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate_docs(page, "Руководство пользователя", "436351")
         finally:
             page.close()
@@ -394,20 +404,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_video_answers_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Видеоответы".
-
-        Проверяет:
-        - Статус код: 200
-        - URL ID: 490299
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate_docs(page, "Видеоответы", "490299")
         finally:
             page.close()
@@ -420,20 +422,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_procurement_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Закупки".
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://gz.bll.by (внешний домен)
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate_external(page, "Закупки", "gz.bll.by")
         finally:
             page.close()
@@ -446,20 +440,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_home_page_navigation(self, authenticated_burger_context):
         """
         Проверка навигации на главную страницу.
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://bll.by (возврат на главную)
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Сначала перейдем на другую страницу
             page.goto("https://bll.by/docs", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate(page, "Главная страница", "https://bll.by/")
         finally:
             page.close()
@@ -472,20 +458,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_buy_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Купить".
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://bll.by/buy
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate(page, "Купить", "https://bll.by/buy")
         finally:
             page.close()
@@ -498,20 +476,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_demo_access_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Получить демодоступ".
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://bll.by/buy?request
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate(page, "Получить демодоступ", "https://bll.by/buy?request")
         finally:
             page.close()
@@ -524,20 +494,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_events_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Мероприятия".
-
-        Проверяет:
-        - Статус код: 200
-        - URL ID: 471630
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate_docs(page, "Мероприятия", "471630")
         finally:
             page.close()
@@ -550,20 +512,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_document_search_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Поиск в базе документов".
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://bll.by/docs
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate(page, "Поиск в базе документов", "https://bll.by/docs")
         finally:
             page.close()
@@ -576,20 +530,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_community_search_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Поиск в сообществе".
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://expert.bll.by/questions (внешний домен)
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate_external(page, "Поиск в сообществе", "expert.bll.by")
         finally:
             page.close()
@@ -602,20 +548,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_contractor_check_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Проверка контрагента".
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://cp.bll.by (внешний домен)
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate_external(page, "Проверка контрагента", "cp.bll.by")
         finally:
             page.close()
@@ -628,20 +566,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_ask_question_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Задать вопрос".
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://expert.bll.by/questions/create (внешний домен)
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate_external(page, "Задать вопрос", "expert.bll.by")
         finally:
             page.close()
@@ -654,20 +584,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_my_questions_answers_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Мои вопросы и ответы".
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://expert.bll.by/questions/my (внешний домен)
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate_external(page, "Мои вопросы и ответы", "expert.bll.by")
         finally:
             page.close()
@@ -680,20 +602,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_topics_control_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Топики на контроле".
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://expert.bll.by/questions/watch (внешний домен)
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate_external(page, "Топики на контроле", "expert.bll.by")
         finally:
             page.close()
@@ -706,20 +620,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_moderator_messages_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Сообщения от модератора".
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://expert.bll.by/moderator/messages (внешний домен)
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate_external(page, "Сообщения от модератора", "expert.bll.by")
         finally:
             page.close()
@@ -732,20 +638,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_expert_section_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Мне - эксперту".
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://expert.bll.by/questions/expert (внешний домен)
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate_external(page, "Мне - эксперту", "expert.bll.by")
         finally:
             page.close()
@@ -758,20 +656,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_experts_club_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "Клуб экспертов".
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://expert.bll.by/experts (внешний домен)
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate_external(page, "Клуб экспертов", "expert.bll.by")
         finally:
             page.close()
@@ -784,20 +674,12 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_about_platform_navigation(self, authenticated_burger_context):
         """
         Проверка навигации в раздел "О платформе".
-
-        Проверяет:
-        - Статус код: 200
-        - URL: https://bll.by/about
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
-
             self._navigate_and_validate(page, "О платформе", "https://bll.by/about")
         finally:
             page.close()
@@ -810,34 +692,17 @@ class TestLeftColumnNavigation(BaseBurgerMenuNavigationTest):
     def test_phone_number_click(self, authenticated_burger_context):
         """
         Проверка клика по телефонному номеру "+375 17 388 32 52".
-
-        Проверяет:
-        - Возможность клика по телефонной ссылке
-        - Примечание: При клике открывается приложение телефона в Windows
         """
         page = authenticated_burger_context.new_page()
         try:
-            # Переход на главную страницу
             page.goto("https://bll.by/", wait_until="domcontentloaded")
             page.wait_for_load_state("networkidle")
-
-            # Обеспечиваем авторизацию
             self._ensure_authenticated(page)
 
-            # Ищем телефонную ссылку по номеру
             phone_link = page.get_by_role("link", name="+375 17 388 32")
-
-            # Проверяем, что ссылка существует и кликабельна
             assert phone_link.is_visible(), "Телефонная ссылка не найдена"
-
-            # Для телефонных ссылок мы можем только проверить наличие и кликабельность
-            # Сам клик может открыть внешнее приложение телефона
-            # Поэтому просто проверяем, что элемент существует
             phone_href = phone_link.get_attribute("href")
             assert phone_href and phone_href.startswith("tel:"), f"Неверный href для телефонной ссылки: {phone_href}"
-
-            # Примечание: Фактический клик закомментирован, так как открывает внешнее приложение
-            # phone_link.click()  # Раскомментировать для реального тестирования
 
         finally:
             page.close()

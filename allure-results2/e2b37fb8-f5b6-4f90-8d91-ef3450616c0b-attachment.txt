@@ -1,7 +1,0 @@
-[33mWARNING [0m BurgerMenuPage:burger_menu_page.py:299 Элемент не видим, пробуем force click для 'favorites'
-[31m[1mERROR   [0m BurgerMenuPage:burger_menu_page.py:329 Ошибка при клике по ссылке 'favorites': Locator.click: Element is not visible
-Call log:
-  - waiting for locator("a.menu_item_link[href*='favorites']").first
-    - locator resolved to <a class="menu_item_link" href="https://bll.by/favorites">Подборки и↵                                      …</a>
-  - attempting click action
-    - scrolling into view if needed

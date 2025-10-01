@@ -1,0 +1,11 @@
+[33mWARNING [0m BurgerMenuPage:burger_menu_page.py:336 Прокрутка не удалась: Page.evaluate: SyntaxError: missing ) after argument list
+    at eval (<anonymous>)
+    at UtilityScript.evaluate (<anonymous>:291:30)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+[33mWARNING [0m BurgerMenuPage:burger_menu_page.py:347 Элемент не видим, пробуем force click для 'favorites'
+[31m[1mERROR   [0m BurgerMenuPage:burger_menu_page.py:377 Ошибка при клике по ссылке 'favorites': Locator.click: Element is not visible
+Call log:
+  - waiting for locator("a[href*='favorites']").first
+    - locator resolved to <a class="menu_item_link" href="https://bll.by/favorites">Подборки и↵                                      …</a>
+  - attempting click action
+    - scrolling into view if needed
