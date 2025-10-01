@@ -240,48 +240,32 @@ class BurgerMenuPage:
         return items
 
     @allure.step("Клик по ссылке меню по тексту: {text}")
-    def click_link_by_text(self, text: str, timeout: int = 10000) -> bool:
+    def click_link_by_text(self, text: str, timeout: int = 5000) -> bool:
         """
-        Кликает по ссылке в меню по тексту
-        
+        Простой и стабильный клик по ссылке в меню по тексту.
+
         Args:
             text: Текст ссылки для поиска
-            timeout: Время ожидания в миллисекундах
-            
+            timeout: Уменьшенное время ожидания для стабильности
+
         Returns:
             bool: True если клик выполнен успешно
         """
         try:
-            self.logger.info(f"Поиск и клик по ссылке с текстом: '{text}'")
-            
-            # Сначала проверяем, что меню открыто
-            if not self.is_menu_open():
-                if not self.open_menu():
-                    self.logger.error("Не удалось открыть меню для клика по ссылке")
-                    return False
-            
-            # Ищем ссылку по тексту
+            self.logger.info(f"Простой клик по тексту: '{text}'")
+
+            # Ищем ссылку по тексту и кликаем - просто и эффективно
             link = self.page.locator(f"a:has-text('{text}')").first
-            
-            # Ждем видимости элемента (увеличим таймаут после прокрутки)
-            link.wait_for(state="visible", timeout=timeout)
-            
-            # Кликаем по ссылке (с force=True если элемент не видимый)
-            try:
-                link.click(timeout=timeout)
-            except PlaywrightTimeoutError:
-                # Если обычный клик не сработал, попробуем принудительный клик
-                self.logger.warning(f"Обычный клик не удался, пробуем принудительный клик для '{text}'")
-                link.click(force=True, timeout=timeout)
-            
-            self.logger.info(f"Успешно кликнули по ссылке: '{text}'")
+
+            # Ждем элемент и кликаем с force=True для стабильности
+            link.wait_for(state="attached", timeout=timeout)
+            link.click(force=True, timeout=timeout)
+
+            self.logger.info(f"Успешно кликнули: '{text}'")
             return True
-            
-        except PlaywrightTimeoutError:
-            self.logger.error(f"Таймаут при поиске или клике по ссылке '{text}' за {timeout}мс")
-            return False
+
         except Exception as e:
-            self.logger.error(f"Ошибка при клике по ссылке '{text}': {e}")
+            self.logger.error(f"Ошибка клика по '{text}': {e}")
             return False
 
     @allure.step("Клик по ссылке меню по href: {href}")

@@ -122,28 +122,28 @@ def anti_bot_browser_context_args():
 def pytest_addoption(parser: pytest.Parser) -> None:
     """
     Добавляет кастомные опции командной строки для pytest.
-    
+
     Доступные опции:
     --headless: Запуск браузерных тестов в headless режиме
     --slow-mo: Задержка между действиями в Playwright (мс)
-    --test-browser: Выбор браузера (chromium, firefox, webkit) 
+    --test-browser: Выбор браузера (chromium, firefox, webkit)
     --cookie-file: Указание cookie файла для тестов
     --user-role: Роль пользователя для авторизации
     --user-login: Логин конкретного пользователя
-    
+
     Примечание: pytest-playwright добавляет свою опцию --browser,
     поэтому мы используем --test-browser для избежания конфликтов.
     """
     # Браузерные опции
     parser.addoption(
         "--headless",
-        action="store_true", 
+        action="store_true",
         default=False,
         help="Запустить браузерные тесты в headless режиме"
     )
     parser.addoption(
-        "--slow-mo", 
-        action="store", 
+        "--slow-mo",
+        action="store",
         default=0,
         type=int,
         help="Задержка между действиями в Playwright (мс)"
@@ -151,11 +151,11 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         "--test-browser",
         action="store",
-        default="chromium", 
+        default="chromium",
         choices=["chromium", "firefox", "webkit"],
         help="Выбор браузера для тестов (альтернатива pytest-playwright --browser)"
     )
-    
+
     # Опции для cookie тестов
     parser.addoption(
         "--cookie-file",
@@ -163,7 +163,7 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         default=None,
         help="Укажите имя cookie-файла или 'all' для всех файлов. Или список через запятую."
     )
-    
+
     # Опции для авторизационных тестов
     parser.addoption(
         "--user-role",
@@ -178,15 +178,23 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         help="Логин конкретного пользователя для авторизации (например: admin, DxYZ-Ab7, yR-SUV-t)"
     )
 
+# Глобальная переменная для отслеживания headless режима
+IS_HEADLESS_MODE = False
+
 
 def pytest_configure(config: pytest.Config) -> None:
     """
     Настройка pytest после парсинга конфигурации.
-    
-    Добавляет кастомные маркеры для категоризации тестов.
+
+    Добавляет кастомные маркеры для категоризации тестов и определяет headless режим.
     """
+    global IS_HEADLESS_MODE
+
+    # Определяем headless режим из командной строки
+    IS_HEADLESS_MODE = config.getoption("--headless", False) or "--headless" in config.invocation_params.args
+
     config.addinivalue_line("markers", "slow: Медленные тесты")
-    config.addinivalue_line("markers", "integration: Интеграционные тесты") 
+    config.addinivalue_line("markers", "integration: Интеграционные тесты")
     config.addinivalue_line("markers", "e2e: End-to-end тесты")
     config.addinivalue_line("markers", "auth: Тесты авторизации")
     config.addinivalue_line("markers", "api: API тесты")

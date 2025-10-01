@@ -80,6 +80,7 @@ pytestdebug.log
 
 # Allure отчеты
 allure-results/
+allure-results*/
 allure-report/
 test-results/
 reports/
