@@ -54,7 +54,7 @@ class BurgerMenuPage:
             dict: Словарь с локаторами для элементов меню
         """
         try:
-            locators_path = Path("authenticated_ui_locators_bll_by.json")
+            locators_path = Path("config/locators/authenticated_ui_locators_bll_by.json")
             if locators_path.exists():
                 with open(locators_path, 'r', encoding='utf-8') as f:
                     locators_data = json.load(f)

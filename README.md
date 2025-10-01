@@ -45,12 +45,23 @@ Bll_tests/                              # Корневая директория
 │   │   └── infrastructure/            # Вспомогательные интеграционные тесты
 │   └── e2e/                           # Инфраструктурные файлы, заглушки, настройки
 ├── scripts/                           # Общие скрипты
+│   └── debug/                         # Отладочные скрипты
 ├── docs/                              # Документация
+│   ├── REPORTS/                       # Отчеты о разработке и фиксах
+│   ├── TOOLS/                         # Руководства по инструментам
+│   └── [другие разделы документации]
 ├── config/                            # Конфигурация фреймворка и секреты
+│   ├── locators/                      # Файлы локаторов UI элементов
+│   │   ├── authenticated_ui_locators_bll_by.json
+│   │   ├── simple_auth_ui_locators.json
+│   │   └── ui_locators_bll_by.json
+│   ├── MCP.md                         # Конфигурация MCP серверов
 │   ├── .env.template                  # Шаблон переменных окружения
 │   ├── auth_config.json               # Конфигурация авторизации
 │   ├── db_settings.py                 # Настройки базы данных
 │   └── secrets_manager.py             # Менеджер секретов
+├── data/                              # Тестовые данные
+│   └── burger_menu_elements.csv       # Данные элементов бургер-меню
 └── cookies/                           # Файлы cookies (в .gitignore)
     ├── admin_cookies.json
     ├── user_cookies.json
