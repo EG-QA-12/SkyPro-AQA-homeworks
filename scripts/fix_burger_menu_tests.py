@@ -14,10 +14,7 @@ def fix_burger_menu_tests():
     # Файлы для исправления
     test_files = [
         "tests/e2e/test_burger_menu_docs2.py",
-        "tests/e2e/test_burger_menu_docs.py",
-        "tests/e2e/test_burger_menu_navigation_refactored.py",
-        "tests/e2e/test_simple_navigation.py",
-        "tests/e2e/test_menu_headless_check.py"
+        "tests/e2e/test_burger_menu_docs.py"
     ]
 
     for file_path in test_files:

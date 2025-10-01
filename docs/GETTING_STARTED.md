@@ -82,20 +82,26 @@ cookies/
 
 ### Запуск smoke тестов
 ```bash
-# Быстрый запуск (15 секунд)
-pytest tests/integration/test_auth_quick.py -v
+# Быстрый запуск smoke-тестов (15-20 секунд)
+pytest tests/smoke/ -v
+
+# Только бургер-меню (быстрые тесты)
+pytest tests/smoke/burger_menu/left_column/ -v
+
+# Бургер-меню с визуальными паузами
+pytest tests/smoke/burger_menu/right_column/ --headed -v
 
 # Запуск с параллелизацией
-pytest tests/integration/test_auth_quick.py -n 4 -v
+pytest tests/smoke/ -n 4 -v
 ```
 
 ### Запуск Playwright тестов
 ```bash
-# Запуск тестов бургер-меню
-pytest tests/integration/test_burger_menu_links_playwright.py -v
+# Запуск интеграционных UI тестов
+pytest tests/integration/test_main_page_links.py -v
 
 # Запуск с генерацией Allure отчета
-pytest tests/integration/test_burger_menu_links_playwright.py --alluredir=allure-results -v
+pytest tests/smoke/burger_menu/ --alluredir=allure-results -v
 ```
 
 ### Запуск API тестов
@@ -199,9 +205,14 @@ bll_tests/
 │   ├── utils/                # Вспомогательные утилиты
 │   └── test_bases/          # Базовые классы тестов
 ├── tests/                    # Тесты
+│   ├── smoke/               # Smoke-тесты (критически важные)
+│   │   └── burger_menu/     # Тесты бургер-меню
+│   │       ├── left_column/ # Быстрые тесты левой колонки
+│   │       ├── right_column/# Тесты правой колонки с паузами
+│   │       └── pages/       # Page Object классы
 │   ├── integration/          # Интеграционные тесты
 │   ├── auth/                # Тесты авторизации
-│   └── e2e/                 # E2E тесты
+│   └── e2e/                 # E2E инфраструктура
 ├── docs/                     # Документация
 ├── scripts/                 # Скрипты и утилиты
 ├── cookies/                 # Файлы кук

@@ -1,0 +1,4 @@
+[1m[31mERROR   [0m BurgerMenuPage:burger_menu_page.py:233 Таймаут при поиске или клике по ссылке 'Бонусы' за 10000мс
+[33mWARNING [0m BurgerMenuPage:burger_menu_page.py:420 ARIA роль с force кликом не сработала для 'Бонусы': Locator.wait_for: Timeout 3333ms exceeded.
+Call log:
+  - waiting for get_by_role("link", name="Бонусы")
