@@ -157,3 +157,215 @@ class TestLeftColumnNavigationParams:
         finally:
             page.close()
             context.close()
+
+    @pytest.mark.parametrize('multi_domain_context',
+                           ['bll', 'expert', 'bonus', 'ca', 'cp'],
+                           indirect=True,
+                           ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
+    def test_about_navigation(self, multi_domain_context, browser):
+        """Мульти-домен навигация 'О Платформе'."""
+        domain_name, base_url = multi_domain_context
+
+        from framework.utils.auth_cookie_provider import get_auth_cookies
+
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            viewport={"width": 1920, "height": 1080},
+            ignore_https_errors=True
+        )
+
+        context.add_cookies(get_auth_cookies(role="admin"))
+        page = context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            page.goto(base_url, wait_until="domcontentloaded")
+            page.wait_for_timeout(500)
+
+            burger_menu.open_menu()
+            burger_menu.click_link_by_text("О Платформе")
+
+            assert "about" in page.url and "bll.by" in page.url
+
+        finally:
+            page.close()
+            context.close()
+
+    @pytest.mark.parametrize('multi_domain_context',
+                           ['bll', 'expert', 'bonus', 'ca', 'cp'],
+                           indirect=True,
+                           ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
+    def test_buy_navigation(self, multi_domain_context, browser):
+        """Мульти-домен навигация 'Купить'."""
+        domain_name, base_url = multi_domain_context
+
+        from framework.utils.auth_cookie_provider import get_auth_cookies
+
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            viewport={"width": 1920, "height": 1080},
+            ignore_https_errors=True
+        )
+
+        context.add_cookies(get_auth_cookies(role="admin"))
+        page = context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            page.goto(base_url, wait_until="domcontentloaded")
+            page.wait_for_timeout(500)
+
+            burger_menu.open_menu()
+            burger_menu.click_link_by_text("Купить")
+
+            assert "buy" in page.url and "bll.by" in page.url
+
+        finally:
+            page.close()
+            context.close()
+
+    @pytest.mark.parametrize('multi_domain_context',
+                           ['bll', 'expert', 'bonus', 'ca', 'cp'],
+                           indirect=True,
+                           ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
+    def test_docs_navigation(self, multi_domain_context, browser):
+        """Мульти-домен навигация 'Поиск в базе документов'."""
+        domain_name, base_url = multi_domain_context
+
+        from framework.utils.auth_cookie_provider import get_auth_cookies
+
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            viewport={"width": 1920, "height": 1080},
+            ignore_https_errors=True
+        )
+
+        context.add_cookies(get_auth_cookies(role="admin"))
+        page = context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            page.goto(base_url, wait_until="domcontentloaded")
+            page.wait_for_timeout(500)
+
+            burger_menu.open_menu()
+            burger_menu.click_link_by_text("Поиск в базе документов")
+
+            assert "docs" in page.url and "bll.by" in page.url
+
+        finally:
+            page.close()
+            context.close()
+
+    @pytest.mark.parametrize('multi_domain_context',
+                           ['bll', 'expert', 'bonus', 'ca', 'cp'],
+                           indirect=True,
+                           ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
+    def test_phone_number_click(self, multi_domain_context, browser):
+        """Мульти-домен проверка телефона."""
+        domain_name, base_url = multi_domain_context
+
+        from framework.utils.auth_cookie_provider import get_auth_cookies
+
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            viewport={"width": 1920, "height": 1080},
+            ignore_https_errors=True
+        )
+
+        context.add_cookies(get_auth_cookies(role="admin"))
+        page = context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            page.goto(base_url, wait_until="domcontentloaded")
+            page.wait_for_timeout(500)
+
+            burger_menu.open_menu()
+
+            # Клик по телефону тестирует только наличие элемента
+            phone_link = page.get_by_role("link", name="+375 17 388 32")
+            assert phone_link.is_visible(), "Телефонная ссылка не найдена"
+
+            phone_href = phone_link.get_attribute("href")
+            assert phone_href and phone_href.startswith("tel:"), "Неверный формат телефонной ссылки"
+
+        finally:
+            page.close()
+            context.close()
+
+    @pytest.mark.parametrize('multi_domain_context',
+                           ['bll', 'expert', 'bonus', 'ca', 'cp'],
+                           indirect=True,
+                           ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
+    def test_home_page_navigation(self, multi_domain_context, browser):
+        """Мульти-домен навигация на главную."""
+        domain_name, base_url = multi_domain_context
+
+        from framework.utils.auth_cookie_provider import get_auth_cookies
+
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            viewport={"width": 1920, "height": 1080},
+            ignore_https_errors=True
+        )
+
+        context.add_cookies(get_auth_cookies(role="admin"))
+        page = context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            # Перейдем на другую страницу сначала
+            page.goto(base_url + "docs", wait_until="domcontentloaded")
+            page.wait_for_timeout(500)
+
+            burger_menu.open_menu()
+
+            # Найдем и кликнем ссылку "Главная страница"
+            home_link = page.locator("a.menu_bl_ttl-main").first
+            assert home_link.is_visible(), "Главная страница ссылка не найдена"
+            home_link.click()
+
+            assert base_url in page.url
+
+        finally:
+            page.close()
+            context.close()
+
+    @pytest.mark.parametrize('multi_domain_context',
+                           ['bll', 'expert', 'bonus', 'ca', 'cp'],
+                           indirect=True,
+                           ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
+    def test_demo_access_navigation(self, multi_domain_context, browser):
+        """Мульти-домен демо доступ."""
+        domain_name, base_url = multi_domain_context
+
+        from framework.utils.auth_cookie_provider import get_auth_cookies
+
+        context = browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            viewport={"width": 1920, "height": 1080},
+            ignore_https_errors=True
+        )
+
+        context.add_cookies(get_auth_cookies(role="admin"))
+        page = context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            page.goto(base_url, wait_until="domcontentloaded")
+            page.wait_for_timeout(500)
+
+            burger_menu.open_menu()
+
+            # Найдем ссылку демодоступа
+            demo_link = page.get_by_role("link", name="Получить демодоступ")
+            assert demo_link.is_visible(), "Ссылка демодоступа не найдена"
+            demo_link.click()
+
+            # Реальная навигация ведет на демо страницу
+            assert "buy" in page.url and "?request" in page.url
+
+        finally:
+            page.close()
+            context.close()
