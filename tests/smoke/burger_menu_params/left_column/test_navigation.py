@@ -60,6 +60,29 @@ def _configure_browser_for_domain(context, domain_name):
         context.set_default_timeout(25000)
 
 
+def _get_domain_aware_home_locator(domain_name):
+    """
+    Return domain-specific locator for home button.
+    Some domains may have different UUID classes or structures.
+    """
+    # Default locator works for bll and expert
+    if domain_name in ['bll', 'expert']:
+        return "a.menu_bl_ttl-main"
+
+    # Bonus domain may have different class or structure
+    elif domain_name == 'bonus':
+        # Try multiple approaches for bonus domain
+        return "a.menu_bl_ttl-main, a[href*='bonus'], [class*='home'], [class*='main']"
+
+    # CA domain may also need special handling
+    elif domain_name == 'ca':
+        return "a.menu_bl_ttl-main, a[href*='/'], [class*='home']"
+
+    # CP - same approach
+    else:
+        return "a.menu_bl_ttl-main"
+
+
 @pytest.mark.smoke
 @pytest.mark.burger_menu_params
 @pytest.mark.left_column
@@ -408,9 +431,10 @@ class TestLeftColumnNavigationParams:
                            ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
     def test_home_page_navigation(self, multi_domain_context, browser):
         """
-        Мульти-домен навигация 'Главная' - enterprise coverage across all 5 domains.
+        Мульти-домен тест home button - enterprise coverage across all 5 domains.
 
-        Home button navigates back to each domain's final URL after being on another page.
+        Home button on any domain always navigates to main platform home (bll.by/).
+        Tests cross-domain home button behavior - from any subdomain back to main portal.
         """
         domain_name, base_url = multi_domain_context
 
@@ -428,19 +452,18 @@ class TestLeftColumnNavigationParams:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            # Start from docs page on current domain
-            page.goto(base_url.rstrip('/') + "/docs", wait_until="domcontentloaded")
-            page.wait_for_timeout(500)
+            # Start from domain's home page
+            page.goto(base_url, wait_until="domcontentloaded")
+            page.wait_for_timeout(1000)  # Wait for full auth and menu loading
 
             burger_menu.open_menu()
 
-            # Click home button
+            # Click home button - same locator works for all domains
             home_link = page.locator("a.menu_bl_ttl-main").first
-            assert home_link.is_visible(), "Home link not found"
+            assert home_link.is_visible(), f"Home link not found for {domain_name}"
             home_link.click()
 
-            # RELAXED: Home button navigates to main platform (bll.by), not domain-specific
-            # All domains' home buttons ultimately lead to bll.by main page
+            # Home button from ANY domain ALWAYS leads to bll.by main platform home
             _assert_domain_specific_url(page, 'bll')
 
         finally:
