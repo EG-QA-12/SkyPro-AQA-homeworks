@@ -10,14 +10,54 @@ import pytest
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 
-def _skip_unavailable_domains(domain_name: str, test_name: str):
-    """
-    Skip test for domains where burger menu is not available due to auth redirect.
+# Final URLs for each domain after authentication redirect
+DOMAIN_FINAL_URLS = {
+    'bll': 'https://bll.by/',
+    'expert': 'https://expert.bll.by/questions',
+    'ca': 'https://ca.bll.by/user/profile',
+    'bonus': 'https://bonus.bll.by/bonus',
+    'cp': 'https://cp.bll.by/check'
+}
 
-    CA and Bonus domains redirect to login page where burger menu elements are not present.
+
+def _wait_for_domain_final_url(page, domain_name, timeout=20000):
     """
-    if domain_name in ['bonus', 'ca']:
-        pytest.skip(f"Burger menu недоступен для домена {domain_name} - редирект на login страницу")
+    Wait for the correct final URL for each domain after authentication redirects.
+
+    Each domain has its own landing page after auth completion.
+    """
+    final_url = DOMAIN_FINAL_URLS.get(domain_name)
+    if final_url:
+        try:
+            page.wait_for_url(final_url, timeout=timeout)
+        except Exception:
+            # If final URL not reached, at least wait for stable state
+            page.wait_for_load_state('networkidle', timeout=5000)
+
+
+def _assert_domain_specific_url(page, domain_name):
+    """
+    Assert correct final URL based on domain-specific auth behavior.
+    """
+    expected_url = DOMAIN_FINAL_URLS.get(domain_name)
+    clean_current_url = page.url.split('?')[0]  # Remove query parameters
+
+    if expected_url:
+        assert clean_current_url == expected_url or expected_url in clean_current_url, \
+               f"Expected {expected_url} for {domain_name}, got {clean_current_url}"
+
+
+def _configure_browser_for_domain(context, domain_name):
+    """
+    Configure browser context for optimal domain-specific testing.
+
+    Different domains may require different browser settings.
+    """
+    # Higher timeout for domains with redirects
+    if domain_name in ['ca', 'bonus', 'cp']:
+        context.set_default_timeout(30000)
+    else:
+        context.set_default_timeout(25000)
 
 
 @pytest.mark.smoke
@@ -148,6 +188,7 @@ class TestLeftColumnNavigationParams:
     def test_support_navigation(self, multi_domain_context, browser):
         """Мульти-домен навигация 'Поддержка'."""
         domain_name, base_url = multi_domain_context
+        _skip_unavailable_domains(domain_name, "support_navigation")
 
         from framework.utils.auth_cookie_provider import get_auth_cookies
 
@@ -181,6 +222,7 @@ class TestLeftColumnNavigationParams:
     def test_about_navigation(self, multi_domain_context, browser):
         """Мульти-домен навигация 'О Платформе'."""
         domain_name, base_url = multi_domain_context
+        _skip_unavailable_domains(domain_name, "about_navigation")
 
         from framework.utils.auth_cookie_provider import get_auth_cookies
 
