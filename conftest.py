@@ -91,16 +91,30 @@ def browser_launch_args():
     }
 
 
-@pytest.fixture(scope="session") 
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args):
+    """
+    ГЛОБАЛЬНАЯ НАСТРОЙКА БРАУЗЕРНОГО КОНТЕКСТА - FULL HD VIEWPORT ДЛЯ ВСЕХ ТЕСТОВ!
+
+    Расширяет стандартные аргументы контекста браузера.
+    ГАРАНТИРУЕТ Full HD 1920x1080 разрешение для ВСЕХ тестов, включая headless режим.
+    """
+    # Обновляем viewport для всех browser контекстов
+    browser_context_args["viewport"] = {"width": 1920, "height": 1080}
+    return browser_context_args
+
+
+@pytest.fixture(scope="session")
 def anti_bot_browser_context_args():
     """
     Аргументы контекста браузера для обхода антибот защиты.
-    
+
     Настраивает реалистичные заголовки и поведение браузера.
+    Теперь включает Full HD viewport по умолчанию.
     """
     return {
         "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "viewport": {"width": 1920, "height": 1080},
+        "viewport": {"width": 1920, "height": 1080},  # Full HD гарантирован
         "locale": "ru-RU",
         "timezone_id": "Europe/Minsk",
         "ignore_https_errors": True,
@@ -111,7 +125,7 @@ def anti_bot_browser_context_args():
             "Accept-Encoding": "gzip, deflate, br",
             "Connection": "keep-alive",
             "Upgrade-Insecure-Requests": "1",
-            "Sec-Fetch-Dest": "document", 
+            "Sec-Fetch-Dest": "document",
             "Sec-Fetch-Mode": "navigate",
             "Sec-Fetch-Site": "none",
             "Sec-Fetch-User": "?1"
