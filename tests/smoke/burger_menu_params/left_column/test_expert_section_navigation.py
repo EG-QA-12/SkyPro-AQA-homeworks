@@ -1,0 +1,73 @@
+"""
+Enterprise test for Expert Section Navigation - Мне - эксперту.
+Tests navigation to expert section for current user: https://expert.bll.by/questions/expert
+
+Supports multi-domain testing (5 domains).
+"""
+import pytest
+import allure
+from playwright.sync_api import expect
+from tests.e2e.pages.burger_menu_page import BurgerMenuPage
+
+
+class TestExpertSectionNavigation:
+    """Test Expert Section Navigation across multiple domains."""
+
+    DOMAINS = {
+        "bll.by": "https://bll.by",
+        "expert.bll.by": "https://expert.bll.by",
+        "demo.bll.by": "https://demo.bll.by",
+        "ca.bll.by": "https://ca.bll.by",
+        "business-info.by": "https://business-info.by"
+    }
+
+    @allure.epic("Burger Menu Navigation")
+    @allure.feature("Expert Section Navigation")
+    @allure.story("Navigate to My Expert Section")
+    @allure.title("Навигация: Мне - эксперту на домене {domain_name}")
+    @allure.description("Проверка перехода в раздел Мне - эксперту на домене {domain_name}")
+    @allure.severity("normal")
+    @pytest.mark.smoke
+    @pytest.mark.burger_menu
+    @pytest.mark.navigation
+    @pytest.mark.parametrize("domain_name,domain_url", list(DOMAINS.items()))
+    def test_expert_section_navigation(self, authenticated_burger_context, domain_name, domain_url):
+        """
+        Test Expert Section Navigation for domain {domain_name}.
+
+        Tests navigation to "Мне - эксперту" section at expert.bll.by/questions/expert.
+        May redirect through expert.bll.by depending on domain.
+        """
+        page = authenticated_burger_context.new_page()
+        burger_menu = BurgerMenuPage(page)
+
+        try:
+            # Navigate to domain
+            page.goto(f"{domain_url}/", wait_until="domcontentloaded")
+            page.wait_for_timeout(500)
+
+            # Open burger menu with retry
+            max_retries = 3
+            for attempt in range(max_retries):
+                if burger_menu.open_menu():
+                    break
+                if attempt < max_retries - 1:
+                    page.wait_for_timeout(1000)
+                    page.reload()
+                else:
+                    pytest.fail("Не удалось открыть бургер-меню после нескольких попыток")
+
+            # Try to click expert section link
+            with page.expect_response("https://expert.bll.by/questions/expert") as response_info:
+                assert burger_menu.click_link_by_text("Мне - эксперту"), \
+                    "Не удалось кликнуть по ссылке 'Мне - эксперту'"
+
+            response = response_info.value
+            assert response.status in [200, 201, 301, 302], f"Неверный статус код: {response.status}"
+
+            # Verify navigation to expert section
+            current_url = page.url
+            assert "expert.bll.by" in current_url, f"URL не содержит expert.bll.by: {current_url}"
+
+        finally:
+            page.close()
