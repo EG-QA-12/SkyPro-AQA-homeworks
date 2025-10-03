@@ -1,7 +1,10 @@
 """
 Burger Menu Left Column - Codes Navigation - Multi-Domain Parameterized Tests.
+
+Поддерживает headless режим с allow-session параметром для обхода защиты от ботов.
 """
 import pytest
+from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 @pytest.mark.smoke
@@ -30,7 +33,7 @@ class TestCodesNavigationParams:
         page = context.new_page()
         burger_menu = BurgerMenuPage(page)
         try:
-            page.goto(base_url, wait_until="domcontentloaded")
+            page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
             # TEMP DISABLED: Strict auth URL waiting until cross-domain cookies fixed
             # _wait_for_domain_final_url(page, domain_name)
             page.wait_for_timeout(2000)  # Wait for SSO redirects and menu loading
