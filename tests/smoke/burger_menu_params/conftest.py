@@ -3,9 +3,18 @@ Burger Menu Params - Multi-Domain Parameterized Tests.
 
 Конфигурация для тестирования burger menu на всех доменах системы.
 Использует параметризацию для запуска тестов на 5 доменах одновременно.
+Поддерживает headless режим с allow-session параметром для обхода защиты от ботов.
 """
 
 import pytest
+from framework.utils.url_utils import add_allow_session_param
+
+
+# Импортируем глобальную переменную headless режима из корневого conftest.py
+try:
+    from conftest import IS_HEADLESS_MODE
+except ImportError:
+    IS_HEADLESS_MODE = False
 
 
 # Конфигурация доменов для multi-domain тестирования
@@ -24,6 +33,8 @@ def multi_domain_context(request):
     """
     Параметризованный fixture для multi-domain тестирования.
 
+    Добавляет allow-session параметр для обхода защиты от ботов в headless режиме.
+
     Args:
         request: pytest fixture request object
 
@@ -32,6 +43,11 @@ def multi_domain_context(request):
     """
     domain = request.param
     base_url = DOMAIN_CONFIG[domain]
+
+    # Добавляем параметр allow-session для headless режима
+    if IS_HEADLESS_MODE:
+        base_url = add_allow_session_param(base_url, headless=True)
+
     return domain, base_url
 
 
@@ -44,4 +60,8 @@ def domain_name(request):
 @pytest.fixture(params=list(DOMAIN_CONFIG.values()))
 def domain_url(request):
     """Только URL домена для тестов."""
-    return request.param
+    base_url = request.param
+    # Добавляем параметр allow-session для headless режима
+    if IS_HEADLESS_MODE:
+        base_url = add_allow_session_param(base_url, headless=True)
+    return base_url
