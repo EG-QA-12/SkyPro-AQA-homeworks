@@ -312,7 +312,7 @@ class SecretsManager:
             api=self.get_api_credentials(),
             database=self.get_database_credentials(),
             debug_mode=self.get_bool_env("DEBUG_MODE", False),
-            headless=self.get_bool_env("HEADLESS", True),
+            headless=self.get_bool_env("HEADLESS", False),
             browser_timeout=self.get_int_env("BROWSER_TIMEOUT", 30000)
         )
     

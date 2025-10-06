@@ -6,6 +6,7 @@
 Выполняет таргетированную авторизацию только нужного пользователя.
 """
 
+import os
 import requests
 import logging
 from typing import Optional, Dict, List
@@ -30,16 +31,27 @@ class SmartAuthManager:
         """Инициализация менеджера"""
         self.session = requests.Session()
         self.base_url = "https://expert.bll.by"
-        
+
         # Настройка заголовков
         self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'User-Agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                           'AppleWebKit/537.36'),
+            'Accept': ('text/html,application/xhtml+xml,application/xml;'
+                       'q=0.9,*/*;q=0.8'),
             'Accept-Language': 'ru-RU,ru;q=0.9,en;q=0.8',
             'Accept-Encoding': 'gzip, deflate, br',
             'Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1'
         })
+
+    def _is_headless(self) -> bool:
+        """
+        Проверяет, запущен ли тест в headless режиме
+
+        Returns:
+            bool: True если headless, False если GUI режим
+        """
+        return os.getenv('HEADLESS', 'false').lower() == 'true'
     
     def check_cookie_validity(self, session_cookie: str) -> bool:
         """
@@ -83,9 +95,8 @@ class SmartAuthManager:
         """
         Получает валидную сессионную куку с полной информацией
 
-        Сначала проверяет существующую куку, если она невалидна -
-        выполняет авторизацию. Возвращает полную информацию о куке
-        включая domain и sameSite параметры.
+        В GUI режиме просто возвращает куку из файла (без проверки валидности).
+        В headless режиме проверяет валидность куки и выполняет авторизацию если нужно.
 
         Args:
             role: Роль пользователя (admin, user)
@@ -93,20 +104,19 @@ class SmartAuthManager:
         Returns:
             Optional[Dict]: Полная информация о куке или None
         """
-        # Шаг 1: Пытаемся получить существующую куку
-        try:
-            existing_cookies = get_auth_cookies(role=role)
-            session_cookie = next(
-                (cookie for cookie in existing_cookies
-                 if cookie['name'] == "test_joint_session"),
-                None
-            )
+        # GUI режим: просто возвращаем куку из файла без проверок
+        if not self._is_headless():
+            logger.info("GUI режим: используем куку из файла без API проверки")
+            try:
+                existing_cookies = get_auth_cookies(role=role)
+                session_cookie = next(
+                    (cookie for cookie in existing_cookies
+                     if cookie['name'] == "test_joint_session"),
+                    None
+                )
 
-            if session_cookie:
-                # Шаг 2: Проверяем валидность куки
-                if self.check_cookie_validity(session_cookie["value"]):
-                    logger.info("Используем существующую валидную куку")
-                    # Возвращаем полную информацию о куке
+                if session_cookie:
+                    logger.info("Найдена кука в файле")
                     return {
                         "name": "test_joint_session",
                         "value": session_cookie["value"],
@@ -115,14 +125,37 @@ class SmartAuthManager:
                         "sameSite": "Lax"
                     }
                 else:
-                    logger.info("Существующая кука невалидна - требуется авторизация")
-            else:
-                logger.info("Кука не найдена - требуется авторизация")
+                    logger.warning("Кука не найдена в файлах")
+                    return None
+
+            except Exception as e:
+                logger.error(f"Ошибка при чтении файла куки: {e}")
+                return None
+
+        # Headless режим: полная проверка и авторизация
+        logger.info("Headless режим: полная проверка и авторизация")
+        try:
+            existing_cookies = get_auth_cookies(role=role)
+            session_cookie = next(
+                (cookie for cookie in existing_cookies
+                 if cookie['name'] == "test_joint_session"),
+                None
+            )
+
+            if session_cookie and self.check_cookie_validity(session_cookie["value"]):
+                logger.info("Используем существующую валидную куку")
+                return {
+                    "name": "test_joint_session",
+                    "value": session_cookie["value"],
+                    "domain": ".bll.by",
+                    "path": "/",
+                    "sameSite": "Lax"
+                }
 
         except Exception as e:
             logger.warning(f"Ошибка при получении существующей куки: {e}")
 
-        # Шаг 3: Выполняем авторизацию
+        # Выполняем авторизацию
         return self._perform_auth_and_get_cookie(role)
     
     def _perform_auth_and_get_cookie(self, role: str) -> Optional[str]:

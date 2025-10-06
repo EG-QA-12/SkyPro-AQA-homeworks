@@ -40,7 +40,8 @@ class TestAboutNavigationParams:
 
         # Устанавливаем полную информацию о куке (name, value, domain, sameSite)
         context.add_cookies([cookie_info])
-        print(f"Используем куку: {cookie_info}")  # Отладочная печать
+        # БЕЗОПАСНАЯ ДИАГНОСТИКА: НЕ РАСКРЫВАЕМ ПОЛНУЮ КУКУ!
+        print(f"✅ Кука получена: {cookie_info['name']} (длина значения: {len(cookie_info['value'])} символов)")
 
         page = context.new_page()
         burger_menu = BurgerMenuPage(page)
