@@ -4,6 +4,8 @@ Burger Menu Left Column - Codes Navigation - Multi-Domain Parameterized Tests.
 Поддерживает headless режим с allow-session параметром для обхода защиты от ботов.
 """
 import pytest
+import re
+import requests
 from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
@@ -42,7 +44,15 @@ class TestCodesNavigationParams:
             burger_menu.click_link_by_text("Кодексы")
 
             # All domains redirect to bll.by kodeksy/codes section (SSO-aware)
-            assert "kodeksy" in page.url or "codes" in page.url
+            current_url = page.url
+
+            # Check HTTP status code
+            response = requests.get(current_url, allow_redirects=False)
+            assert response.status_code == 200, f"HTTP {response.status_code} for URL: {current_url}"
+
+            # Check URL pattern with regex (ignores query parameters)
+            assert re.search(r'kodeksy|codes', current_url), \
+                f"URL не содержит паттерн kodeksy или codes: {current_url}"
         finally:
             page.close()
             context.close()

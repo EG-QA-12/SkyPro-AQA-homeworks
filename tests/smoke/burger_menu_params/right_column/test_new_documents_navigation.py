@@ -3,10 +3,13 @@ Burger Menu Right Column - New Documents Navigation - Multi-Domain Parameterized
 
 Параметризованные тесты раздела 'Новые документы' правой колонки бургер-меню.
 Использует эмуляцию взаимодействий с элементами меню.
+Поддерживает headless режим с allow-session параметром для обхода защиты от ботов.
 """
 
 import pytest
-
+import re
+import requests
+from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 
@@ -42,7 +45,7 @@ class TestNewDocumentsNavigationParams:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto(base_url, wait_until="domcontentloaded")
+            page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
             page.wait_for_timeout(2000)
 
             burger_menu.open_menu()
@@ -55,9 +58,14 @@ class TestNewDocumentsNavigationParams:
             # Селектор из baseline - правый третий блок, четвертый элемент
             page.locator("body > div.layout.layout--docs > header > div > div > div.menu-gumb_new.menu-mobile.active > div.new-menu.new-menu_main > div > div:nth-child(2) > div:nth-child(3) > div.menu_bl_list > div:nth-child(4) > a").click()
 
+            # Check HTTP status code for current page after navigation
+            current_url = page.url
+            response = requests.get(current_url, allow_redirects=False)
+            assert response.status_code == 200, f"HTTP {response.status_code} for URL: {current_url}"
+
             # URL assertion для новых документов - всегда /docs/new
-            assert page.url.endswith("/docs/new"), \
-                f"URL не ведет на новые документы для домена {domain_name}: {page.url}"
+            assert re.search(r'/docs/new$', current_url), \
+                f"URL не ведет на новые документы для домена {domain_name}: {current_url}"
 
         finally:
             page.close()

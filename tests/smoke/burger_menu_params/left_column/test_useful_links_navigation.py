@@ -3,9 +3,13 @@ Burger Menu Left Column - Useful Links Navigation - Multi-Domain Parameterized T
 
 Параметризованные тесты раздела 'Полезные ссылки' левой колонки бургер-меню.
 Использует custom селектор как в baseline для точного клика.
+Поддерживает headless режим с allow-session параметром для обхода защиты от ботов.
 """
 
 import pytest
+import re
+import requests
+from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 
@@ -42,7 +46,7 @@ class TestUsefulLinksNavigationParams:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto(base_url, wait_until="domcontentloaded")
+            page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
             page.wait_for_timeout(2000)
 
             burger_menu.open_menu()
@@ -50,9 +54,16 @@ class TestUsefulLinksNavigationParams:
             # Используем custom селектор из baseline как в smoke version
             page.locator("a.menu_item_link[href*='poleznye-ssylki-219924']").first.click()
 
-            # URL assertion с ID comparison (рабочий для всех доменов)
-            assert "poleznye-ssylki-219924" in page.url, \
-                f"URL не содержит ожидаемый ID 219924 для домена {domain_name}: {page.url}"
+            # URL assertion с regex pattern для надежности
+            current_url = page.url
+
+            # Check HTTP status code
+            response = requests.get(current_url, allow_redirects=False)
+            assert response.status_code == 200, f"HTTP {response.status_code} for URL: {current_url}"
+
+            # Check URL pattern with regex (ignores query parameters)
+            assert re.search(r'poleznye-ssylki-219924', current_url), \
+                f"URL не содержит паттерн полезных ссылок poleznye-ssylki-219924: {current_url}"
 
         finally:
             page.close()

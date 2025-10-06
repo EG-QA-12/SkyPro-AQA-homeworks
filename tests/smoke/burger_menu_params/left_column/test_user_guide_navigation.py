@@ -1,7 +1,12 @@
 """
 Burger Menu Left Column - User Guide Navigation - Multi-Domain Parameterized Tests.
+
+Поддерживает headless режим с allow-session параметром для обхода защиты от ботов.
 """
 import pytest
+import re
+import requests
+from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 @pytest.mark.smoke
@@ -29,7 +34,7 @@ class TestUserGuideNavigationParams:
         page = context.new_page()
         burger_menu = BurgerMenuPage(page)
         try:
-            page.goto(base_url, wait_until="domcontentloaded")
+            page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
             page.wait_for_timeout(2000)  # Allow SSO redirects
 
             burger_menu.open_menu()
@@ -37,8 +42,14 @@ class TestUserGuideNavigationParams:
 
             # URL contains user guide ID for all domains
             current_url = page.url
-            assert burger_menu.compare_docs_url_with_id(current_url, "436351"), \
-                f"URL не содержит ожидаемый ID руководства пользователя 436351: {current_url}"
+
+            # Check HTTP status code
+            response = requests.get(current_url, allow_redirects=False)
+            assert response.status_code == 200, f"HTTP {response.status_code} for URL: {current_url}"
+
+            # Check URL pattern with regex (ignores query parameters)
+            assert re.search(r'rukovodstvo-polzovatelya-436351', current_url), \
+                f"URL не содержит паттерн руководства пользователя rukovodstvo-polzovatelya-436351: {current_url}"
         finally:
             page.close()
             context.close()

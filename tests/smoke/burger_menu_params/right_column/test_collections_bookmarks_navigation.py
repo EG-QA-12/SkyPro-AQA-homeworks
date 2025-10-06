@@ -2,9 +2,13 @@
 Burger Menu Right Column - Collections & Bookmarks Navigation - Multi-Domain Parameterized Tests.
 
 Параметризованные тесты раздела 'Подборки и закладки' правой колонки бургер-меню.
+Поддерживает headless режим с allow-session параметром для обхода защиты от ботов.
 """
 
 import pytest
+import re
+import requests
+from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 
@@ -34,9 +38,16 @@ class TestCollectionsBookmarksNavigationParams:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto(base_url, wait_until="domcontentloaded")
+            page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
             page.wait_for_timeout(2000)
             burger_menu.open_menu()
+
+            # Check HTTP status code for current page after navigation
+            current_url = page.url
+            response = requests.get(current_url, allow_redirects=False)
+            assert response.status_code == 200, f"HTTP {response.status_code} for URL: {current_url}"
+
+            # Collections and bookmarks - menu must be accessible
             assert burger_menu.is_menu_open(), f"Burger menu failed to open on {domain_name}"
         finally:
             page.close()

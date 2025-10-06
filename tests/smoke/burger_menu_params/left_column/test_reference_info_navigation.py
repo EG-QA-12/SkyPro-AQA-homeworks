@@ -2,10 +2,14 @@
 Burger Menu Left Column - Reference Info Navigation - Multi-Domain Parameterized Tests.
 
 Параметризованные тесты раздела 'Справочная информация' левой колонки бургер-меню.
-Использует smart URL comparison с ID как в baseline.
+Использует regex pattern с ID для надежности.
+Поддерживает headless режим с allow-session параметром для обхода защиты от ботов.
 """
 
 import pytest
+import re
+import requests
+from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 
@@ -43,7 +47,7 @@ class TestReferenceInfoNavigationParams:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto(base_url, wait_until="domcontentloaded")
+            page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
             page.wait_for_timeout(2000)
 
             burger_menu.open_menu()
@@ -51,10 +55,16 @@ class TestReferenceInfoNavigationParams:
             # Текст клик как в baseline
             burger_menu.click_link_by_text("Справочная информация")
 
-            # Умная проверка URL как в baseline - сравнение по ID
+            # Умная проверка URL - regex pattern для надежности
             current_url = page.url
-            assert burger_menu.compare_docs_url_with_id(current_url, "200083"), \
-                f"URL не содержит ожидаемый ID 200083 для домена {domain_name}: {current_url}"
+
+            # Check HTTP status code
+            response = requests.get(current_url, allow_redirects=False)
+            assert response.status_code == 200, f"HTTP {response.status_code} for URL: {current_url}"
+
+            # Check URL pattern with regex (ignores query parameters)
+            assert re.search(r'spravochnaya-informatsiya-200083', current_url), \
+                f"URL не содержит паттерн справочной информации spravochnaya-informatsiya-200083: {current_url}"
 
         finally:
             page.close()

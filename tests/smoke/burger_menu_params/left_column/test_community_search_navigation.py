@@ -4,6 +4,8 @@ Burger Menu Cross-Domain Navigation - Community Search - Expert Domain.
 Поддерживает headless режим с allow-session параметром для обхода защиты от ботов.
 """
 import pytest
+import re
+import requests
 from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
@@ -40,7 +42,14 @@ class TestCommunitySearchNavigationParams:
 
             # Cross-domain navigation to expert platform
             current_url = page.url
-            assert "expert.bll.by" in current_url, f"URL должен содержать expert.bll.by: {current_url}"
+
+            # Check HTTP status code
+            response = requests.get(current_url, allow_redirects=False)
+            assert response.status_code == 200, f"HTTP {response.status_code} for URL: {current_url}"
+
+            # Check URL pattern with regex (ignores query parameters)
+            assert re.search(r'expert\.bll\.by', current_url), \
+                f"URL не содержит паттерн домена expert.bll.by: {current_url}"
         finally:
             page.close()
             context.close()
