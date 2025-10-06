@@ -79,40 +79,49 @@ class SmartAuthManager:
             logger.error(f"Ошибка при проверке куки: {e}")
             return False
     
-    def get_valid_session_cookie(self, role: str = "admin") -> Optional[str]:
+    def get_valid_session_cookie(self, role: str = "admin") -> Optional[Dict]:
         """
-        Получает валидную сессионную куку
-        
+        Получает валидную сессионную куку с полной информацией
+
         Сначала проверяет существующую куку, если она невалидна -
-        выполняет авторизацию.
-        
+        выполняет авторизацию. Возвращает полную информацию о куке
+        включая domain и sameSite параметры.
+
         Args:
             role: Роль пользователя (admin, user)
-            
+
         Returns:
-            Optional[str]: Валидная сессионная кука или None
+            Optional[Dict]: Полная информация о куке или None
         """
         # Шаг 1: Пытаемся получить существующую куку
         try:
             existing_cookies = get_auth_cookies(role=role)
             session_cookie = next(
-                (cookie for cookie in existing_cookies if cookie['name'] == "test_joint_session"), 
+                (cookie for cookie in existing_cookies
+                 if cookie['name'] == "test_joint_session"),
                 None
             )
-            
+
             if session_cookie:
                 # Шаг 2: Проверяем валидность куки
                 if self.check_cookie_validity(session_cookie["value"]):
                     logger.info("Используем существующую валидную куку")
-                    return session_cookie["value"]
+                    # Возвращаем полную информацию о куке
+                    return {
+                        "name": "test_joint_session",
+                        "value": session_cookie["value"],
+                        "domain": ".bll.by",
+                        "path": "/",
+                        "sameSite": "Lax"
+                    }
                 else:
                     logger.info("Существующая кука невалидна - требуется авторизация")
             else:
                 logger.info("Кука не найдена - требуется авторизация")
-                
+
         except Exception as e:
             logger.warning(f"Ошибка при получении существующей куки: {e}")
-        
+
         # Шаг 3: Выполняем авторизацию
         return self._perform_auth_and_get_cookie(role)
     
@@ -152,13 +161,21 @@ class SmartAuthManager:
             # Получаем куку после авторизации
             cookies = get_auth_cookies(role=role)
             session_cookie = next(
-                (cookie for cookie in cookies if cookie['name'] == "test_joint_session"), 
+                (cookie for cookie in cookies
+                 if cookie['name'] == "test_joint_session"),
                 None
             )
-            
+
             if session_cookie:
                 logger.info("Успешно получена новая кука")
-                return session_cookie["value"]
+                # Возвращаем полную информацию о куке
+                return {
+                    "name": "test_joint_session",
+                    "value": session_cookie["value"],
+                    "domain": ".bll.by",
+                    "path": "/",
+                    "sameSite": "Lax"
+                }
             else:
                 logger.error("Не удалось получить куку после авторизации")
                 return None
@@ -238,4 +255,4 @@ class SmartAuthManager:
                 "success": False,
                 "status_code": 0,
                 "message": str(e)
-            } 
+            }

@@ -1,20 +1,26 @@
 """
 Burger Menu Left Column - About Navigation - Multi-Domain Parameterized Tests.
 
-Поддерживает headless режим с allow-session параметром для обхода защиты от ботов.
+Поддерживает умную авторизацию с правильными параметрами куки.
+Использует SmartAuthManager для автоматической проверки и обновления сессии.
 """
 import pytest
 from framework.utils.url_utils import add_allow_session_param, is_headless
+from framework.utils.smart_auth_manager import SmartAuthManager
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
+
+@pytest.fixture
+def fx_auth_manager():
+    """Инициализация умного менеджера авторизации"""
+    return SmartAuthManager()
 
 @pytest.mark.smoke
 @pytest.mark.burger_menu_params
 @pytest.mark.left_column
 class TestAboutNavigationParams:
     @pytest.mark.parametrize('multi_domain_context',['bll', 'expert', 'bonus', 'ca', 'cp'], indirect=True, ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
-    def test_about_navigation(self, multi_domain_context, browser):
+    def test_about_navigation(self, multi_domain_context, browser, fx_auth_manager):
         domain_name, base_url = multi_domain_context
-        from framework.utils.auth_cookie_provider import get_auth_cookies
 
         # SSO-aware domain-specific browser settings
         context = browser.new_context(
@@ -28,9 +34,17 @@ class TestAboutNavigationParams:
         else:
             context.set_default_timeout(25000)
 
-        context.add_cookies(get_auth_cookies(role="admin"))
+        # Используем SmartAuthManager для умной авторизации
+        cookie_info = fx_auth_manager.get_valid_session_cookie(role="admin")
+        assert cookie_info, "Не удалось получить валидную куку через SmartAuthManager"
+
+        # Устанавливаем полную информацию о куке (name, value, domain, sameSite)
+        context.add_cookies([cookie_info])
+        print(f"Используем куку: {cookie_info}")  # Отладочная печать
+
         page = context.new_page()
         burger_menu = BurgerMenuPage(page)
+
         try:
             page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
             page.wait_for_timeout(2000)  # Allow SSO redirects
@@ -38,7 +52,19 @@ class TestAboutNavigationParams:
             burger_menu.open_menu()
             burger_menu.click_link_by_text("О Платформе")
 
-            # All domains redirect to bll.by about page (SSO-aware)
+            # Check the final URL (with redirects followed)
+            current_url = page.url
+            print(f"Текущий URL: {current_url}")  # Для отладки
+            import requests
+
+            # Allow redirects to follow final destination
+            response = requests.get(current_url, allow_redirects=True)
+            print(f"HTTP статус после редиректов: {response.status_code}")
+            print(f"финальный URL: {response.url}")
+
+            # Accept both 200 and 301 as valid responses
+            assert response.status_code in [200, 301, 302], f"HTTP {response.status_code} for URL: {current_url}"
+
             assert "about" in page.url.lower() and "bll.by" in page.url
         finally:
             page.close()
