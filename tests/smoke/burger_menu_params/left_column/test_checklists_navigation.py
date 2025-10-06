@@ -6,6 +6,9 @@ Burger Menu Left Column - Checklists Navigation - Multi-Domain Parameterized Tes
 """
 
 import pytest
+import re
+import requests
+from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 
@@ -40,17 +43,23 @@ class TestChecklistsNavigationParams:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto(base_url, wait_until="domcontentloaded")
+            page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
             page.wait_for_timeout(2000)
 
             burger_menu.open_menu()
 
             burger_menu.click_link_by_text("Чек-листы")
 
-            # URL assertion with ID comparison
+            # URL assertion with regex pattern (ignores query parameters)
             current_url = page.url
-            assert burger_menu.compare_docs_url_with_id(current_url, "487105"), \
-                f"URL не содержит ожидаемый ID 487105 для домена {domain_name}: {current_url}"
+
+            # Check HTTP status code
+            response = requests.get(current_url, allow_redirects=False)
+            assert response.status_code == 200, f"HTTP {response.status_code} for URL: {current_url}"
+
+            # Check URL pattern with regex
+            assert re.search(r'chek-list-dokumentov-487105', current_url), \
+                f"URL не содержит паттерн чек-листов chek-list-dokumentov-487105: {current_url}"
 
         finally:
             page.close()

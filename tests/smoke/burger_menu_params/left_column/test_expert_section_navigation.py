@@ -6,7 +6,10 @@ Supports multi-domain testing (5 domains).
 """
 import pytest
 import allure
+import re
+import requests
 from playwright.sync_api import expect
+from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.e2e.pages.burger_menu_page import BurgerMenuPage
 
 
@@ -42,8 +45,8 @@ class TestExpertSectionNavigation:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            # Navigate to domain
-            page.goto(f"{domain_url}/", wait_until="domcontentloaded")
+            # Navigate to domain with allow-session parameter
+            page.goto(add_allow_session_param(f"{domain_url}/", is_headless()), wait_until="domcontentloaded")
             page.wait_for_timeout(500)
 
             # Open burger menu with retry
@@ -67,7 +70,14 @@ class TestExpertSectionNavigation:
 
             # Verify navigation to expert section
             current_url = page.url
-            assert "expert.bll.by" in current_url, f"URL не содержит expert.bll.by: {current_url}"
+
+            # Additional HTTP status check for final URL
+            response = requests.get(current_url, allow_redirects=False)
+            assert response.status_code == 200, f"HTTP {response.status_code} for final URL: {current_url}"
+
+            # Check URL pattern with regex (ignores query parameters)
+            assert re.search(r'expert\.bll\.by', current_url), \
+                f"URL не содержит паттерн домена expert.bll.by: {current_url}"
 
         finally:
             page.close()

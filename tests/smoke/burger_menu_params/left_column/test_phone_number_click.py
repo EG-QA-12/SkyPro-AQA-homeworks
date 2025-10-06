@@ -1,7 +1,12 @@
 """
 Burger Menu Left Column - Phone Number Click - Multi-Domain Parameterized Tests.
+
+Поддерживает headless режим с allow-session параметром для обхода защиты от ботов.
 """
 import pytest
+import re
+import requests
+from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 @pytest.mark.smoke
@@ -29,7 +34,7 @@ class TestPhoneNumberClickParams:
         page = context.new_page()
         burger_menu = BurgerMenuPage(page)
         try:
-            page.goto(base_url, wait_until="domcontentloaded")
+            page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
             page.wait_for_timeout(2000)  # Allow SSO redirects
 
             burger_menu.open_menu()
@@ -41,6 +46,15 @@ class TestPhoneNumberClickParams:
             # Verify proper tel: href format
             phone_href = phone_link.get_attribute("href")
             assert phone_href and phone_href.startswith("tel:")
+
+            # Additional HTTP status check for current page
+            current_url = page.url
+            response = requests.get(current_url, allow_redirects=False)
+            assert response.status_code == 200, f"HTTP {response.status_code} for URL: {current_url}"
+
+            # Check URL pattern with regex (should contain bll.by)
+            assert re.search(r'bll\.by', current_url), \
+                f"URL не содержит паттерн домена bll.by: {current_url}"
         finally:
             page.close()
             context.close()

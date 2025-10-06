@@ -6,6 +6,9 @@ Burger Menu Left Column - Hot Topics Navigation - Multi-Domain Parameterized Tes
 """
 
 import pytest
+import re
+import requests
+from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 
@@ -42,7 +45,7 @@ class TestHotTopicsNavigationParams:
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto(base_url, wait_until="domcontentloaded")
+            page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
             page.wait_for_timeout(2000)
 
             burger_menu.open_menu()
@@ -51,8 +54,15 @@ class TestHotTopicsNavigationParams:
             page.locator("a.menu_item_link[href*='goryachie-temy-200085']").first.click()
 
             # URL assertion с ID comparison (рабочий для всех доменов)
-            assert "goryachie-temy-200085" in page.url, \
-                f"URL не содержит ожидаемый ID 200085 для домена {domain_name}: {page.url}"
+            current_url = page.url
+
+            # Check HTTP status code
+            response = requests.get(current_url, allow_redirects=False)
+            assert response.status_code == 200, f"HTTP {response.status_code} for URL: {current_url}"
+
+            # Check URL pattern with regex (ignores query parameters)
+            assert re.search(r'goryachie-temy-200085', current_url), \
+                f"URL не содержит паттерн горячих тем goryachie-temy-200085: {current_url}"
 
         finally:
             page.close()

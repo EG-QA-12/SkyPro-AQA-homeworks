@@ -1,7 +1,10 @@
 """
 Burger Menu Cross-Domain Navigation - Ask Question - Expert Domain.
+
+Поддерживает headless режим с allow-session параметром для обхода защиты от ботов.
 """
 import pytest
+from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 @pytest.mark.smoke
@@ -29,7 +32,7 @@ class TestAskQuestionNavigationParams:
         page = context.new_page()
         burger_menu = BurgerMenuPage(page)
         try:
-            page.goto(base_url, wait_until="domcontentloaded")
+            page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
             page.wait_for_timeout(2000)  # Allow SSO redirects
 
             burger_menu.open_menu()
