@@ -1,105 +1,51 @@
 """
-Enterprise test for Experts Club Navigation - Клуб экспертов.
-Tests navigation to experts club section: https://expert.bll.by/experts
+Burger Menu Left Column - Experts Club Navigation - Multi-Domain Parameterized Tests.
 
-Поддерживает умную авторизацию с SmartAuthManager для автоматической проверки сессии.
-Supports multi-domain testing (5 domains).
+Поддерживает умную авторизацию с правильными параметрами куки.
+Использует SmartAuthManager для автоматической проверки и обновления сессии.
 """
 import pytest
-import allure
 import re
-import requests
-from playwright.sync_api import expect
 from framework.utils.url_utils import add_allow_session_param, is_headless
-from framework.utils.smart_auth_manager import SmartAuthManager
-from tests.e2e.pages.burger_menu_page import BurgerMenuPage
-
-@pytest.fixture
-def fx_auth_manager():
-    """Инициализация умного менеджера авторизации"""
-    return SmartAuthManager()
+from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 
-class TestExpertsClubNavigation:
-    """Test Experts Club Navigation across multiple domains."""
+@pytest.mark.smoke
+@pytest.mark.burger_menu_params
+@pytest.mark.left_column
+class TestExpertsClubNavigationParams:
+    @pytest.mark.parametrize('multi_domain_context',['bll', 'expert', 'bonus', 'ca', 'cp'], indirect=True, ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
+    def test_experts_club_navigation(self, multi_domain_context, domain_aware_authenticated_context):
+        domain_name, base_url = multi_domain_context
 
-    DOMAINS = {
-        "bll.by": "https://bll.by",
-        "expert.bll.by": "https://expert.bll.by",
-        "demo.bll.by": "https://demo.bll.by",
-        "ca.bll.by": "https://ca.bll.by",
-        "business-info.by": "https://business-info.by"
-    }
-
-    @allure.epic("Burger Menu Navigation")
-    @allure.feature("Experts Club Navigation")
-    @allure.story("Navigate to Experts Club Section")
-    @allure.title("Навигация: Клуб экспертов на домене {domain_name}")
-    @allure.description("Проверка перехода в раздел Клуб экспертов на домене {domain_name}")
-    @allure.severity("normal")
-    @pytest.mark.smoke
-    @pytest.mark.burger_menu
-    @pytest.mark.navigation
-    @pytest.mark.parametrize("domain_name,domain_url", list(DOMAINS.items()))
-    def test_experts_club_navigation(self, browser, fx_auth_manager, domain_name, domain_url):
-        """
-        Test Experts Club Navigation for domain {domain_name}.
-
-        Tests navigation to "Клуб экспертов" section at expert.bll.by/experts.
-        May redirect through expert.bll.by depending on domain.
-        """
-        # SSO-aware browser settings for enterprise testing
-        context = browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            viewport={"width": 1920, "height": 1080},
-            ignore_https_errors=True
-        )
-
-        # Используем SmartAuthManager для умной авторизации
-        cookie_info = fx_auth_manager.get_valid_session_cookie(role="admin")
-        assert cookie_info, "Не удалось получить валидную куку через SmartAuthManager"
-
-        # Устанавливаем полную информацию о куке (name, value, domain, sameSite)
-        context.add_cookies([cookie_info])
-
+        # SSO-aware cross-domain navigation
+        context = domain_aware_authenticated_context
         page = context.new_page()
         burger_menu = BurgerMenuPage(page)
-
         try:
-            # Navigate to domain with allow-session parameter
-            page.goto(add_allow_session_param(f"{domain_url}/", is_headless()), wait_until="domcontentloaded")
-            page.wait_for_timeout(500)
+            page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
+            page.wait_for_timeout(2000)  # Allow SSO redirects
 
-            # Open burger menu with retry
-            max_retries = 3
-            for attempt in range(max_retries):
-                if burger_menu.open_menu():
-                    break
-                if attempt < max_retries - 1:
-                    page.wait_for_timeout(1000)
-                    page.reload()
-                else:
-                    pytest.fail("Не удалось открыть бургер-меню после нескольких попыток")
+            burger_menu.open_menu()
 
-            # Try to click experts club link
-            assert burger_menu.click_link_by_text("Клуб экспертов"), \
-                "Не удалось кликнуть по ссылке 'Клуб экспертов'"
+            # Use page.get_by_role for precise element selection - take first match
+            experts_link = page.get_by_role("banner").get_by_role("link", name="Клуб экспертов").first
+            experts_link.click()
 
             # Check the final URL (with redirects followed)
             current_url = page.url
             print(f"Текущий URL: {current_url}")  # Для отладки
 
+            # Cross-domain navigation to expert club page
+            assert "expert.bll.by" in current_url, f"URL должен содержать expert.bll.by: {current_url}"
+
             # Allow redirects to follow final destination
+            import requests
             response = requests.get(current_url, allow_redirects=True)
             print(f"HTTP статус после редиректов: {response.status_code}")
             print(f"финальный URL: {response.url}")
 
+            # Accept both 200 and 301 as valid responses
             assert response.status_code in [200, 301, 302], f"HTTP {response.status_code} for URL: {current_url}"
-
-            # Check URL pattern with regex (ignores query parameters)
-            assert re.search(r'expert\.bll\.by', current_url), \
-                f"URL не содержит паттерн домена expert.bll.by: {current_url}"
-
         finally:
             page.close()
-            context.close()

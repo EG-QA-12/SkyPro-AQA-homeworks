@@ -8,16 +8,9 @@ Supports multi-domain testing (5 domains).
 import pytest
 import allure
 import re
-import requests
 from playwright.sync_api import expect
 from framework.utils.url_utils import add_allow_session_param, is_headless
-from framework.utils.smart_auth_manager import SmartAuthManager
 from tests.e2e.pages.burger_menu_page import BurgerMenuPage
-
-@pytest.fixture
-def fx_auth_manager():
-    """Инициализация умного менеджера авторизации"""
-    return SmartAuthManager()
 
 
 class TestDocumentSearchNavigation:
@@ -62,13 +55,13 @@ class TestDocumentSearchNavigation:
         # Устанавливаем полную информацию о куке (name, value, domain, sameSite)
         context.add_cookies([cookie_info])
 
-        page = context.new_page()
+        page = domain_aware_authenticated_context.new_page()
         burger_menu = BurgerMenuPage(page)
 
         try:
             # Navigate to domain with allow-session parameter
             page.goto(add_allow_session_param(f"{domain_url}/", is_headless()), wait_until="domcontentloaded")
-            page.wait_for_timeout(500)
+            burger_menu.smart_wait_for_page_ready()
 
             # Open burger menu with retry
             max_retries = 3
@@ -101,8 +94,5 @@ class TestDocumentSearchNavigation:
                 f"URL не содержит паттерн docs с доменом bll.by: {current_url}"
 
             # Keep original Playwright assertion for backward compatibility
-            expect(page).to_have_url("https://bll.by/docs")
-
-        finally:
+            expect(page).to_have_url("https://bll.by/docs")        finally:
             page.close()
-            context.close()

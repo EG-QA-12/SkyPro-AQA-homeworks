@@ -5,22 +5,15 @@ Burger Menu Left Column - Buy Navigation - Multi-Domain Parameterized Tests.
 Использует SmartAuthManager для автоматической проверки и обновления сессии.
 """
 import pytest
-import requests
 from framework.utils.url_utils import add_allow_session_param, is_headless
-from framework.utils.smart_auth_manager import SmartAuthManager
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
-
-@pytest.fixture
-def fx_auth_manager():
-    """Инициализация умного менеджера авторизации"""
-    return SmartAuthManager()
 
 @pytest.mark.smoke
 @pytest.mark.burger_menu_params
 @pytest.mark.left_column
 class TestBuyNavigationParams:
     @pytest.mark.parametrize('multi_domain_context',['bll', 'expert', 'bonus', 'ca', 'cp'], indirect=True, ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
-    def test_buy_navigation(self, multi_domain_context, browser, fx_auth_manager):
+    def test_buy_navigation(self, multi_domain_context, domain_aware_authenticated_context):
         domain_name, base_url = multi_domain_context
 
         # SSO-aware domain-specific browser settings
@@ -42,7 +35,7 @@ class TestBuyNavigationParams:
         # Устанавливаем полную информацию о куке (name, value, domain, sameSite)
         context.add_cookies([cookie_info])
 
-        page = context.new_page()
+        page = domain_aware_authenticated_context.new_page()
         burger_menu = BurgerMenuPage(page)
         try:
             page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
@@ -64,7 +57,5 @@ class TestBuyNavigationParams:
             assert response.status_code in [200, 301, 302], f"HTTP {response.status_code} for URL: {current_url}"
 
             # All domains redirect to bll.by buy page (SSO-aware)
-            assert "buy" in page.url.lower() and "bll.by" in page.url
-        finally:
+            assert "buy" in page.url.lower() and "bll.by" in page.url        finally:
             page.close()
-            context.close()

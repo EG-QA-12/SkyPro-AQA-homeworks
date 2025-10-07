@@ -91,22 +91,23 @@ class SmartAuthManager:
             logger.error(f"Ошибка при проверке куки: {e}")
             return False
     
-    def get_valid_session_cookie(self, role: str = "admin") -> Optional[Dict]:
+    def get_valid_session_cookie(self, role: str = "admin", force_check: bool = False) -> Optional[Dict]:
         """
         Получает валидную сессионную куку с полной информацией
 
-        В GUI режиме просто возвращает куку из файла (без проверки валидности).
+        В GUI режиме проверяет валидность куки и при необходимости обновляет через API.
         В headless режиме проверяет валидность куки и выполняет авторизацию если нужно.
 
         Args:
             role: Роль пользователя (admin, user)
+            force_check: Принудительная проверка валидности куки даже в GUI режиме
 
         Returns:
             Optional[Dict]: Полная информация о куке или None
         """
-        # GUI режим: просто возвращаем куку из файла без проверок
-        if not self._is_headless():
-            logger.info("GUI режим: используем куку из файла без API проверки")
+        # GUI режим: проверяем валидность куки и обновляем при необходимости
+        if not self._is_headless() or force_check:
+            logger.info("GUI режим: проверяем валидность куки")
             try:
                 existing_cookies = get_auth_cookies(role=role)
                 session_cookie = next(
@@ -116,17 +117,23 @@ class SmartAuthManager:
                 )
 
                 if session_cookie:
-                    logger.info("Найдена кука в файле")
-                    return {
-                        "name": "test_joint_session",
-                        "value": session_cookie["value"],
-                        "domain": ".bll.by",
-                        "path": "/",
-                        "sameSite": "Lax"
-                    }
+                    # Проверяем валидность куки в GUI режиме
+                    if self.check_cookie_validity(session_cookie["value"]):
+                        logger.info("Кука валидна - используем существующую")
+                        return {
+                            "name": "test_joint_session",
+                            "value": session_cookie["value"],
+                            "domain": ".bll.by",
+                            "path": "/",
+                            "sameSite": "Lax"
+                        }
+                    else:
+                        logger.warning("Кука невалидна - выполняем авторизацию")
+                        # Кука невалидна, выполняем авторизацию
+                        return self._perform_auth_and_get_cookie(role)
                 else:
-                    logger.warning("Кука не найдена в файлах")
-                    return None
+                    logger.warning("Кука не найдена в файлах - выполняем авторизацию")
+                    return self._perform_auth_and_get_cookie(role)
 
             except Exception as e:
                 logger.error(f"Ошибка при чтении файла куки: {e}")

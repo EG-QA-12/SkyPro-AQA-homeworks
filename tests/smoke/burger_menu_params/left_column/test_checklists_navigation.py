@@ -7,15 +7,8 @@ Burger Menu Left Column - Checklists Navigation - Multi-Domain Parameterized Tes
 
 import pytest
 import re
-import requests
 from framework.utils.url_utils import add_allow_session_param, is_headless
-from framework.utils.smart_auth_manager import SmartAuthManager
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
-
-@pytest.fixture
-def fx_auth_manager():
-    """Инициализация умного менеджера авторизации"""
-    return SmartAuthManager()
 
 
 @pytest.mark.smoke
@@ -27,7 +20,7 @@ class TestChecklistsNavigationParams:
                            ['bll', 'expert', 'bonus', 'ca', 'cp'],
                            indirect=True,
                            ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
-    def test_checklists_navigation(self, multi_domain_context, browser, fx_auth_manager):
+    def test_checklists_navigation(self, multi_domain_context, domain_aware_authenticated_context):
         """
         Мульти-домен навигация к чек-листам - enterprise coverage.
 
@@ -55,7 +48,7 @@ class TestChecklistsNavigationParams:
         # Устанавливаем полную информацию о куке (name, value, domain, sameSite)
         context.add_cookies([cookie_info])
 
-        page = context.new_page()
+        page = domain_aware_authenticated_context.new_page()
         burger_menu = BurgerMenuPage(page)
 
         try:
@@ -80,8 +73,5 @@ class TestChecklistsNavigationParams:
 
             # Check URL pattern with regex
             assert re.search(r'chek-list-dokumentov-487105', current_url), \
-                f"URL не содержит паттерн чек-листов chek-list-dokumentov-487105: {current_url}"
-
-        finally:
+                f"URL не содержит паттерн чек-листов chek-list-dokumentov-487105: {current_url}"        finally:
             page.close()
-            context.close()

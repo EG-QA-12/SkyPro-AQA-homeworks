@@ -9,15 +9,8 @@ Burger Menu Left Column - Useful Links Navigation - Multi-Domain Parameterized T
 
 import pytest
 import re
-import requests
 from framework.utils.url_utils import add_allow_session_param, is_headless
-from framework.utils.smart_auth_manager import SmartAuthManager
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
-
-@pytest.fixture
-def fx_auth_manager():
-    """Инициализация умного менеджера авторизации"""
-    return SmartAuthManager()
 
 
 @pytest.mark.smoke
@@ -29,7 +22,7 @@ class TestUsefulLinksNavigationParams:
                            ['bll', 'expert', 'bonus', 'ca', 'cp'],
                            indirect=True,
                            ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
-    def test_useful_links_navigation(self, multi_domain_context, browser, fx_auth_manager):
+    def test_useful_links_navigation(self, multi_domain_context, domain_aware_authenticated_context):
         """
         Мульти-домен навигация к полезным ссылкам - enterprise coverage.
 
@@ -52,7 +45,7 @@ class TestUsefulLinksNavigationParams:
         # Устанавливаем полную информацию о куке (name, value, domain, sameSite)
         context.add_cookies([cookie_info])
 
-        page = context.new_page()
+        page = domain_aware_authenticated_context.new_page()
         burger_menu = BurgerMenuPage(page)
 
         try:
@@ -78,8 +71,5 @@ class TestUsefulLinksNavigationParams:
 
             # Check URL pattern with regex (ignores query parameters)
             assert re.search(r'poleznye-ssylki-219924', current_url), \
-                f"URL не содержит паттерн полезных ссылок poleznye-ssylki-219924: {current_url}"
-
-        finally:
+                f"URL не содержит паттерн полезных ссылок poleznye-ssylki-219924: {current_url}"        finally:
             page.close()
-            context.close()

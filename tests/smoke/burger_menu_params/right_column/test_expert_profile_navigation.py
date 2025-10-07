@@ -9,15 +9,8 @@ Burger Menu Right Column - Expert Profile Navigation - Multi-Domain Parameterize
 
 import pytest
 import re
-import requests
 from framework.utils.url_utils import add_allow_session_param, is_headless
-from framework.utils.smart_auth_manager import SmartAuthManager
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
-
-@pytest.fixture
-def fx_auth_manager():
-    """Инициализация умного менеджера авторизации"""
-    return SmartAuthManager()
 
 @pytest.mark.smoke
 @pytest.mark.burger_menu_params
@@ -28,7 +21,7 @@ class TestExpertProfileNavigationParams:
                            ['bll', 'expert', 'bonus', 'ca', 'cp'],
                            indirect=True,
                            ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
-    def test_expert_profile_navigation(self, multi_domain_context, browser, fx_auth_manager):
+    def test_expert_profile_navigation(self, multi_domain_context, domain_aware_authenticated_context):
         """
         Мульти-домен доступ к экспертному профилю - enterprise coverage.
 
@@ -50,7 +43,7 @@ class TestExpertProfileNavigationParams:
         # Устанавливаем полную информацию о куке (name, value, domain, sameSite)
         context.add_cookies([cookie_info])
 
-        page = context.new_page()
+        page = domain_aware_authenticated_context.new_page()
         burger_menu = BurgerMenuPage(page)
 
         try:
@@ -72,8 +65,5 @@ class TestExpertProfileNavigationParams:
             assert response.status_code in [200, 301, 302], f"HTTP {response.status_code} for URL: {current_url}"
 
             # Expert profile redirect to expert.bll.by/user/expert for most domains - menu must be accessible
-            assert burger_menu.is_menu_open(), f"Burger menu failed to open on {domain_name}"
-
-        finally:
+            assert burger_menu.is_menu_open(), f"Burger menu failed to open on {domain_name}"        finally:
             page.close()
-            context.close()

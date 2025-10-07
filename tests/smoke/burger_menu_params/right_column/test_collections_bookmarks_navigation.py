@@ -8,15 +8,8 @@ Burger Menu Right Column - Collections & Bookmarks Navigation - Multi-Domain Par
 
 import pytest
 import re
-import requests
 from framework.utils.url_utils import add_allow_session_param, is_headless
-from framework.utils.smart_auth_manager import SmartAuthManager
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
-
-@pytest.fixture
-def fx_auth_manager():
-    """Инициализация умного менеджера авторизации"""
-    return SmartAuthManager()
 
 @pytest.mark.smoke
 @pytest.mark.burger_menu_params
@@ -27,7 +20,7 @@ class TestCollectionsBookmarksNavigationParams:
                            ['bll', 'expert', 'bonus', 'ca', 'cp'],
                            indirect=True,
                            ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
-    def test_collections_bookmarks_navigation(self, multi_domain_context, browser, fx_auth_manager):
+    def test_collections_bookmarks_navigation(self, multi_domain_context, domain_aware_authenticated_context):
         """Мульти-домен коллекции и закладки - enterprise coverage."""
         domain_name, base_url = multi_domain_context
 
@@ -44,7 +37,7 @@ class TestCollectionsBookmarksNavigationParams:
         # Устанавливаем полную информацию о куке (name, value, domain, sameSite)
         context.add_cookies([cookie_info])
 
-        page = context.new_page()
+        page = domain_aware_authenticated_context.new_page()
         burger_menu = BurgerMenuPage(page)
 
         try:
@@ -65,7 +58,5 @@ class TestCollectionsBookmarksNavigationParams:
             assert response.status_code in [200, 301, 302], f"HTTP {response.status_code} for URL: {current_url}"
 
             # Collections and bookmarks - menu must be accessible
-            assert burger_menu.is_menu_open(), f"Burger menu failed to open on {domain_name}"
-        finally:
+            assert burger_menu.is_menu_open(), f"Burger menu failed to open on {domain_name}"        finally:
             page.close()
-            context.close()

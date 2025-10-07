@@ -7,15 +7,8 @@ Burger Menu Left Column - Hot Topics Navigation - Multi-Domain Parameterized Tes
 
 import pytest
 import re
-import requests
 from framework.utils.url_utils import add_allow_session_param, is_headless
-from framework.utils.smart_auth_manager import SmartAuthManager
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
-
-@pytest.fixture
-def fx_auth_manager():
-    """Инициализация умного менеджера авторизации"""
-    return SmartAuthManager()
 
 
 @pytest.mark.smoke
@@ -27,7 +20,7 @@ class TestHotTopicsNavigationParams:
                            ['bll', 'expert', 'bonus', 'ca', 'cp'],
                            indirect=True,
                            ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
-    def test_hot_topics_navigation(self, multi_domain_context, browser, fx_auth_manager):
+    def test_hot_topics_navigation(self, multi_domain_context, domain_aware_authenticated_context):
         """
         Мульти-домен навигация к горячим темам - enterprise coverage.
 
@@ -50,7 +43,7 @@ class TestHotTopicsNavigationParams:
         # Устанавливаем полную информацию о куке (name, value, domain, sameSite)
         context.add_cookies([cookie_info])
 
-        page = context.new_page()
+        page = domain_aware_authenticated_context.new_page()
         burger_menu = BurgerMenuPage(page)
 
         try:
@@ -76,8 +69,5 @@ class TestHotTopicsNavigationParams:
 
             # Check URL pattern with regex (ignores query parameters)
             assert re.search(r'goryachie-temy-200085', current_url), \
-                f"URL не содержит паттерн горячих тем goryachie-temy-200085: {current_url}"
-
-        finally:
+                f"URL не содержит паттерн горячих тем goryachie-temy-200085: {current_url}"        finally:
             page.close()
-            context.close()

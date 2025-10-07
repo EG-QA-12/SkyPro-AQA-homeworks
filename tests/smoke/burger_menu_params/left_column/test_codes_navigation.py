@@ -6,22 +6,15 @@ Burger Menu Left Column - Codes Navigation - Multi-Domain Parameterized Tests.
 """
 import pytest
 import re
-import requests
 from framework.utils.url_utils import add_allow_session_param, is_headless
-from framework.utils.smart_auth_manager import SmartAuthManager
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
-
-@pytest.fixture
-def fx_auth_manager():
-    """Инициализация умного менеджера авторизации"""
-    return SmartAuthManager()
 
 @pytest.mark.smoke
 @pytest.mark.burger_menu_params
 @pytest.mark.left_column
 class TestCodesNavigationParams:
     @pytest.mark.parametrize('multi_domain_context',['bll', 'expert', 'bonus', 'ca', 'cp'], indirect=True, ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
-    def test_codes_navigation(self, multi_domain_context, browser, fx_auth_manager):
+    def test_codes_navigation(self, multi_domain_context, domain_aware_authenticated_context):
         domain_name, base_url = multi_domain_context
 
         # Configure domain-specific browser settings for redirects
@@ -44,7 +37,7 @@ class TestCodesNavigationParams:
         # Устанавливаем полную информацию о куке (name, value, domain, sameSite)
         context.add_cookies([cookie_info])
 
-        page = context.new_page()
+        page = domain_aware_authenticated_context.new_page()
         burger_menu = BurgerMenuPage(page)
         try:
             page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
@@ -69,7 +62,5 @@ class TestCodesNavigationParams:
 
             # Check URL pattern with regex (ignores query parameters)
             assert re.search(r'kodeksy|codes', current_url), \
-                f"URL не содержит паттерн kodeksy или codes: {current_url}"
-        finally:
+                f"URL не содержит паттерн kodeksy или codes: {current_url}"        finally:
             page.close()
-            context.close()

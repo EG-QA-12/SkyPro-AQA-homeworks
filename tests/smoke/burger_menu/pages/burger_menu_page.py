@@ -125,10 +125,13 @@ class BurgerMenuPage:
                     self.logger.warning("Ни одна кнопка меню не видима")
 
                     # Последняя проверка - может меню открывается автоматически
-                    self.page.wait_for_timeout(1000)  # Ждем еще секунду
-                    if self.is_menu_open(timeout=2000):
-                        self.logger.info("Меню открылось автоматически после ожидания")
+                    # Умное ожидание вместо жесткого таймаута
+                    try:
+                        self.page.wait_for_selector(self.menu_item_selector, timeout=2000)
+                        self.logger.info("Меню открылось автоматически после умного ожидания")
                         return True
+                    except PlaywrightTimeoutError:
+                        pass
 
                     return False
 
@@ -739,4 +742,39 @@ class BurgerMenuPage:
             
         except Exception as e:
             self.logger.error(f"Ошибка при проверке структуры меню: {e}")
+    @allure.step("Умное ожидание готовности страницы")
+    def smart_wait_for_page_ready(self, timeout: int = 5000) -> bool:
+        """
+        Умное ожидание готовности страницы вместо жесткого wait_for_timeout(500).
+
+        Ждет загрузки DOM и network idle состояния.
+
+        Args:
+            timeout: Максимальное время ожидания в миллисекундах
+
+        Returns:
+            bool: True если страница готова
+        """
+        try:
+            self.logger.info("Умное ожидание готовности страницы")
+
+            # Ждем загрузки DOM
+            self.page.wait_for_load_state("domcontentloaded", timeout=timeout//2)
+
+            # Ждем завершения сетевых запросов (но не дольше половины таймаута)
+            try:
+                self.page.wait_for_load_state("networkidle", timeout=timeout//2)
+            except PlaywrightTimeoutError:
+                # Networkidle может не наступить, это нормально
+                self.logger.info("Network idle не наступил, но DOM загружен")
+
+            self.logger.info("Страница готова к взаимодействию")
+            return True
+
+        except PlaywrightTimeoutError:
+            self.logger.error(f"Страница не загрузилась за {timeout}мс")
+            return False
+        except Exception as e:
+            self.logger.error(f"Ошибка при ожидании готовности страницы: {e}")
+            return False
             return result
