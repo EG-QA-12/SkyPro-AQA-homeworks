@@ -83,6 +83,40 @@ admin_cookie = manager.get_session_cookie("admin")
 admin_cookie = get_session_cookie("admin")
 ```
 
+### SmartAuthManager для Playwright тестов
+```python
+from framework.utils.smart_auth_manager import SmartAuthManager
+
+# Инициализация умного менеджера авторизации
+auth_manager = SmartAuthManager()
+
+# Получение валидной куки с автоматической проверкой и обновлением
+session_cookie = auth_manager.get_valid_session_cookie(role="admin")
+
+# Использование в Playwright контексте
+context.add_cookies([session_cookie])
+```
+
+### Домен-зависимая авторизация в Playwright тестах
+```python
+# В conftest.py для multi-domain тестирования
+@pytest.fixture
+def domain_aware_authenticated_context(browser, multi_domain_context):
+    domain_name, base_url = multi_domain_context
+
+    context = browser.new_context(...)
+    # Авторизация для ВСЕХ доменов (bll, expert, bonus, ca, cp)
+    auth_manager = SmartAuthManager()
+    session_cookie = auth_manager.get_valid_session_cookie(role="admin")
+
+    if session_cookie:
+        context.add_cookies([session_cookie])
+        print(f"✅ Авторизация для домена {domain_name} выполнена")
+
+    yield context
+    context.close()
+```
+
 ### Использование в тестах
 ```python
 import pytest
@@ -179,7 +213,7 @@ else:
 
 ## 🎯 ЛУЧШИЕ ПРАКТИКИ
 
-### 1. Использование в тестах
+### 1. Использование в API тестах
 ```python
 # ✅ Хорошо - использование базовых классов
 from framework.test_bases.api_test_base import APITestBase
@@ -198,6 +232,44 @@ def test_create_question():
     session = requests.Session()
     session.cookies.set("test_joint_session", cookie)
     # ... остальной код
+```
+
+### 2. Использование в Playwright тестах
+```python
+# ✅ Хорошо - использование SmartAuthManager для GUI тестов
+from framework.utils.smart_auth_manager import SmartAuthManager
+
+@pytest.fixture
+def authenticated_context(browser):
+    context = browser.new_context(...)
+    auth_manager = SmartAuthManager()
+    session_cookie = auth_manager.get_valid_session_cookie(role="admin")
+    if session_cookie:
+        context.add_cookies([session_cookie])
+    yield context
+    context.close()
+
+# ✅ Хорошо - домен-зависимая авторизация для multi-domain тестов
+@pytest.fixture
+def domain_aware_authenticated_context(browser, multi_domain_context):
+    domain_name, base_url = multi_domain_context
+    context = browser.new_context(...)
+    # Авторизация для ВСЕХ доменов
+    auth_manager = SmartAuthManager()
+    session_cookie = auth_manager.get_valid_session_cookie(role="admin")
+    if session_cookie:
+        context.add_cookies([session_cookie])
+    yield context
+    context.close()
+
+# ❌ Плохо - статическая авторизация без проверки валидности
+@pytest.fixture
+def authenticated_context(browser):
+    context = browser.new_context(...)
+    # Статическая кука без проверки срока действия
+    context.add_cookies([{"name": "session", "value": "old_cookie", ...}])
+    yield context
+    context.close()
 ```
 
 ### 2. Настройка окружения
@@ -263,6 +335,31 @@ ERROR: API-логин для роли 'admin' не удался
 3. Проверьте сетевое соединение
 4. Обратитесь к администратору системы
 
+### Проблема 4: "Бургер-меню не отображается в Playwright тестах"
+**Симптомы:**
+```
+WARNING: Ни одна кнопка меню не видима
+TimeoutError: Locator.click: Timeout 30000ms exceeded
+```
+
+**Причина:**
+Некорректная домен-зависимая авторизация - авторизация работала только на bll/expert доменах, но не на bonus/ca/cp.
+
+**Решение:**
+```python
+# В conftest.py - авторизация для ВСЕХ доменов
+auth_manager = SmartAuthManager()
+session_cookie = auth_manager.get_valid_session_cookie(role="admin")
+if session_cookie:
+    context.add_cookies([session_cookie])
+# Убрать условие if domain_name in ['bll', 'expert']
+```
+
+**Результат:**
+- Все 5 доменов (bll, expert, bonus, ca, cp) теперь авторизованы
+- Бургер-меню отображается корректно на всех доменах
+- Тесты проходят на всех доменах
+
 ## 📊 МОНИТОРИНГ И ДИАГНОСТИКА
 
 ### Логирование
@@ -307,6 +404,7 @@ manager = AuthManager(cache_timeout=300)  # 5 минут
 - [Написание тестов](../TESTING/WRITING_TESTS.md) - как использовать авторизацию в тестах
 - [API справочник](../REFERENCES/API_REFERENCE.md) - полное описание клиентов
 - [Лучшие практики](../TESTING/BEST_PRACTICES.md) - советы по эффективному использованию
+- [Burger Menu Params](../TESTING/burger_menu_params.md) - тестирование бургер-меню на всех доменах
 
 ### Примеры использования
 - [Примеры тестов авторизации](../REFERENCES/EXAMPLES.md#auth-tests)
