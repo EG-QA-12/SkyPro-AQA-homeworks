@@ -4,6 +4,7 @@
 Предоставляет общие методы для всех типов навигации на главной странице bll.by
 """
 
+import pytest
 from typing import Optional
 from framework.app.pages.base_page import BasePage
 
@@ -132,3 +133,62 @@ class BaseNavigationPage(BasePage):
         except Exception as e:
             print(f"❌ Ошибка клика и проверки для '{locator_desc}': {e}")
             return False
+
+    def assert_navigation_with_status(self, page, click_method, expected_url_fragment=None,
+                                     target_url_for_status="https://bll.by",
+                                     status_description="Навигация") -> bool:
+        """
+        Улучшенный паттерн: совмещает клик + URL проверку + HTTP статус
+
+        Args:
+            page: playwright page object
+            click_method: callable метод для выполнения клика
+            expected_url_fragment: ожидаемый фрагмент в URL после клика
+            target_url_for_status: URL для проверки HTTP статуса
+            status_description: описание действия для отчетов
+
+        Returns:
+            bool: True если все проверки успешны
+        """
+        import requests
+
+        try:
+            # 1. Выполняем клик
+            click_result = click_method()
+
+            # 2. Проверяем URL если нужен
+            url_check = True
+            if expected_url_fragment:
+                url_check = expected_url_fragment.lower() in page.url.lower()
+                if not url_check:
+                    print(f"❌ URL после клика не содержит '{expected_url_fragment}': {page.url}")
+
+            # 3. Проверяем HTTP статус целевой страницы
+            try:
+                response = requests.get(target_url_for_status, allow_redirects=True, timeout=30,
+                                      headers={'User-Agent': 'Mozilla/5.0'})
+                status_ok = response.status_code in [200, 301, 302]
+                status_code = response.status_code
+            except Exception as e:
+                print(f"❌ Ошибка HTTP проверки {target_url_for_status}: {e}")
+                status_ok = False
+                status_code = None
+
+            # 4. Разбираем результаты
+            all_checks = [click_result, url_check, status_ok]
+
+            if all(all_checks):
+                print(f"✅ {status_description}: все проверки успешны")
+                if status_code:
+                    print(f"   HTTP {status_code} для {target_url_for_status}")
+                return True
+            else:
+                failed_items = []
+                if not click_result: failed_items.append("клик")
+                if not url_check: failed_items.append(f"URL (ожидали '{expected_url_fragment}')")
+                if not status_ok: failed_items.append(f"HTTP статус {target_url_for_status}")
+
+                pytest.fail(f"{status_description}: провалены проверки - {', '.join(failed_items)}")
+
+        except Exception as e:
+            pytest.fail(f"{status_description}: неожиданная ошибка - {e}")

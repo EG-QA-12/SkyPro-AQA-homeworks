@@ -64,6 +64,10 @@ class TestHeaderNavigation:
         with allure.step("Проверяем что ссылка ведет на tel:"):
             assert result, "Телефон не ведет на tel: ссылку"
 
+        with allure.step("Проверяем HTTP статус главной страницы"):
+            status = self.navigation.assert_http_status("https://bll.by")
+            assert status in [200, 301, 302], f"Неверный HTTP статус главной страницы: {status}"
+
     @allure.title("Навигация 'О платформе'")
     @allure.description("Проверка перехода на страницу информации о платформе")
     def test_platform_info_navigation(self):

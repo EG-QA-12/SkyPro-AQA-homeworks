@@ -18,9 +18,17 @@ class HeaderNavigationPage(BaseNavigationPage):
     def click_logo_business_info(self):
         """Кликом по логотипу Бизнес-Инфо (должен остаться на главной)"""
         try:
-            # Выбираем первый (десктопный) логотип из нескольких найденных
-            logo_img = self.page.locator("img[alt='Бизнес-Инфо']").first
-            logo_img.click()
+            # Альтернативный подход: ищем контейнер логотипа
+            logo_selector = "header a[href*='bll.by']"  # Ссылка содержащая bll.by
+            logo_link = self.page.locator(logo_selector).first
+
+            # Если нашли ссылку - кликаем по ней
+            if logo_link.is_visible():
+                logo_link.click()
+            else:
+                # Fallback на картинку
+                logo_img = self.page.locator("img[alt*='Бизнес-Инфо']").first
+                logo_img.click()
 
             # Логотип должен вести на главную страницу
             current_url = self.page.url
@@ -35,11 +43,14 @@ class HeaderNavigationPage(BaseNavigationPage):
         """Клик по телефону (должен открыть tel: ссылку)"""
         try:
             # Ищем ссылку телефона в header
-            phone_link = self.page.get_by_role("banner").get_by_role("link", name="+375 17 388-32-")
+            phone_link = self.page.get_by_role("banner").get_by_role(
+                "link", name="+375 17 388-32-")
 
             # Проверяем что ссылка существует и содержит правильный href
             phone_href = phone_link.get_attribute("href")
-            if phone_href and phone_href.startswith("tel:"):
+            required_phone_digits = "+375173883252"  # Номер без пробелов для точного сравнения
+
+            if phone_href and phone_href.startswith("tel:") and required_phone_digits in phone_href.replace("tel:", ""):
                 print(f"✅ Телефонная ссылка найдена с href: {phone_href}")
 
                 # Кликам по ссылке (в GUI она откроет приложение телефона)
@@ -50,6 +61,7 @@ class HeaderNavigationPage(BaseNavigationPage):
                 return True
             else:
                 print(f"❌ Телефонная ссылка не найдена или неправильный href: {phone_href}")
+                print(f"   Ожидали наличие номера телефона: {required_phone_digits}")
                 return False
 
         except Exception as e:
@@ -122,3 +134,20 @@ class HeaderNavigationPage(BaseNavigationPage):
         except Exception as e:
             print(f"❌ Ошибка проверки popup профиля: {e}")
             return False
+
+    def get_logo_link_href(self) -> str:
+        """Получить href ссылки логотипа для проверки HTTP статуса"""
+        try:
+            logo_link = self.page.get_by_role("link", name="Бизнес-Инфо")
+            return logo_link.get_attribute("href") or ""
+        except Exception:
+            return ""
+
+    def get_phone_link_href(self) -> str:
+        """Получить href ссылки телефона для проверки HTTP статуса"""
+        try:
+            phone_link = self.page.get_by_role("banner").get_by_role(
+                "link", name="+375 17 388-32-")
+            return phone_link.get_attribute("href") or ""
+        except Exception:
+            return ""
