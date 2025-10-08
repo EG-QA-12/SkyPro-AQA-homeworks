@@ -99,27 +99,27 @@ class TestHeaderNavigation:
             assert status in [200, 301, 302], f"Неверный HTTP статус страницы экспертов: {status}"
 
     @allure.title("Навигация 'Бонусы'")
-    @allure.description("Проверка перехода на страницу бонусов с учетом SSO")
+    @allure.description("Проверка перехода на страницу бонусов с robust fallback логиками")
     def test_bonuses_navigation(self):
-        """Тест клика по 'Бонусы'"""
-        allure.attach("Тестируется переход на bonus.bll.by с учетом SSO логина", name="Описание")
+        """Тест клика по 'Бонусы' с множественными fallback"""
+        allure.attach("Тестируется переход на bonus.bll.by с умными fallback логиками для headless стабильности", name="Описание")
 
-        result = self.navigation.click_bonuses()
+        result = self.navigation.click_bonuses_robust()
 
-        with allure.step("Проверяем переход на бонусы или SSO редирект"):
-            assert result, "Не удалось перейти на страницу бонусов"
+        with allure.step("Проверяем переход на бонусы через любой из fallback способов"):
+            assert result, "Не удалось перейти на страницу бонусов ни одним из способов"
 
         with allure.step("Проверяем HTTP статус финальной страницы"):
             status = self.navigation.assert_http_status(self.page.url)
             assert status in [200, 301, 302], f"Неверный HTTP статус страницы бонусов: {status}"
 
     @allure.title("Popup профиля пользователя")
-    @allure.description("Проверка появления popup профиля с ссылкой на админку")
+    @allure.description("Проверка появления popup профиля с ссылкой на админку - robust версия")
     def test_my_profile_popup(self):
-        """Тест клика по профилю с popup"""
-        allure.attach("Тестируется popup профиля с ссылкой на админку", name="Описание")
+        """Тест клика по профилю с popup и множественными fallback"""
+        allure.attach("Тестируется popup профиля с ссылкой на админку с умными fallback селекторами", name="Описание")
 
-        result = self.navigation.click_my_profile()
+        result = self.navigation.click_my_profile_robust()
 
-        with allure.step("Проверяем появление popup с админкой"):
-            assert result, "Popup профиля с админкой не появился"
+        with allure.step("Проверяем появление popup с админкой через какой-либо из working селекторов"):
+            assert result, "Popup профиля с админкой не появился ни с одним из селекторов"
