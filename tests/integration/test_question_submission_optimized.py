@@ -236,11 +236,21 @@ def test_send_question_with_smart_auth(
 
 # ====== НОВЫЙ ТЕСТ ДЛЯ МАССОВОЙ ОТПРАВКИ ВОПРОСОВ ======
 
-@allure.title("Массовая отправка 30 вопросов с умной авторизацией")
-@allure.description("Создание 30 новых тестовых вопросов в панели модерации")
+def get_bulk_questions_count() -> int:
+    """Получить количество вопросов для массовой отправки из переменной окружения."""
+    default_count = 30
+    try:
+        count = int(os.getenv("NUM_BULK_QUESTIONS", str(default_count)))
+        return max(1, min(count, 50))  # ограничим от 1 до 50 вопросов
+    except (ValueError, TypeError):
+        return default_count
+
+
+@allure.title("Массовая отправка вопросов с умной авторизацией")
+@allure.description("Создание новых тестовых вопросов в панели модерации")
 @allure.feature("API тестирование")
 @pytest.mark.api
-@pytest.mark.parametrize("question_num", list(range(1, 31)))
+@pytest.mark.parametrize("question_num", list(range(1, get_bulk_questions_count() + 1)))
 def test_bulk_questions_submission(
     fx_auth_manager: SmartAuthManager,
     fx_panel_parser: ModerationPanelParser,
