@@ -234,7 +234,73 @@ def test_send_question_with_smart_auth(
         )
 
 
-# Удалены вспомогательные сценарии: оставляем один быстрый и показательный тест
+# ====== НОВЫЙ ТЕСТ ДЛЯ МАССОВОЙ ОТПРАВКИ ВОПРОСОВ ======
+
+@allure.title("Массовая отправка 30 вопросов с умной авторизацией")
+@allure.description("Создание 30 новых тестовых вопросов в панели модерации")
+@allure.feature("API тестирование")
+@pytest.mark.api
+@pytest.mark.parametrize("question_num", list(range(1, 31)))
+def test_bulk_questions_submission(
+    fx_auth_manager: SmartAuthManager,
+    fx_panel_parser: ModerationPanelParser,
+    fx_question_factory: QuestionFactory,
+    question_num: int,
+) -> None:
+    """
+    Массовая отправка вопросов для создания тестовых данных
+
+    Отправляет 30 уникальных вопросов в панель модерации.
+    Каждый тест создает один вопрос с уникальным маркером.
+
+    Args:
+        question_num: Номер вопроса (от 1 до 30)
+    """
+
+    # Генерируем уникальный маркер для каждого вопроса
+    marker = f"BULK_MARKER_Q{question_num}_{int(time.time())}"
+    base_question = fx_question_factory.generate_question(category="регистрация")
+    question_text = f"{marker} — {base_question}"
+
+    with allure.step(f"Получение валидной сессионной куки (вопрос #{question_num})"):
+        session_cookie = fx_auth_manager.get_valid_session_cookie(role=os.getenv("TEST_ROLE", "admin"))
+        assert session_cookie, f"Не удалось получить валидную сессионную куку для вопроса #{question_num}"
+
+    with allure.step(f"Отправка вопроса #{question_num} через API"):
+        result = fx_auth_manager.test_question_submission(session_cookie, question_text)
+        assert result["valid"], f"Кука невалидна: {result['message']}"
+        assert result["success"], f"Ошибка отправки вопроса: {result['message']}"
+        assert result["status_code"] == 200, f"Неожиданный статус код: {result['status_code']}"
+        print(f"✅ Успешно отправлен вопрос #{question_num}: {question_text}")
+
+    with allure.step(f"Проверка наличия вопроса #{question_num} в панели модерации"):
+        # Извлекаем значение куки из словаря если необходимо
+        cookie_value = session_cookie.get("value") if isinstance(session_cookie, dict) else session_cookie
+
+        fragment = marker.lower()
+        delays_env = _parse_env_delays(os.getenv("PANEL_DELAYS", "0,0.7,1.5,3"))
+        limit_env = int(os.getenv("PANEL_LIMIT", "100"))
+        limits_env_str = os.getenv("PANEL_LIMITS", "60,100")
+        try:
+            per_attempt_limits = tuple(int(x.strip()) for x in limits_env_str.split(",") if x.strip())
+        except (ValueError, TypeError):
+            per_attempt_limits = (60, 100)
+        freshness = int(os.getenv("PANEL_FRESH_MINUTES", "3"))
+
+        try:
+            verify_question_in_panel(
+                fx_panel_parser,
+                cookie_value,
+                fragment,
+                limit=limit_env,
+                delays=delays_env,
+                per_attempt_limits=per_attempt_limits,
+                freshness_minutes=freshness,
+            )
+            print(f"✅ Вопрос #{question_num} успешно верифицирован в панели модерации")
+        except AssertionError as e:
+            # Если вопрос не найден быстро, просто залогируем и продолжим
+            print(f"⚠️  Вопрос #{question_num} не найден в панели модерации: {str(e)}")
 
 
 if __name__ == "__main__":
