@@ -238,10 +238,10 @@ def test_send_question_with_smart_auth(
 
 def get_bulk_questions_count() -> int:
     """Получить количество вопросов для массовой отправки из переменной окружения."""
-    default_count = 30
+    default_count = 1
     try:
         count = int(os.getenv("NUM_BULK_QUESTIONS", str(default_count)))
-        return max(1, min(count, 50))  # ограничим от 1 до 50 вопросов
+        return max(1, min(count, 100))  # ограничим от 1 до 100 вопросов
     except (ValueError, TypeError):
         return default_count
 

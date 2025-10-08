@@ -26,20 +26,30 @@ pytest tests/integration/ -v
 Этот тест предназначен для имитации отправки вопросов через API. Он поддерживает параметризацию для отправки нескольких вопросов.
 
 ### Параметры запуска
-Количество отправляемых вопросов контролируется переменной окружения `NUM_QUESTIONS`.
+Количество отправляемых вопросов контролируется переменной окружения `NUM_BULK_QUESTIONS`.
 
 *   **Отправить 1 вопрос (по умолчанию):**
     ```bash
-    python -m pytest tests/integration/test_question_submission_optimized.py -v -s
+    python -m pytest tests/integration/test_question_submission_optimized.py::test_bulk_questions_submission -v -s
     ```
 
-*   **Отправить N вопросов (например, 5):**
+*   **Отправить 10 вопросов:**
     ```bash
-    NUM_QUESTIONS=5 python -m pytest tests/integration/test_question_submission_optimized.py -v -s
+    $env:NUM_BULK_QUESTIONS = "10"; python -m pytest tests/integration/test_question_submission_optimized.py::test_bulk_questions_submission -v -s
+    ```
+
+*   **Отправить 50 вопросов:**
+    ```bash
+    $env:NUM_BULK_QUESTIONS = "50"; python -m pytest tests/integration/test_question_submission_optimized.py::test_bulk_questions_submission -v -s
+    ```
+
+*   **Отправить 100 вопросов (максимум):**
+    ```bash
+    $env:NUM_BULK_QUESTIONS = "100"; python -m pytest tests/integration/test_question_submission_optimized.py::test_bulk_questions_submission -v -s
     ```
 
 ### Отчетность
-Каждый отправленный вопрос будет отображаться как отдельный тестовый кейс в отчете Allure, 
+Каждый отправленный вопрос будет отображаться как отдельный тестовый кейс в отчете Allure,
 обеспечивая высокую детализацию.
 
 ---
