@@ -253,14 +253,11 @@ class SmartAuthManager:
                 'Content-Type': form_data.content_type
             }
             
-            # Извлекаем значение куки из словаря если необходимо
-            cookie_value = session_cookie.get("value") if isinstance(session_cookie, dict) else session_cookie
-
             # Отправляем запрос
             response = self.session.post(
                 f"{self.base_url}/questions?allow-session=2",
                 data=form_data,
-                cookies={"test_joint_session": cookie_value},
+                cookies={"test_joint_session": session_cookie},
                 headers=headers
             )
             

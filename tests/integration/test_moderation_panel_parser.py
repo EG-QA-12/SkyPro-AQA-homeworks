@@ -7,11 +7,10 @@
 """
 
 import pytest
-import requests
 import allure
 from framework.utils.auth_cookie_provider import get_auth_cookies
 from framework.utils.html_parser import ModerationPanelParser
-from typing import List, Dict, Optional
+from framework.utils.smart_auth_manager import SmartAuthManager
 import logging
 
 logger = logging.getLogger(__name__)
@@ -62,9 +61,11 @@ def test_parse_moderation_panel():
 if __name__ == "__main__":
     # Для отладки
     auth_manager = SmartAuthManager()
-    session_cookie = auth_manager.get_valid_session_cookie(role="admin")
-    
-    if session_cookie:
+    session_cookie_dict = auth_manager.get_valid_session_cookie(role="admin")
+
+    if session_cookie_dict:
+        # Извлекаем значение куки из словаря
+        session_cookie = session_cookie_dict.get("value") if isinstance(session_cookie_dict, dict) else session_cookie_dict
         parser = ModerationPanelParser()
         data = parser.get_moderation_panel_data(session_cookie, limit=5)
         parser.print_table(data)

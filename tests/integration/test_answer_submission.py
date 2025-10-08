@@ -129,10 +129,14 @@ class TestAnswerSubmission:
         expert_cookie = auth_manager.get_valid_session_cookie(role=current_role)
         assert expert_cookie, f"Не удалось получить валидную сессионную куку для роли '{current_role}'"
 
+        # Извлекаем значение куки из словаря
+        cookie_value = expert_cookie.get("value") if isinstance(expert_cookie, dict) else expert_cookie
+        assert cookie_value, "Не удалось извлечь значение куки"
+
         # Выбираем вопрос, исключая те, на которые уже ответили в этой сессии
         question_data = select_question(
             selection_mode,
-            expert_cookie,
+            cookie_value,
             exclude_ids=list(self.answered_question_ids),
         )
         if not (question_data and "id" in question_data):
@@ -163,4 +167,3 @@ class TestAnswerSubmission:
         assert verified, "Отправленный ответ не найден в панели модерации или не имеет нужной маркировки"
         print("✅ Проверка в админ-панели прошла успешно.")
         print(f"--- Тест '{description}' завершен успешно ---")
-

@@ -166,7 +166,7 @@ def select_question(
 
 
 def submit_answer(
-    question_id: int, session_cookie: str, role: str = "admin"
+    question_id: int, session_cookie, role: str = "admin"
 ) -> Tuple[Optional[int], str]:
     """
     Отправляет ответ на вопрос.
@@ -184,8 +184,11 @@ def submit_answer(
     question_page_url = f"{BASE_URL}/questions/answers/{question_id}?allow-session=2"
 
     try:
+        # Извлекаем значение куки из словаря если необходимо
+        cookie_value = session_cookie.get("value") if isinstance(session_cookie, dict) else session_cookie
+
         session = requests.Session()
-        session.cookies.set("test_joint_session", session_cookie)
+        session.cookies.set("test_joint_session", cookie_value)
 
         # 1. Получаем страницу вопроса, чтобы извлечь CSRF-токен
         response = session.get(question_page_url, timeout=10)
@@ -244,7 +247,7 @@ def submit_answer(
 
 
 def verify_answer_in_admin_panel(
-    answer_text: str, admin_cookie: str, delays: Tuple[float, ...] = (0, 1.5, 3.0, 5.0)
+    answer_text: str, admin_cookie, delays: Tuple[float, ...] = (0, 1.5, 3.0, 5.0)
 ) -> bool:
     """
     Проверяет наличие ответа в админ-панели с механизмом повторных попыток.
@@ -257,27 +260,30 @@ def verify_answer_in_admin_panel(
     Returns:
         True, если ответ найден и имеет корректную маркировку, иначе False.
     """
+    # Извлекаем значение куки из словаря если необходимо
+    cookie_value = admin_cookie.get("value") if isinstance(admin_cookie, dict) else admin_cookie
+
     parser = ModerationPanelParser()
     unique_part = re.search(r"\(тех. ID (\d+)\)", answer_text)
     if not unique_part:
         logger.error("Не удалось извлечь уникальный ID из текста ответа.")
         return False
-    
+
     search_fragment = unique_part.group(1)
     logger.info(f"Начинаем проверку наличия ответа в админ-панели по фрагменту: '{search_fragment}'")
 
     for attempt, delay in enumerate(delays, 1):
         if delay > 0:
             time.sleep(delay)
-        
+
         logger.info(f"Попытка {attempt}/{len(delays)}: получение данных с панели модерации...")
-        entries = parser.get_moderation_panel_data(admin_cookie, limit=30)
-        
+        entries = parser.get_moderation_panel_data(cookie_value, limit=30)
+
         for entry in entries:
             # Ищем по уникальному ID и проверяем тип "П"
             if search_fragment in entry.get("text", "") and entry.get("type") == "П":
                 logger.info(f"✅ Успех! Ответ найден в панели модерации: {entry}")
                 return True
-    
+
     logger.error("Ответ не найден в панели модерации после всех попыток.")
     return False

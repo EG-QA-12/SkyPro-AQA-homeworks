@@ -228,7 +228,7 @@ class ModerationPanelParser(HtmlParser):
 
         return None
 
-    def get_moderation_panel_data(self, session_cookie: str, limit: int = 5) -> List[Dict]:
+    def get_moderation_panel_data(self, session_cookie, limit: int = 5) -> List[Dict]:
         """
         Получает данные из панели модерации
         

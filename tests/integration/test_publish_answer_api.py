@@ -92,6 +92,9 @@ def test_publish_answer(
         assert session_cookie, "Не удалось получить валидную сессионную куку"
 
     with allure.step("2. Поиск ответа для публикации в панели модерации"):
+        # Извлекаем значение куки из словаря если необходимо
+        cookie_value = session_cookie.get("value") if isinstance(session_cookie, dict) else session_cookie
+
         selector = os.getenv("PUBLISH_ANSWER_SELECTOR", "latest").lower()
         user_val = os.getenv("TARGET_ANSWER_USER")
         marker_val = os.getenv("TARGET_ANSWER_MARKER")
@@ -105,7 +108,7 @@ def test_publish_answer(
         elif selector == "by_marker" and marker_val:
             search_criteria["text_contains"] = marker_val
 
-        answer_to_publish = fx_panel_parser.find_entry_in_panel(session_cookie, **search_criteria)
+        answer_to_publish = fx_panel_parser.find_entry_in_panel(cookie_value, **search_criteria)
         if not answer_to_publish:
             pytest.fail(f"Не найден ответ для публикации по критериям: {search_criteria}")
 
@@ -117,8 +120,11 @@ def test_publish_answer(
         # Используем ту же логику получения токенов, что работает в test_publish_question_api.py
         assign_url = f"{BASE_URL}/admin/posts/assign/{answer_id}"
         
+        # Извлекаем значение куки из словаря если необходимо
+        cookie_value_for_assign = session_cookie.get("value") if isinstance(session_cookie, dict) else session_cookie
+
         # Сначала синхронизируем сессию парсера с кукой администратора
-        fx_panel_parser.session.cookies.set("test_joint_session", session_cookie)
+        fx_panel_parser.session.cookies.set("test_joint_session", cookie_value_for_assign)
         
         # Получаем свежие CSRF-токены для assign-запроса
         tokens = fetch_csrf_tokens_from_panel(fx_panel_parser.session, BASE_URL)
@@ -155,9 +161,12 @@ def test_publish_answer(
                 if not new_cookie:
                     pytest.fail("Не удалось получить новую куку для повторного assign")
                 
+                # Извлекаем значение куки из словаря если необходимо
+                new_cookie_value = new_cookie.get("value") if isinstance(new_cookie, dict) else new_cookie
+
                 # Обновляем сессию парсера
                 fx_panel_parser.session.cookies.clear()
-                fx_panel_parser.session.cookies.set("test_joint_session", new_cookie)
+                fx_panel_parser.session.cookies.set("test_joint_session", new_cookie_value)
                 
                 # Получаем новые токены и повторяем запрос
                 tokens = fetch_csrf_tokens_from_panel(fx_panel_parser.session, BASE_URL)
@@ -231,7 +240,8 @@ def test_publish_answer(
             assert new_cookie, 'Не удалось выполнить реавторизацию admin для повторной публикации'
 
             fx_panel_parser.session.cookies.clear()
-            fx_panel_parser.session.cookies.set('test_joint_session', new_cookie)
+            new_cookie_retry_value = new_cookie.get("value") if isinstance(new_cookie, dict) else new_cookie
+            fx_panel_parser.session.cookies.set('test_joint_session', new_cookie_retry_value)
 
             tokens = fetch_csrf_tokens_from_panel(fx_panel_parser.session, BASE_URL)
             xsrf_token = unquote(tokens.get('xsrf_cookie') or '') if tokens.get('xsrf_cookie') else None

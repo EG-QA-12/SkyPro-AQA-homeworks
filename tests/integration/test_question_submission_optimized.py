@@ -211,6 +211,9 @@ def test_send_question_with_smart_auth(
         print(f"✅ Успешно отправлен вопрос: {question_text}")
 
     with allure.step("Проверка наличия вопроса в панели модерации"):
+        # Извлекаем значение куки из словаря если необходимо
+        cookie_value = session_cookie.get("value") if isinstance(session_cookie, dict) else session_cookie
+
         fragment = marker.lower()
         delays_env = _parse_env_delays(os.getenv("PANEL_DELAYS", "0,0.7,1.5,3"))
         limit_env = int(os.getenv("PANEL_LIMIT", "100"))
@@ -222,7 +225,7 @@ def test_send_question_with_smart_auth(
         freshness = int(os.getenv("PANEL_FRESH_MINUTES", "3"))
         verify_question_in_panel(
             fx_panel_parser,
-            session_cookie,
+            cookie_value,
             fragment,
             limit=limit_env,
             delays=delays_env,
