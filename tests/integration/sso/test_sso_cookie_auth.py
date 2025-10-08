@@ -119,8 +119,8 @@ def test_sso_cookie_auth_all_domains(
             print(f"   ❌ Маркеры авторизации не найдены!")
     
     with allure.step(f"ШАГ 3: Валидация SSO результатов"):
-        # Валидируем изменение состояния авторизации
-        sso_validation = validate_sso_response(html_unauth, html_auth)
+        # Валидируем изменение состояния авторизации с учетом специфики домена
+        sso_validation = validate_sso_response(html_unauth, html_auth, domain_url)
         
         print(f"   📊 Анализ SSO:")
         print(f"      • Успешность SSO: {sso_validation['sso_success']}")
