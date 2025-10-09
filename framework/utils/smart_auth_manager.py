@@ -30,8 +30,9 @@ class SmartAuthManager:
     def __init__(self):
         """Инициализация менеджера"""
         self.session = requests.Session()
-        # 🔄 МЕНЯЕМ: с expert.bll.by на ca.bll.by (Центр Авторизации)
-        self.base_url = "https://ca.bll.by"  # ✅ Центр Авторизации
+        # 🔄 МЕНЯЕМ: отделяем URL авторизации и URL отправки вопросов
+        self.auth_base_url = "https://ca.bll.by"  # ✅ Центр Авторизации
+        self.question_base_url = "https://expert.bll.by"  # ✅ Сайт для вопросов
 
         # Настройка заголовков
         self.session.headers.update({
@@ -44,9 +45,14 @@ class SmartAuthManager:
             'Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1'
         })
-        
+
         # ✨ ДОБАВЛЯЕМ: Anti-detection заголовки
         self._setup_requests_anti_detection()
+
+    @property
+    def base_url(self):
+        """Backward compatibility: возвращает URL для вопросов"""
+        return self.question_base_url
 
     def _setup_requests_anti_detection(self):
         """
