@@ -30,7 +30,8 @@ class SmartAuthManager:
     def __init__(self):
         """Инициализация менеджера"""
         self.session = requests.Session()
-        self.base_url = "https://expert.bll.by"
+        # 🔄 МЕНЯЕМ: с expert.bll.by на ca.bll.by (Центр Авторизации)
+        self.base_url = "https://ca.bll.by"  # ✅ Центр Авторизации
 
         # Настройка заголовков
         self.session.headers.update({
@@ -43,6 +44,41 @@ class SmartAuthManager:
             'Connection': 'keep-alive',
             'Upgrade-Insecure-Requests': '1'
         })
+        
+        # ✨ ДОБАВЛЯЕМ: Anti-detection заголовки
+        self._setup_requests_anti_detection()
+
+    def _setup_requests_anti_detection(self):
+        """
+        Настраивает anti-detection для requests (HTTP API)
+        
+        Добавляет реалистичные заголовки из sso_cookies_debug.py 
+        и simple_api_auth.py для обхода антибот защиты.
+        """
+        anti_detection_headers = {
+            # ✨ Из sso_cookies_debug.py и simple_api_auth.py:
+            'User-Agent': (
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                'AppleWebKit/537.36 (KHTML, like Gecko) '
+                'Chrome/120.0.0.0 Safari/537.36'
+            ),
+            'Accept': (
+                'text/html,application/xhtml+xml,application/xml;'
+                'q=0.9,image/webp,*/*;q=0.8'
+            ),
+            'Accept-Language': 'ru-RU,ru;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Cache-Control': 'max-age=0'
+        }
+        
+        self.session.headers.update(anti_detection_headers)
+        logger.info("🛡️ Anti-detection для requests настроен")
 
     def _is_headless(self) -> bool:
         """
