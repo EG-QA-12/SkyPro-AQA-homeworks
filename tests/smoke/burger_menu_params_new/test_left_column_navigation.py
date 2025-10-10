@@ -8,6 +8,7 @@
 import pytest
 import allure
 import requests
+import re
 from tenacity import retry, stop_after_attempt, wait_fixed
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 from framework.utils.http_assert_utils import assert_http_status_with_better_message
@@ -20,12 +21,12 @@ LEFT_COLUMN_TEST_DATA = [
     ("О Платформе", "about", "Навигация на страницу 'О Платформе'"),
     ("Задать вопрос", "expert.bll.by", "Переход к форме задания вопроса"),
     ("Купить", "buy", "Навигация на страницу покупок"),
-    ("Калькуляторы", "calculators", "Переход к калькуляторам"),
-    ("Каталоги", "catalogs", "Навигация по каталогам"),
-    ("Чек-листы", "checklists", "Переход к чек-листам"),
-    ("Коды", "codes", "Навигация по кодам"),
-    ("Поиск сообщества", "community", "Переход к поиску сообщества"),
-    ("Конструкторы", "constructors", "Навигация по конструкторам"),
+    ("Калькуляторы", "kalkulyatory", "Переход к калькуляторам"),
+    ("Каталоги", "katalogi", "Навигация по каталогам"),
+    ("Чек-листы", "perechen-tem-chek-list", "Переход к чек-листам"),
+    ("Кодексы", "kodeksy", "Навигация по кодексам"),
+    ("Поиск в сообществе", "expert.bll.by", "Переход к поиску в сообществе"),
+    ("Конструкторы", "konstruktory", "Навигация по конструкторам"),
     ("Проверка контрагента", "contractor", "Переход к проверке контрагента"),
     ("Доступ к демо", "demo", "Навигация к демо-доступу"),
     ("Справочники", "directories", "Переход к справочникам"),
@@ -75,8 +76,7 @@ class TestLeftColumnNavigationParams:
         title="Навигация по левой колонке бургер-меню: {link_text}",
         description="Проверяет корректность перехода по ссылке '{link_text}' "
                    "в левой колонке бургер-меню",
-        feature="Бургер-меню: Левая колонка",
-        story="Навигация по разделам"
+        feature="Бургер-меню: Левая колонка"
     )
     def test_left_column_navigation(
         self,
@@ -184,6 +184,18 @@ class TestLeftColumnNavigationParams:
             # Для главной страницы проверяем базовый URL
             assert expected_url_contains in current_url or base_url.rstrip('/') in current_url, (
                 f"URL должен содержать '{expected_url_contains}' или базовый URL: {current_url}"
+            )
+
+        elif link_text == "Кодексы":
+            # Специальная проверка для кодексов с regex
+            assert re.search(r'kodeksy|codes', current_url), (
+                f"URL не содержит паттерн kodeksy или codes: {current_url}"
+            )
+
+        elif link_text == "Поиск в сообществе":
+            # Специальная проверка для поиска в сообществе
+            assert re.search(r'expert\.bll\.by', current_url), (
+                f"URL не содержит паттерн домена expert.bll.by: {current_url}"
             )
 
         else:

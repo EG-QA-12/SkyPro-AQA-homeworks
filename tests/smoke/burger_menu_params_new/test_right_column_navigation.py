@@ -12,6 +12,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 from framework.utils.http_assert_utils import assert_http_status_with_better_message
 from framework.utils.reporting.allure_utils import ui_test
+from framework.utils.reporting.allure_utils import ui_test
 
 
 # Данные для параметризации - заменяют 9 отдельных тестов
@@ -50,8 +51,7 @@ class TestRightColumnNavigationParams:
         title="Навигация по правой колонке бургер-меню: {link_text}",
         description="Проверяет корректность перехода по ссылке '{link_text}' "
                    "в правой колонке бургер-меню",
-        feature="Бургер-меню: Правая колонка",
-        story="Навигация по персональным разделам"
+        feature="Бургер-меню: Правая колонка"
     )
     def test_right_column_navigation(
         self,

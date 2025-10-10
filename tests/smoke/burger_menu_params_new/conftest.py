@@ -9,6 +9,7 @@ Burger Menu Params New - Multi-Domain Parameterized Tests.
 import pytest
 from framework.utils.url_utils import add_allow_session_param
 from framework.utils.smart_auth_manager import SmartAuthManager
+# playwright_allure fixture уже определена в allure_utils.py
 
 
 # Импортируем глобальную переменную headless режима из корневого conftest.py
@@ -125,6 +126,11 @@ def smart_authenticated_context(browser):
 
     # Очистка после тестов
     context.close()
+
+
+# ===== ALLURE UTILS FIXTURES =====
+
+# PlaywrightAllureIntegration уже импортирован из allure_utils
 
 
 @pytest.fixture(scope="function")
