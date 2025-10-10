@@ -58,7 +58,6 @@ class SmartAuthManager:
     def get_valid_session_cookie(self, role: str = "admin") -> Optional[str]:
         """
         Получает строковое значение куки для API клиентов (обратная совместимость)
-        Использует многоуровневый fallback для максимальной надежности
 
         Args:
             role: Роль пользователя (admin, user)
@@ -66,93 +65,13 @@ class SmartAuthManager:
         Returns:
             Optional[str]: Строковое значение куки или None
         """
-        # УРОВЕНЬ 1: Сначала пробуем получить из файлов (самый быстрый)
-        cookie = self._get_cookie_from_files(role)
-        if cookie:
-            logger.info(f"[COOKIE_FALLBACK] Успешно получена кука из файлов для роли {role}")
-            return cookie
-
-        # УРОВЕНЬ 2: Пробуем из кэшированного storage_state
-        storage_state = self._load_storage_state(role)
+        storage_state = self.get_valid_storage_state(role)
         if storage_state and "cookies" in storage_state:
-            for cookie_data in storage_state["cookies"]:
-                if cookie_data.get("name") == "test_joint_session":
-                    cookie_value = cookie_data.get("value")
-                    if cookie_value:
-                        logger.info(f"[COOKIE_FALLBACK] Успешно получена кука из кэша для роли {role}")
-                        return cookie_value
-
-        # УРОВЕНЬ 3: Только если ничего нет - выполняем свежую авторизацию
-        logger.info(f"[COOKIE_FALLBACK] Выполняем свежую авторизацию для роли {role}")
-        storage_state = self._perform_auth_and_get_storage_state(role)
-        if storage_state and "cookies" in storage_state:
-            for cookie_data in storage_state["cookies"]:
-                if cookie_data.get("name") == "test_joint_session":
-                    cookie_value = cookie_data.get("value")
-                    if cookie_value:
-                        logger.info(f"[COOKIE_FALLBACK] Успешно получена свежая кука для роли {role}")
-                        return cookie_value
-
-        logger.warning(f"[COOKIE_FALLBACK] Не удалось получить куку для роли {role}")
+            # Извлекаем значение куки из storage_state
+            for cookie in storage_state["cookies"]:
+                if cookie.get("name") == "test_joint_session":
+                    return cookie.get("value")
         return None
-
-    def _get_cookie_from_files(self, role: str) -> Optional[str]:
-        """
-        Пытается прочитать куку из артефактов прошлых запусков.
-        Используется в fallback логике get_valid_session_cookie
-
-        Args:
-            role: Роль пользователя
-
-        Returns:
-            Optional[str]: Значение куки или None
-        """
-        from pathlib import Path
-        import json
-
-        project_root = Path(__file__).resolve().parents[2]
-        cookies_dir = project_root / "cookies"
-
-        # Текстовый файл
-        txt_path = cookies_dir / f"{role}_session.txt"
-        if txt_path.exists():
-            try:
-                return txt_path.read_text(encoding="utf-8").strip()
-            except OSError as exc:
-                logger.warning(f"Не удалось прочитать {txt_path}: {exc}")
-
-        # JSON-файл Playwright формата
-        json_path = cookies_dir / f"{role}_cookies.json"
-        if json_path.exists():
-            try:
-                raw = json_path.read_text(encoding="utf-8")
-                data = json.loads(raw)
-                if isinstance(data, list):
-                    for item in data:
-                        if isinstance(item, dict) and item.get("name") == "test_joint_session":
-                            value = item.get("value")
-                            if isinstance(value, str) and value:
-                                return value
-            except (OSError, json.JSONDecodeError) as exc:
-                logger.warning(f"Не удалось прочитать {json_path}: {exc}")
-
-        return None
-
-    def _perform_auth_and_get_cookie(self, role: str = "admin") -> Optional[str]:
-        """
-        УСТАРЕВШИЙ МЕТОД: Сохранен для обратной совместимости с тестами
-        Использует надежную логику авторизации без умного ожидания
-
-        Args:
-            role: Роль пользователя
-
-        Returns:
-            Optional[str]: Значение куки или None
-        """
-        logger.warning(f"[DEPRECATED] _perform_auth_and_get_cookie вызван для роли {role} - используйте get_valid_session_cookie")
-
-        # Используем надежную версию
-        return self.get_valid_session_cookie(role)
 
     def get_valid_storage_state(self, role: str = "admin") -> Optional[Dict]:
         """

@@ -58,7 +58,6 @@ class SmartAuthManager:
     def get_valid_session_cookie(self, role: str = "admin") -> Optional[str]:
         """
         Получает строковое значение куки для API клиентов (обратная совместимость)
-        Использует многоуровневый fallback для максимальной надежности
 
         Args:
             role: Роль пользователя (admin, user)
@@ -66,93 +65,13 @@ class SmartAuthManager:
         Returns:
             Optional[str]: Строковое значение куки или None
         """
-        # УРОВЕНЬ 1: Сначала пробуем получить из файлов (самый быстрый)
-        cookie = self._get_cookie_from_files(role)
-        if cookie:
-            logger.info(f"[COOKIE_FALLBACK] Успешно получена кука из файлов для роли {role}")
-            return cookie
-
-        # УРОВЕНЬ 2: Пробуем из кэшированного storage_state
-        storage_state = self._load_storage_state(role)
+        storage_state = self.get_valid_storage_state(role)
         if storage_state and "cookies" in storage_state:
-            for cookie_data in storage_state["cookies"]:
-                if cookie_data.get("name") == "test_joint_session":
-                    cookie_value = cookie_data.get("value")
-                    if cookie_value:
-                        logger.info(f"[COOKIE_FALLBACK] Успешно получена кука из кэша для роли {role}")
-                        return cookie_value
-
-        # УРОВЕНЬ 3: Только если ничего нет - выполняем свежую авторизацию
-        logger.info(f"[COOKIE_FALLBACK] Выполняем свежую авторизацию для роли {role}")
-        storage_state = self._perform_auth_and_get_storage_state(role)
-        if storage_state and "cookies" in storage_state:
-            for cookie_data in storage_state["cookies"]:
-                if cookie_data.get("name") == "test_joint_session":
-                    cookie_value = cookie_data.get("value")
-                    if cookie_value:
-                        logger.info(f"[COOKIE_FALLBACK] Успешно получена свежая кука для роли {role}")
-                        return cookie_value
-
-        logger.warning(f"[COOKIE_FALLBACK] Не удалось получить куку для роли {role}")
+            # Извлекаем значение куки из storage_state
+            for cookie in storage_state["cookies"]:
+                if cookie.get("name") == "test_joint_session":
+                    return cookie.get("value")
         return None
-
-    def _get_cookie_from_files(self, role: str) -> Optional[str]:
-        """
-        Пытается прочитать куку из артефактов прошлых запусков.
-        Используется в fallback логике get_valid_session_cookie
-
-        Args:
-            role: Роль пользователя
-
-        Returns:
-            Optional[str]: Значение куки или None
-        """
-        from pathlib import Path
-        import json
-
-        project_root = Path(__file__).resolve().parents[2]
-        cookies_dir = project_root / "cookies"
-
-        # Текстовый файл
-        txt_path = cookies_dir / f"{role}_session.txt"
-        if txt_path.exists():
-            try:
-                return txt_path.read_text(encoding="utf-8").strip()
-            except OSError as exc:
-                logger.warning(f"Не удалось прочитать {txt_path}: {exc}")
-
-        # JSON-файл Playwright формата
-        json_path = cookies_dir / f"{role}_cookies.json"
-        if json_path.exists():
-            try:
-                raw = json_path.read_text(encoding="utf-8")
-                data = json.loads(raw)
-                if isinstance(data, list):
-                    for item in data:
-                        if isinstance(item, dict) and item.get("name") == "test_joint_session":
-                            value = item.get("value")
-                            if isinstance(value, str) and value:
-                                return value
-            except (OSError, json.JSONDecodeError) as exc:
-                logger.warning(f"Не удалось прочитать {json_path}: {exc}")
-
-        return None
-
-    def _perform_auth_and_get_cookie(self, role: str = "admin") -> Optional[str]:
-        """
-        УСТАРЕВШИЙ МЕТОД: Сохранен для обратной совместимости с тестами
-        Использует надежную логику авторизации без умного ожидания
-
-        Args:
-            role: Роль пользователя
-
-        Returns:
-            Optional[str]: Значение куки или None
-        """
-        logger.warning(f"[DEPRECATED] _perform_auth_and_get_cookie вызван для роли {role} - используйте get_valid_session_cookie")
-
-        # Используем надежную версию
-        return self.get_valid_session_cookie(role)
 
     def get_valid_storage_state(self, role: str = "admin") -> Optional[Dict]:
         """
@@ -322,52 +241,32 @@ class SmartAuthManager:
                     )
                     await page.click('input[type="submit"]')
 
-                    # УМНОЕ ОЖИДАНИЕ РЕЗУЛЬТАТА АВТОРИЗАЦИИ (вместо sleep)
-                    # Ждем ЛИБО изменение URL, ЛИБО появление профиля
-                    try:
-                        await page.wait_for_function("""
-                            () => {
-                                // Успех: URL изменился (редирект после авторизации)
-                                if (!window.location.href.includes('/login')) {
-                                    return true;
-                                }
-                                // Успех: профиль появился
-                                if (document.querySelector('a[class*="top-nav__item top-nav__profile"]')) {
-                                    return true;
-                                }
-                                // Продолжаем проверку (функция вернет undefined, продолжая ожидание)
-                                return false;
-                            }
-                        """, timeout=5000)  # Максимум 5 сек
+                    # Ждем перехода после авторизации (увеличенный таймаут)
+                    await asyncio.sleep(3)
 
-                        logger.info("[AUTH_CHECK] Auth result detected")
+                    # УПРОЩЕННАЯ ПРОВЕРКА АВТОРИЗАЦИИ (из рабочего скрипта)
+                    # Вместо ожидания конкретного URL - проверяем наличие профиля
+                    current_url = page.url
+                    logger.info(f"[AUTH_CHECK] Current URL after login: {current_url}")
 
-                    except Exception as e:
-                        logger.error(f"[AUTH_TIMEOUT] Auth check timeout: {e}")
+                    # Проверяем, что НЕ на странице логина
+                    if "login" in current_url:
+                        logger.error("[AUTH_FAIL] Still on login page - auth failed")
                         return None
 
-                    # ФИНАЛЬНАЯ ПРОВЕРКА АВТОРИЗАЦИИ
-                    current_url = page.url
-                    logger.info(f"[AUTH_CHECK] Final URL: {current_url}")
-
-                    # Проверяем успешную авторизацию
-                    if "login" not in current_url:
-                        # Подтверждаем наличие профиля
-                        profile_selector = 'a[class*="top-nav__item top-nav__profile"]'
-                        try:
-                            profile_element = await page.wait_for_selector(
-                                profile_selector, timeout=8000  # Уменьшен до 8 сек
-                            )
-                            if profile_element:
-                                logger.info("[AUTH_SUCCESS] Profile confirmed - auth successful")
-                            else:
-                                logger.error("[AUTH_FAIL] Profile not found after URL change")
-                                return None
-                        except Exception as e:
-                            logger.error(f"[AUTH_FAIL] Error confirming profile: {e}")
+                    # Ищем элемент профиля (увеличенный таймаут)
+                    profile_selector = 'a[class*="top-nav__item top-nav__profile"]'
+                    try:
+                        profile_element = await page.wait_for_selector(
+                            profile_selector, timeout=30000  # Увеличен до 30 сек
+                        )
+                        if profile_element:
+                            logger.info("[AUTH_SUCCESS] Profile element found - auth successful")
+                        else:
+                            logger.error("[AUTH_FAIL] Profile element not found")
                             return None
-                    else:
-                        logger.error("[AUTH_FAIL] Still on login page - auth failed")
+                    except Exception as e:
+                        logger.error(f"[AUTH_FAIL] Error waiting for profile: {e}")
                         return None
 
                     # Сохраняем ПОЛНЫЙ storage_state (как в рабочем скрипте)
@@ -476,7 +375,7 @@ class SmartAuthManager:
 
     def get_browser_launch_args(self, headless: bool = False) -> Dict:
         """
-        Возвращает оптимизированные аргументы запуска браузера для скорости
+        Возвращает аргументы запуска браузера с anti-bot защитой
 
         Args:
             headless: Режим работы (headless или GUI)
@@ -488,30 +387,17 @@ class SmartAuthManager:
             '--disable-web-security',  # КРИТИЧНО для cross-domain cookies
             '--disable-blink-features=AutomationControlled',  # Anti-detection
             '--disable-features=VizDisplayCompositor',  # Чистая визуализация
-            '--disable-dev-shm-usage',  # Экономия памяти
-            '--no-first-run',  # Пропуск первого запуска
-            '--disable-default-apps',  # Отключить дефолтные приложения
-            '--disable-extensions',  # Отключить расширения
-            '--disable-background-timer-throttling',  # Таймеры в фоне
-            '--disable-backgrounding-occluded-windows',  # Фоновые окна
-            '--disable-renderer-backgrounding',  # Фоновый рендеринг
         ]
 
         if headless:
-            # Оптимизированный headless режим для скорости
-            launch_args.extend([
-                '--headless=new',
-                '--disable-features=IsolateOrigins,site-per-process',
-                '--no-sandbox',  # Для headless стабильности
-                '--disable-gpu',  # Отключить GPU в headless
-                '--disable-software-rasterizer',  # Отключить software rasterizer
-                '--disable-background-networking',  # Отключить фоновые сети
-            ])
+            # Новый headless режим с лучшей поддержкой кук (из sso_cookies_debug.py)
+            launch_args.append('--headless=new')
+            launch_args.append('--disable-features=IsolateOrigins,site-per-process')
 
         return {
             "headless": False,  # Управляем через аргументы
             "args": launch_args,
-            "slow_mo": 0,  # Без задержек
+            "slow_mo": 0,
             "chromium_sandbox": not headless,
         }
 

@@ -1,0 +1,49 @@
+{
+  "cookies": [
+    {
+      "name": "remember_web_59ba36addc2b2f9401580f014c7f58ea4e30989d",
+      "value": "eyJpdiI6InpsTnc2Y0prL25HYVEwSEtvdkxTR0E9PSIsInZhbHVlIjoiWjlCbWVBTklobmhFRUVUc2hnQ1U3TEdTa3QxRkVrWk5iN0d3M3hHcnA1QjFpZXB0bm15Q3o4Z01ZM1ZuYjZvcHlXUHRYZWdidVBZZGVmeDREMmRjMjdKbGZJTW5icDVZUjNZR1k1dnRTZjRzKzlxaHcyYXVOOHVrNmdseHd3UGNNT3dHQjROZy9PVUpJSU5aSUFkZmkveFFJb04wWWJRdS91QVN2LzJncXhlbklkd01abVNXK2ppajNkL0lKTmd0SE5vVFRMS3ZZWGZ0d3VGS0FzTWRSYWl2T1lRK3hXUHQvWWxuSmhDNXIvVT0iLCJtYWMiOiIyNThiNWRhNDJkMTQ3ZTcwMjY4MzE4ZjQzMmYxMGQ0NzQxZmIyYmE4MzQ1NTE3ZjNjMmE0YTk0M2Y4MTQ5MDEwIiwidGFnIjoiIn0%3D",
+      "domain": ".bll.by",
+      "path": "/",
+      "expires": 1794661644.787065,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "XSRF-TOKEN",
+      "value": "eyJpdiI6ImQrTTl4dmZ6Q3QwNW1aN3VNU0RyU3c9PSIsInZhbHVlIjoibGJtSGw2Q0JKc2E2ZUg0alQ2TXI3YTNPY0RKZU5pc0tvR0NvRVFTazlNQjFQZXY1clkvYklYTTRtOVVBSjZMNUEvdzRKK2w2cDZIdTR6WkFZMGFvRlBWTkc5VHp4UDVYbklRREMrb3ZWN1ZJdkdrNWFnWCsrYmwzT3BJVTBKR1UiLCJtYWMiOiI1ODNlYjhjOWJiZTRkYTk0Nzc4Y2U4YjdlOTc1YmM4YjEzYzgxZDA1MGE2NjZkZGQ4ZDAyMDBiMWI5MTcxZDVhIiwidGFnIjoiIn0%3D",
+      "domain": ".bll.by",
+      "path": "/",
+      "expires": 1765357645.4091,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "test_joint_session",
+      "value": "eyJpdiI6ImV4K3RBN3lHcFpJeGxoQ3pWS3dGdmc9PSIsInZhbHVlIjoiSWF6YXo5eFUwWkZ6VFdiUDNZYUgrdGtLekl6WVRvdDZWeE54RmwwK0JYSmh2cTFqYTBiMzFqbmNGMW1QWFdpMTFoeFN0S2tpVStlS1E4VXM0djQrMnBLRnRyQ2x1WldjVE9OeVdyN3NJeTUyMHNlV2duVlN5WFp3aTdUTmo3TDciLCJtYWMiOiI2YjAwYzA1YmU4MWEwZWRkNWZkNjM4ZmZkZjcxZDZmODAwZGI1OTQ0YTdkYThiMjY2Mjk3NTIwNTc4N2M5M2RjIiwidGFnIjoiIn0%3D",
+      "domain": ".bll.by",
+      "path": "/",
+      "expires": 1765357645.409315,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://ca.bll.by",
+      "localStorage": [
+        {
+          "name": "phpdebugbar-height",
+          "value": "300"
+        },
+        {
+          "name": "jv_loader_info_0TVB8xpmv0",
+          "value": "{\"isNewCode\":true}"
+        }
+      ]
+    }
+  ]
+}
