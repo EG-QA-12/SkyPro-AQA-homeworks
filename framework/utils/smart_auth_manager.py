@@ -12,7 +12,7 @@
 import time
 import requests
 import logging
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 from config.secrets_manager import SecretsManager
 from framework.utils.simple_api_auth import mass_api_auth
@@ -55,187 +55,347 @@ class SmartAuthManager:
         
         self.session.headers.update(basic_headers)
 
-    def get_valid_session_cookie(self, role: str = "admin") -> Optional[Dict]:
+    def get_valid_session_cookie(self, role: str = "admin") -> Optional[str]:
         """
-        Получает куку с минимальной проверкой по времени
-        
+        Получает строковое значение куки для API клиентов (обратная совместимость)
+
         Args:
             role: Роль пользователя (admin, user)
-            
-        Returns:
-            Optional[Dict]: Полная информация о куке или None
-        """
-        existing = get_auth_cookies(role)
-        if existing:
-            cookie = existing[0]
-            # Проверить возраст куки - если старше 1 часа, обновить
-            if self._is_cookie_too_old(role):
-                logger.info("Кука старше 1 часа, обновляем через API")
-                return self._perform_auth_and_get_cookie(role)
-            logger.info("Используем существующую куку")
-            return cookie
-        
-        # Куки нет в файле - вызвать авторизацию
-        logger.info("Куки нет в файле, выполняем авторизацию")
-        return self._perform_auth_and_get_cookie(role)
 
-    def _is_cookie_too_old(self, role: str) -> bool:
+        Returns:
+            Optional[str]: Строковое значение куки или None
         """
-        Проверяет, старше ли кука 1 часа по времени модификации файла
-        
+        storage_state = self.get_valid_storage_state(role)
+        if storage_state and "cookies" in storage_state:
+            # Извлекаем значение куки из storage_state
+            for cookie in storage_state["cookies"]:
+                if cookie.get("name") == "test_joint_session":
+                    return cookie.get("value")
+        return None
+
+    def get_valid_storage_state(self, role: str = "admin") -> Optional[Dict]:
+        """
+        Получает storage_state с минимальной проверкой по времени
+
+        Args:
+            role: Роль пользователя (admin, user)
+
+        Returns:
+            Optional[Dict]: Полное storage_state или None
+        """
+        logger.info(f"[DEBUG] get_valid_storage_state called for role: {role}")
+
+        # Проверка наличия и актуальности storage_state
+        is_too_old = self._is_storage_state_too_old(role)
+        logger.info(f"[DEBUG] _is_storage_state_too_old result: {is_too_old}")
+
+        if is_too_old:
+            logger.info("Storage state старше 1 часа, обновляем через Playwright")
+            result = self._perform_auth_and_get_storage_state(role)
+            logger.info(f"[DEBUG] _perform_auth_and_get_storage_state result: {result is not None}")
+            return result
+
+        logger.info("Используем существующее storage_state")
+        result = self._load_storage_state(role)
+        logger.info(f"[DEBUG] _load_storage_state result: {result is not None}")
+        return result
+
+    def get_valid_cookies_list(self, role: str = "admin") -> Optional[List[Dict]]:
+        """
+        Получает список кук в формате Playwright для браузерных тестов
+
+        ИСПРАВЛЕНИЕ: Теперь возвращает куки из ПОЛНОГО storage_state
+        (включая правильную sameSite политику для headless режима)
+
+        Args:
+            role: Роль пользователя (admin, user)
+
+        Returns:
+            Optional[List[Dict]]: Список кук для context.add_cookies() или None
+        """
+        logger.info(f"[DEBUG] get_valid_cookies_list called for role: {role}")
+        storage_state = self.get_valid_storage_state(role)
+        logger.info(f"[DEBUG] storage_state result: {storage_state is not None}")
+
+        if storage_state and "cookies" in storage_state:
+            cookies_count = len(storage_state["cookies"])
+            logger.info(f"[DEBUG] Found {cookies_count} cookies in FULL storage_state")
+
+            # ДОБАВЛЕНО: Проверяем правильность sameSite для headless режима
+            for cookie in storage_state["cookies"]:
+                if cookie.get('name') == 'test_joint_session':
+                    logger.info(f"[COOKIE_CHECK] Session cookie sameSite: {cookie.get('sameSite')}, "
+                              f"secure: {cookie.get('secure')}, domain: {cookie.get('domain')}")
+
+            return storage_state["cookies"]
+
+        logger.warning(f"[DEBUG] No cookies found in FULL storage_state for role {role}")
+        return None
+
+    def _is_storage_state_too_old(self, role: str) -> bool:
+        """
+        Проверяет, старше ли куки 1 часа по времени модификации файла
+
         Args:
             role: Роль пользователя
-            
+
         Returns:
-            bool: True если кука старше 1 часа
+            bool: True если куки старше 1 часа
         """
         try:
             import os
             from pathlib import Path
-            
-            # Проверяем время модификации файлов куки для данной роли
+
             project_root = Path(__file__).parent.parent.parent
             cookies_dir = project_root / "cookies"
-            
-            # Проверяем оба возможных формата файлов куки
-            txt_file = cookies_dir / f"{role}_session.txt"
-            json_file = cookies_dir / f"{role}_cookies.json"
-            
-            latest_mod_time = 0
-            
-            # Проверяем текстовый файл
-            if txt_file.exists():
-                mod_time = os.path.getmtime(txt_file)
-                latest_mod_time = max(latest_mod_time, mod_time)
-            
-            # Проверяем JSON файл
-            if json_file.exists():
-                mod_time = os.path.getmtime(json_file)
-                latest_mod_time = max(latest_mod_time, mod_time)
-            
-            # Если ни один файл не найден, считаем куку "свежей"
-            if latest_mod_time == 0:
-                return False
-            
-            # Проверяем, старше ли файл 1 часа (3600 секунд)
-            return (time.time() - latest_mod_time) > 3600
-            
-        except Exception as e:
-            logger.warning(f"Не удалось проверить возраст куки: {e}")
-            return False  # если не можем проверить - считаем свежей
+            cookie_file = cookies_dir / f"{role}_cookies.json"
 
-    def _perform_auth_and_get_cookie(self, role: str) -> Optional[Dict]:
+            if cookie_file.exists():
+                mod_time = os.path.getmtime(cookie_file)
+                age_hours = (time.time() - mod_time) / 3600
+                logger.info(".1f")
+                return age_hours > 1  # Старше 1 часа
+
+            return True  # Если файла нет, считаем что нужно обновить
+
+        except Exception as e:
+            logger.error(f"Ошибка при проверке возраста кук: {e}")
+            return True
+
+    def _perform_auth_and_get_storage_state(self, role: str) -> Optional[Dict]:
         """
-        Выполняет таргетированную авторизацию и возвращает куку
-        
+        Выполняет авторизацию через Playwright и возвращает ПОЛНЫЙ storage_state
+
+        КЛЮЧЕВЫЕ ИСПРАВЛЕНИЯ (из sso_cookies_debug.py):
+        - Использует ПОЛНЫЙ storage_state вместо простых кук
+        - Упрощенная проверка авторизации (ищет профиль, а не конкретный URL)
+        - Правильная sameSite политика для headless режима
+        - Увеличенные таймауты
+
         Args:
             role: Роль пользователя
-            
+
         Returns:
-            Optional[Dict]: Полная информация о куке или None
+            Optional[Dict]: Полное storage_state или None
         """
         try:
+            import nest_asyncio
+            nest_asyncio.apply()
+
+            import asyncio
+            from rebrowser_playwright.async_api import async_playwright
+            from config.secrets_manager import SecretsManager
+
             # Загружаем пользователей
             test_users = SecretsManager.load_users_from_csv()
             if not test_users:
                 logger.error("Нет тестовых пользователей")
                 return None
-            
-            # Находим пользователя с нужной ролью
-            target_user = next((user for user in test_users if user.get('role') == role), None)
-            
-            if target_user:
-                # Таргетированная авторизация только нужного пользователя
-                logger.info(f"Выполняем таргетированную авторизацию для {role}")
-                mass_api_auth(users=[target_user], threads=1)
-            else:
-                # Массовая авторизация всех пользователей
-                logger.info("Выполняем массовую авторизацию")
-                mass_api_auth(users=test_users, threads=5)
-            
-            # Получаем обновленную куку
-            cookies = get_auth_cookies(role)
-            session_cookie = next(
-                (cookie for cookie in cookies
-                 if cookie['name'] == "test_joint_session"),
-                None
-            )
 
-            if session_cookie:
-                logger.info("Успешно получена новая кука")
-                return {
-                    "name": "test_joint_session",
-                    "value": session_cookie["value"],
-                    "domain": ".bll.by",
-                    "path": "/",
-                    "sameSite": "Lax"  # по умолчанию
-                }
-            else:
-                logger.error("Не удалось получить куку после авторизации")
+            # Находим пользователя с нужной ролью
+            target_user = next(
+                (user for user in test_users if user.get('role') == role), None
+            )
+            if not target_user:
+                logger.error(f"Не найден пользователь с ролью {role}")
                 return None
-                
+
+            logger.info(f"Выполняем Playwright авторизацию для {role}")
+
+            # Асинхронная функция авторизации (КОПИЯ ИЗ РАБОЧЕГО СКРИПТА)
+            async def _async_auth():
+                async with async_playwright() as p:
+                    browser = await p.chromium.launch(
+                        **self.get_browser_launch_args(headless=True)
+                    )
+                    context = await browser.new_context(
+                        user_agent=(
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                            "AppleWebKit/537.36 (KHTML, like Gecko) "
+                            "Chrome/120.0.0.0 Safari/537.36"
+                        ),
+                        viewport={"width": 1920, "height": 1080},
+                        locale="ru-RU",
+                        timezone_id="Europe/Minsk",
+                        ignore_https_errors=True,
+                        bypass_csp=True,
+                    )
+                    page = await context.new_page()
+
+                    # Anti-detection script - помогает обходить защиту от ботов
+                    await page.add_init_script("""
+                        Object.defineProperty(navigator, 'webdriver', {
+                            get: () => undefined
+                        });
+                    """)
+
+                    # Переход на страницу входа
+                    await page.goto(
+                        "https://ca.bll.by/login", wait_until="domcontentloaded"
+                    )
+
+                    # Заполнение формы
+                    await page.fill('input[name="lgn"]', target_user['login'])
+                    await page.fill(
+                        'input[name="password"]', target_user['password']
+                    )
+                    await page.click('input[type="submit"]')
+
+                    # Ждем перехода после авторизации (увеличенный таймаут)
+                    await asyncio.sleep(3)
+
+                    # УПРОЩЕННАЯ ПРОВЕРКА АВТОРИЗАЦИИ (из рабочего скрипта)
+                    # Вместо ожидания конкретного URL - проверяем наличие профиля
+                    current_url = page.url
+                    logger.info(f"[AUTH_CHECK] Current URL after login: {current_url}")
+
+                    # Проверяем, что НЕ на странице логина
+                    if "login" in current_url:
+                        logger.error("[AUTH_FAIL] Still on login page - auth failed")
+                        return None
+
+                    # Ищем элемент профиля (увеличенный таймаут)
+                    profile_selector = 'a[class*="top-nav__item top-nav__profile"]'
+                    try:
+                        profile_element = await page.wait_for_selector(
+                            profile_selector, timeout=30000  # Увеличен до 30 сек
+                        )
+                        if profile_element:
+                            logger.info("[AUTH_SUCCESS] Profile element found - auth successful")
+                        else:
+                            logger.error("[AUTH_FAIL] Profile element not found")
+                            return None
+                    except Exception as e:
+                        logger.error(f"[AUTH_FAIL] Error waiting for profile: {e}")
+                        return None
+
+                    # Сохраняем ПОЛНЫЙ storage_state (как в рабочем скрипте)
+                    storage_state = await context.storage_state()
+                    logger.info(f"[STORAGE] Captured full storage_state: "
+                              f"{len(storage_state.get('cookies', []))} cookies")
+
+                    await browser.close()
+                    return storage_state
+
+            # Запускаем асинхронную авторизацию
+            storage_state = asyncio.run(_async_auth())
+
+            if storage_state:
+                logger.info("Успешно получено ПОЛНОЕ storage_state")
+
+                # Сохраняем storage_state в файл
+                self._save_storage_state(role, storage_state)
+                return storage_state
+            else:
+                logger.error("Не удалось получить storage_state")
+                return None
+
         except Exception as e:
             logger.error(f"Ошибка при авторизации: {e}")
             return None
 
-    def get_browser_context_config(self, headless: bool = False) -> tuple:
+    def _load_storage_state(self, role: str) -> Optional[Dict]:
         """
-        Возвращает конфигурацию браузера с anti-bot защитой
-        
+        Загружает ПОЛНЫЙ storage_state из файла storage/{role}_storage_state.json
+
+        ИСПРАВЛЕНИЕ: Теперь загружает полный storage_state (cookies + origins + storage)
+        вместо простого массива кук
+
         Args:
-            headless: Режим работы (headless или GUI)
-            
+            role: Роль пользователя
+
         Returns:
-            tuple: (context_args, cookie_same_site, cookie_secure)
+            Optional[Dict]: Полный storage state в формате Playwright или None
         """
-        # Базовая конфигурация контекста
-        user_agent = (
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
-            '(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        )
-        context_args = {
-            'user_agent': user_agent,
-            'viewport': {'width': 1920, 'height': 1080},
-            'locale': 'ru-RU',
-            'timezone_id': 'Europe/Minsk',
-            'ignore_https_errors': True,
-            'bypass_csp': True,
-        }
+        try:
+            import json
+            from pathlib import Path
 
-        # sameSite политика в зависимости от режима (из sso_cookies_debug.py)
-        if headless:
-            cookie_same_site = 'None'  # для headless обход cross-site ограничений
-            cookie_secure = True
-        else:
-            cookie_same_site = 'Lax'   # для GUI как раньше
-            cookie_secure = True
+            project_root = Path(__file__).parent.parent.parent
+            storage_dir = project_root / "storage"
+            storage_file = storage_dir / f"{role}_storage_state.json"
 
-        return context_args, cookie_same_site, cookie_secure
+            if storage_file.exists():
+                with open(storage_file, 'r', encoding='utf-8') as f:
+                    storage_state = json.load(f)
+
+                cookies_count = len(storage_state.get('cookies', []))
+                origins_count = len(storage_state.get('origins', []))
+
+                logger.info(f"Загружен ПОЛНЫЙ storage_state из: {storage_file}")
+                logger.info(f"Storage state содержит: {cookies_count} куков, {origins_count} origins")
+
+                return storage_state
+
+            logger.info(f"Файл storage_state не найден: {storage_file}")
+            return None
+
+        except Exception as e:
+            logger.error(f"Ошибка при загрузке ПОЛНОГО storage_state: {e}")
+            return None
+
+    def _save_storage_state(self, role: str, storage_state: Dict) -> bool:
+        """
+        Сохраняет ПОЛНЫЙ storage_state в файл storage/{role}_storage_state.json
+
+        ИСПРАВЛЕНИЕ: Теперь сохраняет полный storage_state (cookies + origins + storage)
+        в правильную директорию storage/
+
+        Args:
+            role: Роль пользователя
+            storage_state: Полный storage state для сохранения
+
+        Returns:
+            bool: True если сохранение успешно
+        """
+        try:
+            import json
+            from pathlib import Path
+
+            project_root = Path(__file__).parent.parent.parent
+            storage_dir = project_root / "storage"
+            storage_dir.mkdir(exist_ok=True)
+
+            storage_file = storage_dir / f"{role}_storage_state.json"
+
+            with open(storage_file, 'w', encoding='utf-8') as f:
+                json.dump(storage_state, f, indent=2, ensure_ascii=False)
+
+            cookies_count = len(storage_state.get('cookies', []))
+            origins_count = len(storage_state.get('origins', []))
+
+            logger.info(f"ПОЛНЫЙ storage_state сохранен: {storage_file}")
+            logger.info(f"Сохранено: {cookies_count} куков, {origins_count} origins")
+
+            return True
+
+        except Exception as e:
+            logger.error(f"Ошибка при сохранении ПОЛНОГО storage_state: {e}")
+            return False
 
     def get_browser_launch_args(self, headless: bool = False) -> Dict:
         """
         Возвращает аргументы запуска браузера с anti-bot защитой
-        
+
         Args:
             headless: Режим работы (headless или GUI)
-            
+
         Returns:
             Dict: Аргументы запуска браузера
         """
         launch_args = [
             '--disable-web-security',  # КРИТИЧНО для cross-domain cookies
             '--disable-blink-features=AutomationControlled',  # Anti-detection
+            '--disable-features=VizDisplayCompositor',  # Чистая визуализация
         ]
 
         if headless:
             # Новый headless режим с лучшей поддержкой кук (из sso_cookies_debug.py)
             launch_args.append('--headless=new')
-            disable_features = '--disable-features=IsolateOrigins,site-per-process'
-            launch_args.append(disable_features)
+            launch_args.append('--disable-features=IsolateOrigins,site-per-process')
 
-        # builtin headless отключаем, управляем через args
         return {
-            "headless": False,
+            "headless": False,  # Управляем через аргументы
             "args": launch_args,
             "slow_mo": 0,
             "chromium_sandbox": not headless,

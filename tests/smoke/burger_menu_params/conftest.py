@@ -168,14 +168,14 @@ def domain_aware_authenticated_context(browser, multi_domain_context):
     # Авторизация для ВСЕХ доменов (bll, expert, bonus, ca, cp)
     print(f"🎯 Домен {domain_name}: используем умную авторизацию с проверкой кук")
     auth_manager = SmartAuthManager()
-    session_cookie = auth_manager.get_valid_session_cookie(role="admin")
+    cookies_list = auth_manager.get_valid_cookies_list(role="admin")
 
-    if session_cookie:
-        # Добавляем куку в контекст
-        context.add_cookies([session_cookie])
+    if cookies_list:
+        # Добавляем куки в контекст
+        context.add_cookies(cookies_list)
         print(f"✅ Авторизация для домена {domain_name} выполнена")
     else:
-        print(f"⚠️ Не удалось получить куку для домена {domain_name}, используется fallback")
+        print(f"⚠️ Не удалось получить куки для домена {domain_name}, используется fallback")
         # Fallback на стандартную авторизацию
         from framework.utils.auth_cookie_provider import get_auth_cookies
         context.add_cookies(get_auth_cookies(role="admin"))
