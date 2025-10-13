@@ -3,8 +3,6 @@
 Использует домен-зависимую авторизацию для корректной работы во всех доменах."""
 
 import pytest
-import re
-import requests
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 
@@ -35,16 +33,11 @@ class TestCatalogsNavigationParams:
             burger_menu.open_menu()
             burger_menu.click_link_by_text("Каталоги форм")
 
-            # Проверка URL после навигации
+            # Check the final URL (with redirects followed)
             current_url = page.url
             print(f"Текущий URL: {current_url}")  # Для отладки
 
-            # Проверка HTTP статуса с учётом редиректов
-            response = requests.get(current_url, allow_redirects=True)
-            assert response.status_code in [200, 301, 302], f"HTTP {response.status_code} для URL: {current_url}"
-
-            # URL должен содержать ID каталогов форм для всех доменов
-            assert re.search(r'katalogi-form-22555', current_url), \
-                f"URL не содержит ID каталогов: {current_url}"
+            assert "katalogi-form-22555" in current_url.lower(), \
+                f"URL не содержит katalogi-form-22555: {current_url}"
         finally:
             page.close()

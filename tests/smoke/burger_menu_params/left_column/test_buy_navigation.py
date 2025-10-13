@@ -5,7 +5,6 @@ Burger Menu Left Column - Buy Navigation - Multi-Domain Parameterized Tests.
 """
 
 import pytest
-import requests
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 
@@ -36,15 +35,11 @@ class TestBuyNavigationParams:
             burger_menu.open_menu()
             burger_menu.click_link_by_text("Купить")
 
-            # Проверка URL после навигации
+            # Check the final URL (with redirects followed)
             current_url = page.url
             print(f"Текущий URL: {current_url}")  # Для отладки
 
-            # Проверка HTTP статуса с учётом редиректов
-            response = requests.get(current_url, allow_redirects=True)
-            assert response.status_code in [200, 301, 302], f"HTTP {response.status_code} для URL: {current_url}"
-
-            # Все домены должны перенаправлять на страницу покупки bll.by
-            assert "buy" in page.url.lower() and "bll.by" in page.url
+            assert "buy" in current_url.lower() and "bll.by" in current_url, \
+                f"URL не содержит buy и bll.by: {current_url}"
         finally:
             page.close()

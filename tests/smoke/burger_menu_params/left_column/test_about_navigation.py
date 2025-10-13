@@ -5,9 +5,7 @@ Burger Menu Left Column - About Navigation - Multi-Domain Parameterized Tests.
 """
 
 import pytest
-import requests
-from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
-from framework.utils.http_assert_utils import assert_http_status_with_better_message
+from tests.smoke.burger_menu_params.pages.burger_menu_page import BurgerMenuPage
 
 
 @pytest.mark.smoke

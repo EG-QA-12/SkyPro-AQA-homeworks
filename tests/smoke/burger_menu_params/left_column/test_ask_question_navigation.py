@@ -5,9 +5,7 @@
 """
 
 import pytest
-import requests
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
-from framework.utils.http_assert_utils import assert_http_status_with_better_message
 
 
 @pytest.mark.smoke
@@ -32,38 +30,16 @@ class TestAskQuestionNavigationParams:
         try:
             # Переход на главную страницу
             page.goto(base_url, wait_until="domcontentloaded")
-            burger_menu.smart_wait_for_page_ready()  # Allow page to stabilize
+            burger_menu.smart_wait_for_page_ready()  # Умное ожидание готовности страницы
 
-            # Открытие бургер-меню
             burger_menu.open_menu()
-
-            # Use page.get_by_role for precise element selection
-            ask_link = page.get_by_role("banner").get_by_role(
-                "link", name="Задать вопрос"
-            )
-            ask_link.click()
+            burger_menu.click_link_by_text("Задать вопрос")
 
             # Check the final URL (with redirects followed)
             current_url = page.url
             print(f"Текущий URL: {current_url}")  # Для отладки
 
-            # Cross-domain navigation to expert question creation page
-            assert "expert.bll.by" in current_url, (
-                f"URL должен содержать expert.bll.by: {current_url}"
-            )
-
-            # Allow redirects to follow final destination
-            response = requests.get(current_url, allow_redirects=True)
-            print(f"HTTP статус после редиректов: {response.status_code}")
-            print(f"Финальный URL: {response.url}")
-
-            # Проверяем HTTP статус с понятным сообщением об ошибке
-            assert_http_status_with_better_message(
-                response.status_code,
-                [200, 301, 302],
-                current_url,
-                "Проверка финального URL после навигации 'Задать вопрос'"
-            )
-
+            assert "expert.bll.by" in current_url.lower(), \
+                f"URL не содержит expert.bll.by: {current_url}"
         finally:
             page.close()

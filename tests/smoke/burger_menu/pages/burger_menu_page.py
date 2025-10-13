@@ -422,28 +422,28 @@ class BurgerMenuPage:
     def click_link_by_role(self, name: str, timeout: int = 10000) -> bool:
         """
         Кликает по ссылке в меню по ARIA роли (link) и имени (более надежный селектор)
-        
+
         Args:
             name: Имя/текст ссылки
             timeout: Время ожидания в миллисекундах
-            
+
         Returns:
             bool: True если клик выполнен успешно
         """
         try:
             self.logger.info(f"Поиск и клик по ссылке с ARIA ролью link и именем: '{name}'")
-            
+
             if not self.is_menu_open():
                 if not self.open_menu():
                     self.logger.error("Не удалось открыть меню для клика по ссылке")
                     return False
-            
+
             # Используем ARIA роль - самый надежный способ
             link = self.page.get_by_role("link", name=name)
-            
+
             # Пробуем разные стратегии поиска и клика
             success = False
-            
+
             # Стратегия 1: Обычный поиск по ARIA роли с force кликом для скрытых элементов
             try:
                 link.wait_for(state="attached", timeout=timeout//3)
@@ -453,7 +453,7 @@ class BurgerMenuPage:
                 self.logger.info(f"Успешно кликнули по ссылке '{name}' с force=True")
             except Exception as e1:
                 self.logger.warning(f"ARIA роль с force кликом не сработала для '{name}': {e1}")
-            
+
             if not success:
                 # Стратегия 2: Поиск по тексту с force click
                 try:
@@ -465,7 +465,7 @@ class BurgerMenuPage:
                     self.logger.info(f"Успешно кликнули по ссылке '{name}' по тексту с force=True")
                 except Exception as e2:
                     self.logger.warning(f"Поиск по тексту с force кликом не сработал для '{name}': {e2}")
-            
+
             if not success:
                 # Стратегия 3: Поиск по CSS селектору с force кликом
                 try:
@@ -475,12 +475,12 @@ class BurgerMenuPage:
                         f".menu_item_link:has-text('{name}')",
                         f"a:has-text('{name}')",
                     ]
-                    
+
                     for selector in css_selectors:
                         try:
                             css_link = self.page.locator(selector).first
                             css_link.wait_for(state="attached", timeout=timeout//3)
-                            
+
                             # Всегда используем force=True для правой колонки
                             css_link.click(force=True, timeout=timeout//3)
                             success = True
@@ -491,25 +491,25 @@ class BurgerMenuPage:
                             continue
                 except Exception as e:
                     self.logger.warning(f"CSS селекторы не сработали для '{name}': {e}")
-            
+
             if not success:
                 # Стратегия 4: JavaScript клик для скрытых элементов правой колонки
                 try:
                     self.logger.warning(f"Пробуем JavaScript клик для скрытых элементов правой колонки '{name}'")
-                    
+
                     # Прокручиваем вправо для отображения правых колонок
                     self.page.evaluate("window.scrollTo({ left: 1000, behavior: 'smooth' });")
                     self.page.wait_for_timeout(1000)
-                    
+
                     # Ищем элемент по тексту
                     js_selector = f"a:has-text('{name}')"
                     js_link = self.page.locator(js_selector).first
-                    
+
                     if js_link.count() > 0:
                         # Получаем href элемента
                         href = js_link.get_attribute('href') or ""
                         self.logger.info(f"Найден элемент с href: {href}")
-                        
+
                         # Используем JavaScript для клика по скрытому элементу
                         js_click_result = self.page.evaluate(f"""
                             // Ищем элемент по тексту
@@ -544,9 +544,18 @@ class BurgerMenuPage:
                                     break;
                                 }}
                             }}
+                            // Возвращаем результат клика
                             clicked;
                         """)
-                        
+
+                        self.logger.info(f"JavaScript клик вернул результат: {js_click_result}")
+
+                        if js_click_result:
+                            success = True
+                            self.logger.info(f"Успешно кликнули по скрытому элементу '{name}' через JavaScript")
+                        else:
+                            self.logger.warning(f"JavaScript клик не удался для '{name}'")
+
                         if js_click_result:
                             success = True
                             self.logger.info(f"Успешно кликнули по скрытому элементу '{name}' через JavaScript")
@@ -554,17 +563,30 @@ class BurgerMenuPage:
                             self.logger.warning(f"JavaScript клик не удался для '{name}'")
                     else:
                         self.logger.warning(f"Элемент '{name}' не найден для JavaScript клика")
-                    
+
                 except Exception as js_error:
                     self.logger.error(f"JavaScript клик не сработал для '{name}': {js_error}")
-            
+
             if success:
+                # Ждем перехода на новую страницу после клика
+                try:
+                    self.page.wait_for_load_state("domcontentloaded", timeout=5000)
+                    self.logger.info(f"Страница загрузилась после клика по '{name}'")
+                except Exception as e:
+                    self.logger.warning(f"Не удалось дождаться загрузки страницы после клика: {e}")
+
+                # Дополнительное ожидание для завершения всех сетевых запросов
+                try:
+                    self.page.wait_for_load_state("networkidle", timeout=3000)
+                except Exception:
+                    pass  # networkidle может не наступить, это нормально
+
                 self.logger.info(f"Успешно кликнули по ссылке: '{name}'")
                 return True
             else:
                 self.logger.error(f"Не удалось кликнуть по ссылке '{name}' всеми стратегиями")
                 return False
-        
+
         except Exception as e:
             self.logger.error(f"Ошибка при клике по ссылке '{name}': {e}")
             return False

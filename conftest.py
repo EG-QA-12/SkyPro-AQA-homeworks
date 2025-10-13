@@ -20,6 +20,9 @@ import pytest
 import requests
 from dotenv import load_dotenv
 
+# Импорт Allure утилит для автоматической интеграции
+from framework.utils.reporting.allure_utils import *
+
 # Абсолютный путь до корня репозитория (папка, где расположен этот conftest)
 PROJECT_ROOT = Path(__file__).parent.resolve()
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -70,6 +73,10 @@ def browser_launch_args():
 
     Возвращает набор флагов Chrome для максимального обхода антибот защиты.
     """
+    # ДИАГНОСТИКА: Проверяем переменные окружения
+    headless_env = os.getenv('HEADLESS', 'NOT_SET')
+    print(f"🔍 DEBUG: HEADLESS env var: '{headless_env}'")
+
     # ДИАГНОСТИКА: Проверяем переменные окружения
     headless_env = os.getenv('HEADLESS', 'NOT_SET')
     print(f"🔍 DEBUG: HEADLESS env var: '{headless_env}'")

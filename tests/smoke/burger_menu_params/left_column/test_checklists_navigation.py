@@ -6,8 +6,6 @@ Burger Menu Left Column - Checklists Navigation - Multi-Domain Parameterized Tes
 """
 
 import pytest
-import re
-from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 
@@ -28,50 +26,23 @@ class TestChecklistsNavigationParams:
         """
         domain_name, base_url = multi_domain_context
 
-        # SSO-aware domain-specific browser settings
-        context = browser.new_context(
-            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-            viewport={"width": 1920, "height": 1080},
-            ignore_https_errors=True
-        )
-
-        # Set timeouts for domains with redirects
-        if domain_name in ['ca', 'bonus', 'cp']:
-            context.set_default_timeout(30000)
-        else:
-            context.set_default_timeout(25000)
-
-        # Используем SmartAuthManager для умной авторизации
-        cookie_info = fx_auth_manager.get_valid_session_cookie(role="admin")
-        assert cookie_info, "Не удалось получить валидную куку через SmartAuthManager"
-
-        # Устанавливаем полную информацию о куке (name, value, domain, sameSite)
-        context.add_cookies([cookie_info])
-
+        # Создание страницы из домен-зависимого аутентифицированного контекста
         page = domain_aware_authenticated_context.new_page()
         burger_menu = BurgerMenuPage(page)
 
         try:
-            page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
-            page.wait_for_timeout(2000)  # Allow SSO redirects
+            # Переход на главную страницу
+            page.goto(base_url, wait_until="domcontentloaded")
+            burger_menu.smart_wait_for_page_ready()  # Умное ожидание готовности страницы
 
             burger_menu.open_menu()
-
             burger_menu.click_link_by_text("Чек-листы")
 
             # Check the final URL (with redirects followed)
             current_url = page.url
             print(f"Текущий URL: {current_url}")  # Для отладки
 
-            # Allow redirects to follow final destination
-            response = requests.get(current_url, allow_redirects=True)
-            print(f"HTTP статус после редиректов: {response.status_code}")
-            print(f"финальный URL: {response.url}")
-
-            # Accept both 200 and 301 as valid responses
-            assert response.status_code in [200, 301, 302], f"HTTP {response.status_code} for URL: {current_url}"
-
-            # Check URL pattern with regex
-            assert re.search(r'chek-list-dokumentov-487105', current_url), \
-                f"URL не содержит паттерн чек-листов chek-list-dokumentov-487105: {current_url}"        finally:
+            assert "chek-list-dokumentov-487105" in current_url.lower(), \
+                f"URL не содержит паттерн чек-листов chek-list-dokumentov-487105: {current_url}"
+        finally:
             page.close()

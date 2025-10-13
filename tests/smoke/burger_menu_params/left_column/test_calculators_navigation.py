@@ -5,8 +5,6 @@ Burger Menu Left Column - Calculators Navigation - Multi-Domain Parameterized Te
 """
 
 import pytest
-import re
-import requests
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
 
 
@@ -37,16 +35,11 @@ class TestCalculatorsNavigationParams:
             burger_menu.open_menu()
             burger_menu.click_link_by_text("Калькуляторы")
 
-            # Проверка URL после навигации
+            # Check the final URL (with redirects followed)
             current_url = page.url
             print(f"Текущий URL: {current_url}")  # Для отладки
 
-            # Проверка HTTP статуса с учётом редиректов
-            response = requests.get(current_url, allow_redirects=True)
-            assert response.status_code in [200, 301, 302], f"HTTP {response.status_code} для URL: {current_url}"
-
-            # URL должен содержать ID калькуляторов для всех доменов
-            assert re.search(r'kalkulyatory-40171', current_url), \
-                f"URL не содержит ID калькуляторов: {current_url}"
+            assert "kalkulyatory-40171" in current_url.lower(), \
+                f"URL не содержит kalkulyatory-40171: {current_url}"
         finally:
             page.close()

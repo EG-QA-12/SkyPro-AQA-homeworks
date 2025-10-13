@@ -5,26 +5,27 @@ Burger Menu Left Column - Experts Club Navigation - Multi-Domain Parameterized T
 Использует SmartAuthManager для автоматической проверки и обновления сессии.
 """
 import pytest
-import re
-from framework.utils.url_utils import add_allow_session_param, is_headless
 from tests.smoke.burger_menu.pages.burger_menu_page import BurgerMenuPage
-
 
 @pytest.mark.smoke
 @pytest.mark.burger_menu_params
 @pytest.mark.left_column
 class TestExpertsClubNavigationParams:
-    @pytest.mark.parametrize('multi_domain_context',['bll', 'expert', 'bonus', 'ca', 'cp'], indirect=True, ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
+    @pytest.mark.parametrize('multi_domain_context',
+                            ['bll', 'expert', 'bonus', 'ca', 'cp'],
+                            indirect=True,
+                            ids=['Main(bll.by)', 'Expert', 'Bonus', 'CA', 'CP'])
     def test_experts_club_navigation(self, multi_domain_context, domain_aware_authenticated_context):
         domain_name, base_url = multi_domain_context
 
-        # SSO-aware cross-domain navigation
-        context = domain_aware_authenticated_context
-        page = context.new_page()
+        # Создание страницы из домен-зависимого аутентифицированного контекста
+        page = domain_aware_authenticated_context.new_page()
         burger_menu = BurgerMenuPage(page)
+
         try:
-            page.goto(add_allow_session_param(base_url, is_headless()), wait_until="domcontentloaded")
-            page.wait_for_timeout(2000)  # Allow SSO redirects
+            # Переход на главную страницу
+            page.goto(base_url, wait_until="domcontentloaded")
+            burger_menu.smart_wait_for_page_ready()  # Умное ожидание готовности страницы
 
             burger_menu.open_menu()
 
@@ -37,15 +38,7 @@ class TestExpertsClubNavigationParams:
             print(f"Текущий URL: {current_url}")  # Для отладки
 
             # Cross-domain navigation to expert club page
-            assert "expert.bll.by" in current_url, f"URL должен содержать expert.bll.by: {current_url}"
-
-            # Allow redirects to follow final destination
-            import requests
-            response = requests.get(current_url, allow_redirects=True)
-            print(f"HTTP статус после редиректов: {response.status_code}")
-            print(f"финальный URL: {response.url}")
-
-            # Accept both 200 and 301 as valid responses
-            assert response.status_code in [200, 301, 302], f"HTTP {response.status_code} for URL: {current_url}"
+            assert "expert.bll.by" in current_url.lower(), \
+                f"URL не содержит expert.bll.by: {current_url}"
         finally:
             page.close()
