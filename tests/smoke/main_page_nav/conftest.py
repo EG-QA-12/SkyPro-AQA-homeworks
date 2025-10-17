@@ -60,8 +60,13 @@ def domain_aware_authenticated_context_for_bll(browser):
     session_cookie = auth_manager.get_valid_session_cookie(role="admin")
 
     if session_cookie:
-        # Добавляем куку в контекст - приводим к формату списка словарей
-        cookies_list = [session_cookie] if isinstance(session_cookie, dict) else [session_cookie]
+        # Правильное преобразование строки в формат Playwright
+        cookies_list = [{
+            "name": "test_joint_session",
+            "value": session_cookie,
+            "domain": ".bll.by",
+            "path": "/"
+        }]
         context.add_cookies(cookies_list)
         print("✅ Авторизация для домена bll выполнена")
     else:
