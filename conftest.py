@@ -66,14 +66,16 @@ def http_session() -> Generator[requests.Session, None, None]:
 @pytest.fixture(scope="session")
 def browser_launch_args():
     """
-    МИНИМАЛЬНЫЕ АНТИБОТ АРГУМЕНТЫ - БЕЗОПАСНЫЙ НАБОР
+    МИНИМАЛЬНЫЕ АНТИБОТ АРГУМЕНТЫ - БЕЗОПАСНЫЙ НАБОР + --headless=new
 
     Только проверенные фишки без кондиктов с pytest-playwright.
-    Избавляемся от овер-агрессивных аргументов которые ломают тесты.
+    Добавляем --headless=new для лучшей поддержки headless режима.
     """
-    # GUI режим по умолчанию
-    headless_mode = False
-    print(f"🔍 browser_launch_args: SAFE MODE, headless={headless_mode}")
+    # Используем глобальную переменную головного режима
+    global IS_HEADLESS_MODE
+    headless_mode = IS_HEADLESS_MODE
+
+    print(f"🔍 browser_launch_args: SAFE MODE + headless=new, headless={headless_mode}")
 
     # ТОЛЬКО БАЗОВЫЕ БЕЗОПАСНЫЕ АНТИБОТ АРГУМЕНТЫ
     launch_args = [
@@ -82,6 +84,11 @@ def browser_launch_args():
         "--disable-web-security",  # НУЖЕН для cross-domain .bll.by cookies
         "--no-sandbox",  # Стабильность
     ]
+
+    # ДОБАВЛЯЕМ --headless=new ТОЛЬКО В HEADLESS РЕЖИМЕ
+    if headless_mode:
+        print("🎯 ДОБАВЛЯЕМ --headless=new для лучших headless capabilities")
+        launch_args.append("--headless=new")
 
     return {
         "headless": headless_mode,
