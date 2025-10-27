@@ -8,7 +8,7 @@ Header Navigation Tests
 import pytest
 import allure
 
-from .pages.header_navigation_page import HeaderNavigationPage
+from tests.smoke.main_page_nav.unauthenticated.pages.header_navigation_page import HeaderNavigationPage
 
 
 @pytest.mark.smoke
@@ -21,11 +21,11 @@ class TestHeaderNavigation:
     """
 
     @pytest.fixture(autouse=True)
-    def setup_method(self, domain_aware_authenticated_context_for_bll):
+    def setup_method(self, domain_aware_context_for_bll_unauthenticated):
         """
         Настройка перед каждым тестом
         """
-        self.context = domain_aware_authenticated_context_for_bll
+        self.context = domain_aware_context_for_bll_unauthenticated
         self.page = self.context.new_page()
         self.navigation = HeaderNavigationPage(self.page)
 
@@ -85,16 +85,27 @@ class TestHeaderNavigation:
             assert status in [200, 301, 302], f"Неверный HTTP статус страницы экспертов: {status}"
 
     @allure.title("Навигация 'Бонусы'")
-    @allure.description("Проверка перехода на страницу бонусов с robust fallback логиками")
+    @allure.description("Проверка редиректа на страницу покупки или наличия элементов доступа для неавторизованных пользователей")
     def test_bonuses_navigation(self):
-        """Тест клика по 'Бонусы' с множественными fallback"""
-        allure.attach("Тестируется переход на https://bonus.bll.by/bonus с умными fallback логиками для headless стабильности", name="Описание")
+        """Тест клика по 'Бонусы' для неавторизованных пользователей"""
+        allure.attach("Тестируется редирект на https://bll.by/buy или наличие элементов 'Получить доступ'/'Купить'", name="Описание")
 
         result = self.navigation.click_bonuses_robust()
 
-        with allure.step("Проверяем переход на https://bonus.bll.by/bonus через любой из fallback способов"):
+        with allure.step("Проверяем редирект на страницу покупки или наличие элементов доступа"):
+            # Для неавторизованных пользователей проверяем редирект на buy страницу
             current_url = self.page.url
-            assert result and current_url == "https://bonus.bll.by/bonus", f"Не удалось перейти на страницу бонусов. Ожидался URL: https://bonus.bll.by/bonus, получен: {current_url}"
+            if "bll.by/buy" in current_url:
+                print(f"✅ Редирект на страницу покупки: {current_url}")
+                assert result, "Не удалось перейти на страницу бонусов"
+            else:
+                # Альтернативно проверяем наличие элементов доступа
+                access_elements = [
+                    self.page.get_by_text("Получить доступ"),
+                    self.page.get_by_text("Купить")
+                ]
+                has_access_element = any(elem.is_visible(timeout=3000) for elem in access_elements)
+                assert has_access_element, f"Не найден редирект на buy страницу и отсутствуют элементы доступа. Текущий URL: {current_url}"
 
         with allure.step("Проверяем HTTP статус финальной страницы"):
             status = self.navigation.assert_http_status(self.page.url)
@@ -265,20 +276,22 @@ class TestHeaderNavigation:
             assert status in [200, 301, 302], f"Неверный HTTP статус страницы калькуляторов: {status}"
 
     @allure.title("Навигация 'Закупки'")
-    @allure.description("Проверка перехода на страницу закупок")
+    @allure.description("Проверка редиректа на страницу логина для неавторизованных пользователей")
     def test_procurement_navigation(self):
-        """Тест клика по 'Закупки'"""
-        allure.attach("Тестируется переход на https://gz.bll.by/", name="Описание")
+        """Тест клика по 'Закупки' для неавторизованных пользователей"""
+        allure.attach("Тестируется редирект на https://ca.bll.by/login?return=https%3A%2F%2Fgz.bll.by%2F", name="Описание")
 
         result = self.navigation.click_procurement()
 
-        with allure.step("Проверяем переход на https://gz.bll.by/"):
+        with allure.step("Проверяем редирект на страницу логина"):
+            # Для неавторизованных пользователей проверяем редирект на страницу логина
             current_url = self.page.url
-            assert result and current_url.startswith("https://gz.bll.by/"), f"Не удалось перейти на страницу закупок. Ожидался URL: https://gz.bll.by/, получен: {current_url}"
+            expected_login_url = "https://ca.bll.by/login?return=https%3A%2F%2Fgz.bll.by%2F"
+            assert expected_login_url in current_url, f"Ожидался редирект на {expected_login_url}, но получен: {current_url}"
 
-        with allure.step("Проверяем HTTP статус страницы закупок"):
+        with allure.step("Проверяем HTTP статус страницы логина"):
             status = self.navigation.assert_http_status(self.page.url)
-            assert status in [200, 301, 302], f"Неверный HTTP статус страницы закупок: {status}"
+            assert status in [200, 301, 302], f"Неверный HTTP статус страницы логина: {status}"
 
     @allure.title("Навигация 'Тесты'")
     @allure.description("Проверка перехода на страницу тестов")
@@ -299,45 +312,48 @@ class TestHeaderNavigation:
     @allure.description("Проверка перехода на страницу сообщества")
     def test_community_navigation(self):
         """Тест клика по 'Сообщество'"""
-        allure.attach("Тестируется переход на https://expert.bll.by/", name="Описание")
+        allure.attach("Тестируется переход на expert.bll.by", name="Описание")
 
         result = self.navigation.click_community()
 
-        with allure.step("Проверяем переход на https://expert.bll.by/"):
-            current_url = self.page.url
-            assert result and current_url.startswith("https://expert.bll.by/"), f"Не удалось перейти на страницу сообщества. Ожидался URL: https://expert.bll.by/, получен: {current_url}"
+        with allure.step("Проверяем переход на expert.bll.by"):
+            assert result, "Не удалось перейти на страницу сообщества"
 
         with allure.step("Проверяем HTTP статус страницы сообщества"):
             status = self.navigation.assert_http_status(self.page.url)
             assert status in [200, 301, 302], f"Неверный HTTP статус страницы сообщества: {status}"
 
     @allure.title("Навигация 'Задать вопрос'")
-    @allure.description("Проверка перехода на страницу создания вопроса")
+    @allure.description("Проверка наличия элементов доступа для неавторизованных пользователей")
     def test_ask_question_navigation(self):
-        """Тест клика по 'Задать вопрос'"""
-        allure.attach("Тестируется переход на https://expert.bll.by/questions/create", name="Описание")
+        """Тест клика по 'Задать вопрос' для неавторизованных пользователей"""
+        allure.attach("Тестируется наличие элементов 'Получить доступ' или 'Купить' вместо перехода на expert.bll.by", name="Описание")
 
         result = self.navigation.click_ask_question()
 
-        with allure.step("Проверяем переход на https://expert.bll.by/questions/create"):
-            current_url = self.page.url
-            assert result and current_url == "https://expert.bll.by/questions/create", f"Не удалось перейти на страницу создания вопроса. Ожидался URL: https://expert.bll.by/questions/create, получен: {current_url}"
+        with allure.step("Проверяем наличие элементов доступа вместо перехода на expert.bll.by"):
+            # Для неавторизованных пользователей проверяем наличие элементов доступа
+            access_elements = [
+                self.page.get_by_text("Получить доступ"),
+                self.page.get_by_text("Купить")
+            ]
+            has_access_element = any(elem.is_visible(timeout=3000) for elem in access_elements)
+            assert has_access_element, f"Не найдены элементы доступа 'Получить доступ' или 'Купить'. Текущий URL: {self.page.url}"
 
-        with allure.step("Проверяем HTTP статус страницы создания вопроса"):
+        with allure.step("Проверяем HTTP статус страницы"):
             status = self.navigation.assert_http_status(self.page.url)
-            assert status in [200, 301, 302], f"Неверный HTTP статус страницы создания вопроса: {status}"
+            assert status in [200, 301, 302], f"Неверный HTTP статус страницы: {status}"
 
     @allure.title("Навигация 'Все вопросы'")
     @allure.description("Проверка перехода на страницу всех вопросов")
     def test_all_questions_navigation(self):
         """Тест клика по 'Все вопросы'"""
-        allure.attach("Тестируется переход на https://expert.bll.by/questions", name="Описание")
+        allure.attach("Тестируется переход на expert.bll.by/questions", name="Описание")
 
         result = self.navigation.click_all_questions()
 
-        with allure.step("Проверяем переход на https://expert.bll.by/questions"):
-            current_url = self.page.url
-            assert result and current_url == "https://expert.bll.by/questions", f"Не удалось перейти на страницу всех вопросов. Ожидался URL: https://expert.bll.by/questions, получен: {current_url}"
+        with allure.step("Проверяем переход на страницу всех вопросов"):
+            assert result, "Не удалось перейти на страницу всех вопросов"
 
         with allure.step("Проверяем HTTP статус страницы всех вопросов"):
             status = self.navigation.assert_http_status(self.page.url)

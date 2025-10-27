@@ -8,7 +8,7 @@ Main Menu Tests
 import pytest
 import allure
 
-from tests.smoke.main_page_nav.unauthenticated.pages.header_navigation_page import HeaderNavigationPage
+from ..pages.header_navigation_page import HeaderNavigationPage
 
 
 @pytest.mark.smoke
@@ -21,11 +21,11 @@ class TestMainPageMenu:
     """
 
     @pytest.fixture(autouse=True)
-    def setup_method(self, domain_aware_context_for_bll):
+    def setup_method(self, domain_aware_authenticated_context_for_bll):
         """
         Настройка перед каждым тестом
         """
-        self.context = domain_aware_context_for_bll
+        self.context = domain_aware_authenticated_context_for_bll
         self.page = self.context.new_page()
         self.navigation = HeaderNavigationPage(self.page)
 
@@ -66,6 +66,14 @@ class TestMainPageMenu:
              "Переход на страницу закупок"),
             ("Тесты", "click_tests", "testy-dlya-proverki-znanij-212555",
              "Переход на страницу тестов"),
+            ("Налоговый кодекс", "click_edition_tax_code", "nalogovyj-kodeks",
+             "Переход на страницу налогового кодекса"),
+            ("Гражданский кодекс", "click_edition_civil_code", "grazhdanskij-kodeks",
+             "Переход на страницу гражданского кодекса"),
+            ("Трудовой кодекс", "click_edition_labor_code", "trudovoj-kodeks",
+             "Переход на страницу трудового кодекса"),
+            ("Уголовный кодекс", "click_edition_criminal_code", "ugolovnyj-kodeks",
+             "Переход на страницу уголовного кодекса"),
         ]
     )
     @allure.title("Навигация по пункту меню '{link_name}'")
@@ -74,7 +82,7 @@ class TestMainPageMenu:
             self, link_name, method_name, expected_fragment, description):
         """
         Параметризованный тест для проверки навигации по основному меню
-
+        
         Args:
             link_name: Название пункта меню для отображения в отчетах
             method_name: Название метода для клика по пункту меню
@@ -123,8 +131,9 @@ class TestMainPageMenu:
             "Калькуляторы",
             "Закупки",
             "Тесты",
+            "Выбор редакции",
         ]
-
+        
         with allure.step("Проверяем видимость пунктов основного меню"):
             for item_name in menu_items:
                 try:
@@ -133,7 +142,7 @@ class TestMainPageMenu:
                         link = self.page.get_by_role("link", name=item_name).first
                     else:
                         link = self.page.get_by_role("link", name=item_name)
-
+                    
                     is_visible = link.is_visible(timeout=3000)
                     status_text = "Видим" if is_visible else "Не видим"
                     allure.attach(
@@ -163,8 +172,9 @@ class TestMainPageMenu:
             "Калькуляторы",
             "Закупки",
             "Тесты",
+            "Выбор редакции",
         ]
-
+        
         with allure.step("Проверяем количество пунктов меню"):
             try:
                 # Ищем все ссылки в основной навигации
@@ -172,7 +182,7 @@ class TestMainPageMenu:
                 count = navigation_links.count()
                 message = f"Найдено пунктов меню: {count}"
                 allure.attach(message, name="Количество")
-
+                
                 # Проверяем что количество соответствует ожидаемому
                 # (может быть больше из-за дополнительных ссылок)
                 assert count >= len(expected_items), (
@@ -193,7 +203,7 @@ class TestMainPageMenu:
                             found_items.append(item_name)
                     except Exception:
                         pass
-
+                
                 allure.attach(
                     f"Найденные пункты в порядке: {', '.join(found_items)}",
                     name="Порядок пунктов")

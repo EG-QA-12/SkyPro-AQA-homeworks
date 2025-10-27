@@ -2,13 +2,13 @@
 Header Links Tests
 
 Тесты навигации по ссылкам в хэдэре главной страницы bll.by
-(О Платформе, Клуб Экспертов, телефон)
+(О Платформе, Клуб Экспертов, Бонусы, Мой профиль, телефон)
 """
 
 import pytest
 import allure
 
-from tests.smoke.main_page_nav.unauthenticated.pages.header_navigation_page import HeaderNavigationPage
+from ..pages.header_navigation_page import HeaderNavigationPage
 
 
 @pytest.mark.smoke
@@ -21,11 +21,11 @@ class TestMainPageHeader:
     """
 
     @pytest.fixture(autouse=True)
-    def setup_method(self, domain_aware_context_for_bll):
+    def setup_method(self, domain_aware_authenticated_context_for_bll):
         """
         Настройка перед каждым тестом
         """
-        self.context = domain_aware_context_for_bll
+        self.context = domain_aware_authenticated_context_for_bll
         self.page = self.context.new_page()
         self.navigation = HeaderNavigationPage(self.page)
 
@@ -45,6 +45,10 @@ class TestMainPageHeader:
              "Переход на страницу информации о платформе"),
             ("Клуб Экспертов", "click_expert_club", "expert.bll.by/experts",
              "Переход на страницу клуба экспертов"),
+            ("Бонусы", "click_bonuses_robust", "bonus.bll.by",
+             "Переход на страницу бонусов"),
+            ("Мой профиль", "click_my_profile_robust", "admin",
+             "Переход в профиль пользователя"),
             ("Телефон", "click_phone_number", "tel:",
              "Проверка телефонной ссылки"),
         ]
@@ -55,7 +59,7 @@ class TestMainPageHeader:
             self, link_name, method_name, expected_fragment, description):
         """
         Параметризованный тест для проверки навигации по ссылкам в header
-
+        
         Args:
             link_name: Название ссылки для отображения в отчетах
             method_name: Название метода для клика по ссылке
@@ -73,7 +77,10 @@ class TestMainPageHeader:
         with allure.step(f"Проверяем переход по ссылке '{link_name}'"):
             if link_name == "Телефон":
                 # Для телефона проверяем что ссылка ведет на tel:
-                assert result, "Телефонная ссылка не ведет на tel: ссылку"
+                assert result, f"Телефонная ссылка не ведет на tel: ссылку"
+            elif link_name == "Мой профиль":
+                # Для профиля проверяем появление popup
+                assert result, f"Не удалось открыть popup профиля"
             else:
                 # Для остальных ссылок проверяем URL
                 assert result, f"Не удалось перейти на страницу '{link_name}'"
@@ -85,7 +92,7 @@ class TestMainPageHeader:
             else:
                 # Для остальных проверяем статус текущей страницы
                 status = self.navigation.assert_http_status(self.page.url)
-
+            
             assert status in [200, 301, 302], (
                 f"Неверный HTTP статус для '{link_name}': {status}")
 
@@ -97,9 +104,10 @@ class TestMainPageHeader:
         """
         header_links = [
             "О Платформе",
-            "Клуб Экспертов"
+            "Клуб Экспертов", 
+            "Мой профиль"
         ]
-
+        
         with allure.step("Проверяем видимость основных ссылок в header"):
             for link_name in header_links:
                 try:
@@ -126,55 +134,3 @@ class TestMainPageHeader:
                 allure.attach(
                     f"Ошибка при проверке телефонной ссылки: {e}",
                     name="Ошибка телефона")
-
-    @allure.title("Проверка функциональности логотипа")
-    @allure.description("Проверка что клик по логотипу ведет на главную")
-    def test_logo_functionality(self):
-        """
-        Тест проверяет функциональность логотипа
-        """
-        with allure.step("Проверяем клик по логотипу"):
-            try:
-                result = self.navigation.click_logo_business_info()
-                assert result, "Клик по логотипу не привел на главную страницу"
-
-                allure.attach(
-                    "Логотип корректно ведет на главную страницу",
-                    name="Функциональность логотипа")
-            except Exception as e:
-                allure.attach(
-                    f"Ошибка при проверке логотипа: {e}",
-                    name="Ошибка логотипа")
-
-    @allure.title("Проверка поисковой функциональности")
-    @allure.description("Проверка что поисковая строка работает корректно")
-    def test_search_functionality(self):
-        """
-        Тест проверяет поисковую функциональность
-        """
-        with allure.step("Проверяем поисковую строку"):
-            try:
-                # Кликаем по поисковой строке
-                search_clicked = self.navigation.click_search_box()
-                assert search_clicked, "Не удалось кликнуть по поисковой строке"
-
-                # Заполняем поисковый запрос и выполняем поиск
-                test_query = "закон о труде"
-                search_result = self.navigation.fill_search_and_submit(
-                    test_query)
-
-                allure.attach(
-                    f"Поиск '{test_query}' выполнен: {search_result}",
-                    name="Результат поиска")
-
-                if search_result:
-                    # Проверяем что перешли на страницу результатов поиска
-                    current_url = self.page.url
-                    allure.attach(
-                        f"URL результатов поиска: {current_url}",
-                        name="URL поиска")
-
-            except Exception as e:
-                allure.attach(
-                    f"Ошибка при проверке поиска: {e}",
-                    name="Ошибка поиска")

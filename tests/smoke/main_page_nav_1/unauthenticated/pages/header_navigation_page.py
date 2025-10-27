@@ -5,7 +5,9 @@ Header Navigation Page Object
 (логотип, телефон, главное меню, профиль)
 """
 
-from tests.smoke.main_page_nav.pages.base_navigation_page import BaseNavigationPage
+from tests.smoke.main_page_nav.unauthenticated.pages.base_navigation_page import (
+    BaseNavigationPage,
+)
 
 
 class HeaderNavigationPage(BaseNavigationPage):
@@ -42,9 +44,6 @@ class HeaderNavigationPage(BaseNavigationPage):
     def click_phone_number(self):
         """Клик по телефону (должен открыть tel: ссылку)"""
         try:
-            # Закрываем expire popup если он есть
-            self.close_expire_popup()
-
             # Ищем ссылку телефона в header
             phone_link = self.page.get_by_role("banner").get_by_role(
                 "link", name="+375 17 388-32-")
@@ -229,7 +228,6 @@ class HeaderNavigationPage(BaseNavigationPage):
 
     def click_everything_by_topic(self):
         """Клик по 'Всё по одной теме'"""
-        self.close_expire_popup()
         self.page.get_by_role("link", name="Всё по одной теме").click()
         return self.wait_for_url_change("podborki-vsyo-po-odnoj-teme-200084")
 
@@ -250,7 +248,6 @@ class HeaderNavigationPage(BaseNavigationPage):
 
     def click_constructors(self):
         """Клик по 'Конструкторы'"""
-        self.close_expire_popup()
         self.page.get_by_role("link", name="Конструкторы").click()
         return self.wait_for_url_change("konstruktory-200077")
 
@@ -286,19 +283,16 @@ class HeaderNavigationPage(BaseNavigationPage):
 
     def click_tests(self):
         """Клик по 'Тесты'"""
-        self.close_expire_popup()
         self.page.get_by_role("link", name="Тесты").click()
         return self.wait_for_url_change("testy-dlya-proverki-znanij-212555")
 
     def click_community(self):
         """Клик по 'Сообщество'"""
-        self.close_expire_popup()
         self.page.get_by_role("link", name="Сообщество").click()
         return self.wait_for_url_change("expert.bll.by")
 
     def click_ask_question(self):
         """Клик по 'Задать вопрос'"""
-        self.close_expire_popup()
         self.page.get_by_role("link", name="Задать вопрос").click()
         # Для внешнего домена expert.bll.by используем проверку URL через паузу
         self.page.wait_for_timeout(3000)
@@ -317,7 +311,6 @@ class HeaderNavigationPage(BaseNavigationPage):
 
     def click_reference_info(self):
         """Клик по 'Справочная информация'"""
-        self.close_expire_popup()
         self.page.get_by_role("link", name="Справочная информация").click()
         return self.wait_for_url_change("200083")
 
@@ -391,12 +384,8 @@ class HeaderNavigationPage(BaseNavigationPage):
         self.page.get_by_role("link", name="Календарь мероприятий →").click()
         return self.wait_for_url_change("471630")
 
-    def click_video_answers(self):
+    def click_video_answers_old(self):
         """Клик по 'Видеоответы NEW'"""
-        # Закрываем expire popup если он открыт (используем улучшенный метод из базового класса)
-        self.close_expire_popup()
-
-        # Теперь кликаем по ссылке видеоответов
         self.page.get_by_role("link", name="Видеоответы NEW").click()
         return self.wait_for_url_change("videootvety-490299")
 
@@ -406,90 +395,6 @@ class HeaderNavigationPage(BaseNavigationPage):
         return self.wait_for_url_change("kalendar-internet-seminarov")
 
     def click_events(self):
-        """Клик по 'Мероприятия'"""
-        self.page.get_by_role("link", name="Мероприятия").click()
-        return self.wait_for_url_change("kalendar-meropriyatij")
-
-    def click_edition_tax_code(self):
-        """Клик по подразделу 'Налоговый кодекс' в выборе редакции"""
-        try:
-            # Сначала открываем выбор редакции если нужно
-            edition_link = self.page.get_by_role("link", name="Выбор редакции")
-            if edition_link.is_visible():
-                edition_link.click()
-                self.page.wait_for_timeout(1000)
-
-            # Ищем и кликаем по подразделу Налоговый кодекс
-            tax_code_link = self.page.get_by_role("link", name="Налоговый кодекс")
-            if tax_code_link.is_visible():
-                tax_code_link.click()
-                return self.wait_for_url_change("nalogovyj-kodeks")
-            else:
-                print("❌ Подраздел 'Налоговый кодекс' не найден")
-                return False
-        except Exception as e:
-            print(f"❌ Ошибка клика по подразделу 'Налоговый кодекс': {e}")
-            return False
-
-    def click_edition_civil_code(self):
-        """Клик по подразделу 'Гражданский кодекс' в выборе редакции"""
-        try:
-            # Сначала открываем выбор редакции если нужно
-            edition_link = self.page.get_by_role("link", name="Выбор редакции")
-            if edition_link.is_visible():
-                edition_link.click()
-                self.page.wait_for_timeout(1000)
-
-            # Ищем и кликаем по подразделу Гражданский кодекс
-            civil_code_link = self.page.get_by_role("link", name="Гражданский кодекс")
-            if civil_code_link.is_visible():
-                civil_code_link.click()
-                return self.wait_for_url_change("grazhdanskij-kodeks")
-            else:
-                print("❌ Подраздел 'Гражданский кодекс' не найден")
-                return False
-        except Exception as e:
-            print(f"❌ Ошибка клика по подразделу 'Гражданский кодекс': {e}")
-            return False
-
-    def click_edition_labor_code(self):
-        """Клик по подразделу 'Трудовой кодекс' в выборе редакции"""
-        try:
-            # Сначала открываем выбор редакции если нужно
-            edition_link = self.page.get_by_role("link", name="Выбор редакции")
-            if edition_link.is_visible():
-                edition_link.click()
-                self.page.wait_for_timeout(1000)
-
-            # Ищем и кликаем по подразделу Трудовой кодекс
-            labor_code_link = self.page.get_by_role("link", name="Трудовой кодекс")
-            if labor_code_link.is_visible():
-                labor_code_link.click()
-                return self.wait_for_url_change("trudovoj-kodeks")
-            else:
-                print("❌ Подраздел 'Трудовой кодекс' не найден")
-                return False
-        except Exception as e:
-            print(f"❌ Ошибка клика по подразделу 'Трудовой кодекс': {e}")
-            return False
-
-    def click_edition_criminal_code(self):
-        """Клик по подразделу 'Уголовный кодекс' в выборе редакции"""
-        try:
-            # Сначала открываем выбор редакции если нужно
-            edition_link = self.page.get_by_role("link", name="Выбор редакции")
-            if edition_link.is_visible():
-                edition_link.click()
-                self.page.wait_for_timeout(1000)
-
-            # Ищем и кликаем по подразделу Уголовный кодекс
-            criminal_code_link = self.page.get_by_role("link", name="Уголовный кодекс")
-            if criminal_code_link.is_visible():
-                criminal_code_link.click()
-                return self.wait_for_url_change("ugolovnyj-kodeks")
-            else:
-                print("❌ Подраздел 'Уголовный кодекс' не найден")
-                return False
-        except Exception as e:
-            print(f"❌ Ошибка клика по подразделу 'Уголовный кодекс': {e}")
-            return False
+        """Клик по 'События'"""
+        self.page.get_by_role("link", name="События").click()
+        return self.wait_for_url_change("events")
