@@ -66,50 +66,28 @@ def http_session() -> Generator[requests.Session, None, None]:
 @pytest.fixture(scope="session")
 def browser_launch_args():
     """
-    Аргументы запуска браузера с защитой от детекции автоматизации.
+    МИНИМАЛЬНЫЕ АНТИБОТ АРГУМЕНТЫ - БЕЗОПАСНЫЙ НАБОР
 
-    ПО УМОЛЧАНИЮ: GUI режим (видимый браузер) для удобства разработки.
-    Для headless режима (CI/CD): установите переменную окружения HEADLESS=true
-
-    Возвращает набор флагов Chrome для максимального обхода антибот защиты.
+    Только проверенные фишки без кондиктов с pytest-playwright.
+    Избавляемся от овер-агрессивных аргументов которые ломают тесты.
     """
-    # ДИАГНОСТИКА: Проверяем переменные окружения
-    headless_env = os.getenv('HEADLESS', 'NOT_SET')
-    print(f"🔍 DEBUG: HEADLESS env var: '{headless_env}'")
+    # GUI режим по умолчанию
+    headless_mode = False
+    print(f"🔍 browser_launch_args: SAFE MODE, headless={headless_mode}")
 
-    # ДИАГНОСТИКА: Проверяем переменные окружения
-    headless_env = os.getenv('HEADLESS', 'NOT_SET')
-    print(f"🔍 DEBUG: HEADLESS env var: '{headless_env}'")
+    # ТОЛЬКО БАЗОВЫЕ БЕЗОПАСНЫЕ АНТИБОТ АРГУМЕНТЫ
+    launch_args = [
+        # БАЗОВЫЙ КОМПЛИАНС С pytest-playwright
+        "--disable-blink-features=AutomationControlled",  # Ok для большинства случаев
+        "--disable-web-security",  # НУЖЕН для cross-domain .bll.by cookies
+        "--no-sandbox",  # Стабильность
+    ]
 
-    # ПРИНУДИТЕЛЬНО GUI РЕЖИМ! Игнорируем все переменные окружения
-    headless_mode = False  # ЖЕСТКАЯ ФИКСАЦИЯ GUI РЕЖИМА
-    print(f"🔍 DEBUG: Calculated headless_mode: {headless_mode}")
-
-    result_args = {
-        "headless": headless_mode,  # ПРИНУДИТЕЛЬНО GUI РЕЖИМ!
-        "args": [
-            "--disable-blink-features=AutomationControlled",
-            "--disable-automation",
-            "--disable-dev-shm-usage",
-            "--no-sandbox",
-            "--disable-gpu",
-            "--disable-background-timer-throttling",
-            "--disable-backgrounding-occluded-windows",
-            "--disable-renderer-backgrounding",
-            "--disable-field-trial-config",
-            "--disable-ipc-flooding-protection",
-            "--no-first-run",
-            "--no-default-browser-check",
-            "--no-pings",
-            "--password-store=basic",
-            "--use-mock-keychain",
-            "--disable-web-security",
-            "--allow-running-insecure-content"
-        ]
+    return {
+        "headless": headless_mode,
+        "args": launch_args,
+        "slow_mo": 0,
     }
-
-    print(f"🔍 DEBUG: Final browser_launch_args headless: {result_args['headless']}")
-    return result_args
 
 
 @pytest.fixture(scope="session")
