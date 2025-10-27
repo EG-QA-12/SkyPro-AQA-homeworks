@@ -1,21 +1,37 @@
+#!/usr/bin/env python3
 """
-Модуль авторизации для фреймворка автотестов.
+Unified Authentication Framework for BLL Tests
 
-Этот модуль предоставляет единую точку доступа для всех операций авторизации,
-следуя принципам Page Object и обеспечивая обратную совместимость.
+Предоставляет единую точку входа для всех типов авторизации:
+- API авторизация для integration тестов
+- Browser авторизация для UI/e2e тестов
+
+Автоматически выбирает подходящий тип авторизации по контексту.
 """
 
-from .auth_manager import AuthManager, get_session_cookie, get_auth_cookies
-from .cookie_provider import CookieProvider
-from .auth_utils import validate_cookie, save_cookie, load_cookie, AuthError
+from framework.auth.manager import UnifiedAuthManager
+from framework.auth.api.manager import APIManager
+from framework.auth.browser.manager import BrowserManager
+
+__version__ = "1.0.0"
+
+# Unified interface - ЕДИНАЯ ТОЧКА ВХОДА
+auth_manager = UnifiedAuthManager()
+
+# Legacy compatibility methods
+def get_session_cookie(role: str = "admin") -> str:
+    """Устаревший метод для обратной совместимости"""
+    return auth_manager.get_session_cookie(role)
+
+def get_browser_auth(role: str = "admin"):
+    """Устаревший метод для обратной совместимости"""
+    return auth_manager.get_valid_cookies_list(role)
 
 __all__ = [
-    "AuthManager",
-    "CookieProvider", 
-    "validate_cookie",
-    "save_cookie", 
-    "load_cookie",
+    "UnifiedAuthManager",
+    "APIManager",
+    "BrowserManager",
+    "auth_manager",
     "get_session_cookie",
-    "get_auth_cookies",
-    "AuthError"
+    "get_browser_auth"
 ]
