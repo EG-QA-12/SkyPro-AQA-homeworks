@@ -1,100 +1,17 @@
 #!/usr/bin/env python3
 """
-Умный менеджер авторизации - УПРОЩЕННАЯ ВЕРСИЯ
+SmartAuthManager - ПРОБНАЯ ВЕРСИЯ (ОСТАТЬСЯ СТРОГО В ПРОБНОМ РЕЖИМЕ)
 
-Простая система авторизации с минимальной проверкой по времени.
-- Получает куки из файлов
-- Если кука старше 1 часа - обновляет через API
-- Использует ca.bll.by как центр авторизации
-- Включает важные anti-bot защиты из sso_cookies_debug.py
+Сейчас используется smart_auth_api_approach.py как рабочий файл!
+ЭТОТ ФАЙЛ НЕ ИСПОЛЬЗОВАТЬ - НЕ СОВМЕСТИМ С INTEGRATION ТЕСТАМИ!
 """
 
-import time
-import requests
-import logging
-from typing import Optional, Dict, List
+# Содержимое файла заменено на ИМПОРТ ПРОБНОГО ПОДХОДА
+# НЕ ИСПОЛЬЗОВАТЬ ЭТОТ ФАЙЛ ПРЯМО! Использовать smart_auth_api_approach.py
 
-from config.secrets_manager import SecretsManager
-from framework.utils.simple_api_auth import mass_api_auth
-from framework.utils.auth_cookie_provider import get_auth_cookies
+from framework.utils.smart_auth_api_approach import SmartAuthManager
 
-logger = logging.getLogger(__name__)
-
-
-class SmartAuthManager:
-    """
-    Упрощенный менеджер авторизации
-    
-    Принцип работы:
-    - Берет куки из файлов
-    - Проверяет возраст (старше 1 часа - обновить через API)
-    - Использует ca.bll.by как центр авторизации
-    """
-    
-    def __init__(self):
-        """Инициализация менеджера"""
-        self.session = requests.Session()
-        self.base_url = "https://expert.bll.by"  # Экспертная система
-
-        # Базовые anti-detection заголовки (без сложных Sec-Fetch)
-        basic_headers = {
-            'User-Agent': (
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                'AppleWebKit/537.36 (KHTML, like Gecko) '
-                'Chrome/120.0.0 Safari/537.36'
-            ),
-            'Accept': (
-                'text/html,application/xhtml+xml,application/xml;'
-                'q=0.9,image/webp,*/*;q=0.8'
-            ),
-            'Accept-Language': 'ru-RU,ru;q=0.9,en;q=0.8',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1'
-        }
-        
-        self.session.headers.update(basic_headers)
-
-    def get_valid_session_cookie(self, role: str = "admin") -> Optional[str]:
-        """
-        Получает строковое значение куки для API клиентов (обратная совместимость)
-        Использует многоуровневый fallback для максимальной надежности
-
-        Args:
-            role: Роль пользователя (admin, user)
-
-        Returns:
-            Optional[str]: Строковое значение куки или None
-        """
-        # УРОВЕНЬ 1: Сначала пробуем получить из файлов (самый быстрый)
-        cookie = self._get_cookie_from_files(role)
-        if cookie:
-            logger.info(f"[COOKIE_FALLBACK] Успешно получена кука из файлов для роли {role}")
-            return cookie
-
-        # УРОВЕНЬ 2: Пробуем из кэшированного storage_state
-        storage_state = self._load_storage_state(role)
-        if storage_state and "cookies" in storage_state:
-            for cookie_data in storage_state["cookies"]:
-                if cookie_data.get("name") == "test_joint_session":
-                    cookie_value = cookie_data.get("value")
-                    if cookie_value:
-                        logger.info(f"[COOKIE_FALLBACK] Успешно получена кука из кэша для роли {role}")
-                        return cookie_value
-
-        # УРОВЕНЬ 3: Только если ничего нет - выполняем свежую авторизацию
-        logger.info(f"[COOKIE_FALLBACK] Выполняем свежую авторизацию для роли {role}")
-        storage_state = self._perform_auth_and_get_storage_state(role)
-        if storage_state and "cookies" in storage_state:
-            for cookie_data in storage_state["cookies"]:
-                if cookie_data.get("name") == "test_joint_session":
-                    cookie_value = cookie_data.get("value")
-                    if cookie_value:
-                        logger.info(f"[COOKIE_FALLBACK] Успешно получена свежая кука для роли {role}")
-                        return cookie_value
-
-        logger.warning(f"[COOKIE_FALLBACK] Не удалось получить куку для роли {role}")
-        return None
+# ПЕРЕНАПРАВИТЬ ВСЕ ВЫЗОВЫ НА ПРОБНЫЙ ПОДХОД
 
     def _get_cookie_from_files(self, role: str) -> Optional[str]:
         """
@@ -310,17 +227,86 @@ class SmartAuthManager:
                         });
                     """)
 
-                    # Переход на страницу входа
+                    # Переход на страницу входа для expert.bll.by
                     await page.goto(
-                        "https://ca.bll.by/login", wait_until="domcontentloaded"
+                        "https://expert.bll.by/login", wait_until="domcontentloaded"
                     )
 
-                    # Заполнение формы
-                    await page.fill('input[name="lgn"]', target_user['login'])
-                    await page.fill(
-                        'input[name="password"]', target_user['password']
-                    )
-                    await page.click('input[type="submit"]')
+                    # Универсальное заполнение формы входа (работает для разных систем)
+                    # Сначала попробуем найти email/input поля по name атрибутам
+                    try:
+                        # Пробуем разные варианты имен полей для логина
+                        login_selectors = [
+                            'input[name="lgn"]',        # ca.bll.by
+                            'input[name="login"]',      # распространённое название
+                            'input[name="email"]',      # email поле
+                            'input[type="email"]',      # email тип
+                            'input[placeholder*="логин" i]',
+                            'input[placeholder*="login" i]',
+                            'input[placeholder*="email" i]'
+                        ]
+
+                        login_filled = False
+                        for selector in login_selectors:
+                            try:
+                                await page.fill(selector, target_user['login'])
+                                print(f"✅ Заполнили логин: {selector}")
+                                login_filled = True
+                                break
+                            except Exception:
+                                continue
+
+                        if not login_filled:
+                            raise Exception("Не удалось найти поле для логина")
+
+                        # Пробуем разные варианты полей для пароля
+                        password_selectors = [
+                            'input[name="password"]',   # распространённое название
+                            'input[name="pwd"]',        # короткое название
+                            'input[type="password"]',   # password тип
+                            'input[placeholder*="пароль" i]',
+                            'input[placeholder*="password" i]'
+                        ]
+
+                        password_filled = False
+                        for selector in password_selectors:
+                            try:
+                                await page.fill(selector, target_user['password'])
+                                print(f"✅ Заполнили пароль: {selector}")
+                                password_filled = True
+                                break
+                            except Exception:
+                                continue
+
+                        if not password_filled:
+                            raise Exception("Не удалось найти поле для пароля")
+
+                        # Нажимаем кнопку входа
+                        submit_selectors = [
+                            'input[type="submit"]',
+                            'button[type="submit"]',
+                            'input[value*="войти" i]',
+                            'input[value*="login" i]',
+                            'button:has-text("войти")',
+                            'button:has-text("войти")'
+                        ]
+
+                        submit_clicked = False
+                        for selector in submit_selectors:
+                            try:
+                                await page.click(selector)
+                                print(f"✅ Нажали кнопку входа: {selector}")
+                                submit_clicked = True
+                                break
+                            except Exception:
+                                continue
+
+                        if not submit_clicked:
+                            raise Exception("Не удалось найти кнопку входа")
+
+                    except Exception as e:
+                        logger.error(f"Ошибка при заполнении формы: {e}")
+                        return None
 
                     # УМНОЕ ОЖИДАНИЕ РЕЗУЛЬТАТА АВТОРИЗАЦИИ (вместо sleep)
                     # Ждем ЛИБО изменение URL, ЛИБО появление профиля
