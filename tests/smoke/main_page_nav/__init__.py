@@ -1,1 +1,6 @@
-# tests/smoke/main_page_nav/authenticated/__init__.py
+"""
+Main Page Navigation Tests
+
+Тесты навигации главной страницы bll.by
+включают header меню, поиск, сервисы, сообщество и справочные данные
+"""
