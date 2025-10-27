@@ -127,6 +127,33 @@ class SecretsManager:
         self.current_environment = self._detect_environment()
         
         self.logger.info(f"Инициализирован SecretsManager для окружения: {self.current_environment.value}")
+
+    def _load_external_secrets(self, secrets_base_dir: str) -> None:
+        """
+        Загрузить дополнительные секреты из внешнего каталога (например d:\secrets\).
+
+        Args:
+            secrets_base_dir: Путь к каталогу с внешними секретами
+        """
+        external_env_files = [
+            Path(secrets_base_dir) / ".env",        # Основной .env файл
+            Path(secrets_base_dir) / "creds.env",   # Доп. креденциалы
+        ]
+
+        for env_file in external_env_files:
+            if env_file.exists():
+                try:
+                    load_dotenv(env_file, override=False)
+                    self.logger.info(f"Загружен внешний .env файл: {env_file}")
+                except Exception as e:
+                    self.logger.warning(f"Ошибка загрузки {env_file}: {e}")
+
+        # Проверяем дополнительные переменные для замещения путей
+        # Если BULK_USERS_PATH указан - используем его вместо hardcoded пути
+        bulk_users_path = os.getenv("BULK_USERS_PATH")
+        if bulk_users_path:
+            os.environ["USER_DATA_CSV_PATH"] = bulk_users_path
+            self.logger.info(f"Используется внешний CSV пользователей: {bulk_users_path}")
     
     def _setup_logger(self) -> logging.Logger:
         """Настройка безопасного логгера."""
@@ -143,11 +170,7 @@ class SecretsManager:
     
     def _load_environment_variables(self) -> None:
         """Загрузка переменных окружения из .env файлов по приоритету."""
-        # Загружаем переменные из creds.env (гарантированно для тестов)
-        secrets_creds_path = self.project_root / "secrets" / "creds.env"
-        load_dotenv(secrets_creds_path, override=True)
-        # Можно добавить другие .env, если нужно
-        
+
         # Порядок приоритета .env файлов (от высшего к низшему)
         env_files = [
             self.config_dir / ".env.local",      # Локальные настройки (высший приоритет)
@@ -157,13 +180,22 @@ class SecretsManager:
             self.project_root / ".env.local",    # Локальные настройки в корне
             self.project_root / ".env"           # Основные настройки в корне
         ]
-        
+
         loaded_files = []
         for env_file in env_files:
             if env_file.exists():
-                # load_dotenv(env_file, override=False)  # override=False = не перезаписывать уже загруженные
+                load_dotenv(env_file, override=False)  # override=False = не перезаписывать уже загруженные
                 loaded_files.append(str(env_file))
-        
+
+        # ДОПОЛНИТЕЛЬНО: Загрузить внешние secrets из d:\secrets\ ЕСЛИ УКАЗАНЫ В .env.local
+        external_secrets_path = os.getenv("SECRETS_BASE_DIR") or os.getenv("SECRETS_DIR")
+        if external_secrets_path:
+            try:
+                self._load_external_secrets(external_secrets_path)
+                loaded_files.append(f"external: {external_secrets_path}")
+            except Exception as e:
+                self.logger.warning(f"Не удалось загрузить внешние секреты из {external_secrets_path}: {e}")
+
         if loaded_files:
             self.logger.info(f"Загружены .env файлы: {', '.join(loaded_files)}")
         else:
@@ -421,10 +453,16 @@ class SecretsManager:
     def load_users_from_csv(cls) -> List[Dict]:
         """Загружает пользователей из CSV файла."""
         users = []
-        # Определяем путь к файлу пользователей
-        project_root = Path(__file__).resolve().parent.parent
-        csv_path = project_root / "secrets" / "bulk_users.csv"
-        
+
+        # Сначала проверяем путь из переменной окружения (внешние секреты)
+        csv_path = os.getenv("BULK_USERS_PATH") or os.getenv("USER_DATA_CSV_PATH")
+        if csv_path:
+            csv_path = Path(csv_path)
+        else:
+            # Фоллбэк на локальный путь внутри проекта
+            project_root = Path(__file__).resolve().parent.parent
+            csv_path = project_root / "secrets" / "bulk_users.csv"
+
         # Если файл не найден, возвращаем тестовых пользователей
         if not csv_path.exists():
             return cls._get_default_test_users()
