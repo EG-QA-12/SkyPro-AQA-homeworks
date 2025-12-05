@@ -68,22 +68,28 @@ def domain_aware_authenticated_context_for_bll(browser_with_launch_args):
     # Авторизация для bll.by с умной проверкой кук
     print("🎯 Домен bll: используем умную авторизацию с проверкой кук")
     auth_manager = SmartAuthManager()
-    storage_state = auth_manager.get_valid_storage_state(role="admin")
+    cookies = auth_manager.get_valid_cookies_list(role="admin")
 
     # Проверка headless режима для адаптивных настроек
     headless_mode = os.environ.get('HEADLESS', 'false').lower() == 'true'
-    
-    # Настраиваем контекст для обхода антибот защиты с полным storage state
+
+    # Настраиваем контекст для обхода антибот защиты
     context = browser_with_launch_args.new_context(
         user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         viewport={"width": 1920, "height": 1080},
         locale="ru-RU",
         timezone_id="Europe/Minsk",
         ignore_https_errors=True,
-        storage_state=storage_state,  # Полное состояние сессии вместо отдельных кук
         bypass_csp=True if headless_mode else False,  # Отключение CSP для headless
         accept_downloads=True
     )
+
+    # Добавляем куки в контекст
+    if cookies:
+        context.add_cookies(cookies)
+        print(f"✅ Добавлены куки: {len(cookies)} шт")
+    else:
+        print("⚠️ Куки не получены - контекст без авторизации")
 
     # 🔒 ФАЗА 1: ANTI-DETECTION - обход navigator.webdriver для SSO систем
     context.add_init_script("""

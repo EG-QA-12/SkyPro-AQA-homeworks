@@ -182,6 +182,36 @@ class BaseNavigationPage(BasePage):
             print(f"❌ Не удалось дождаться изменения URL на '{expected_fragment}': {e}")
             return False
 
+    def wait_for_url_change_any(self, expected_fragments: list, timeout: int = 15000) -> bool:
+        """
+        Ожидает изменения URL с любым из ожидаемых фрагментов
+
+        Args:
+            expected_fragments: список ожидаемых фрагментов в URL
+            timeout: таймаут ожидания в мс
+
+        Returns:
+            bool: True если URL соответствует хотя бы одному ожиданию
+        """
+        try:
+            def url_matches(url):
+                url_str = str(url).lower()
+                return any(fragment.lower() in url_str for fragment in expected_fragments)
+
+            self.page.wait_for_url(url_matches, timeout=timeout)
+
+            # Получить финальный URL для логирования
+            final_url = self.page.url
+            print(f"✅ URL изменился на: {final_url}")
+
+            # Финальная проверка
+            return url_matches(final_url)
+
+        except Exception as e:
+            fragments_str = "', '".join(expected_fragments)
+            print(f"❌ Не удалось дождаться изменения URL на один из: '{fragments_str}': {e}")
+            return False
+
     def assert_http_status(self, url: str) -> Optional[int]:
         """
         Проверяет HTTP статус URL (аналогично burger menu тестам)

@@ -388,11 +388,11 @@ class TestHeaderNavigation:
             status = self.navigation.assert_http_status(self.page.url)
             assert status in [200, 301, 302], f"Неверный HTTP статус страницы базовой величины: {status}"
 
-    @allure.title("Навигация 'Средняя з/п за январь'")
-    @allure.description("Проверка перехода на страницу средней зарплаты")
-    def test_average_salary_january_navigation(self):
-        """Тест клика по 'Средняя з/п за январь'"""
-        allure.attach("Тестируется переход на страницу средней зарплаты за январь", name="Описание")
+    @allure.title("Навигация 'Средняя з/п за сентябрь'")
+    @allure.description("Проверка перехода на страницу средней зарплаты за сентябрь")
+    def test_average_salary_september_navigation(self):
+        """Тест клика по 'Средняя з/п за сентябрь'"""
+        allure.attach("Тестируется переход на страницу средней зарплаты за сентябрь", name="Описание")
 
         result = self.navigation.click_average_salary_january()
 
@@ -433,11 +433,11 @@ class TestHeaderNavigation:
             status = self.navigation.assert_http_status(self.page.url)
             assert status in [200, 301, 302], f"Неверный HTTP статус страницы базовой арендной величины: {status}"
 
-    @allure.title("Навигация 'МЗП за февраль'")
-    @allure.description("Проверка перехода на страницу минимальной зарплаты")
-    def test_minimum_wage_february_navigation(self):
-        """Тест клика по 'МЗП за февраль'"""
-        allure.attach("Тестируется переход на страницу минимальной зарплаты за февраль", name="Описание")
+    @allure.title("Навигация 'МЗП за сентябрь'")
+    @allure.description("Проверка перехода на страницу минимальной зарплаты за сентябрь")
+    def test_minimum_wage_september_navigation(self):
+        """Тест клика по 'МЗП за сентябрь' (ранее был февраль)"""
+        allure.attach("Тестируется переход на страницу минимальной зарплаты за сентябрь", name="Описание")
 
         result = self.navigation.click_minimum_wage_february()
 
@@ -516,8 +516,8 @@ class TestHeaderNavigation:
 
         result = self.navigation.click_reviews_subscriptions()
 
-        with allure.step("Проверяем переход на страницу обзоров и подписок"):
-            assert result, "Не удалось перейти на страницу обзоров и подписок"
+        with allure.step("Проверяем что клик прошел успешно"):
+            assert result, "Не удалось кликнуть по 'Обзоры и подписки'"
 
         with allure.step("Проверяем HTTP статус страницы обзоров и подписок"):
             status = self.navigation.assert_http_status(self.page.url)

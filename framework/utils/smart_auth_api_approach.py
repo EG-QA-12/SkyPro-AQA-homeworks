@@ -196,66 +196,184 @@ class SmartAuthManager:
             logger.warning(f"Не удалось проверить возраст куки: {e}")
             return False  # если не можем проверить - считаем свежей
 
-    def get_valid_storage_state(self, role: str = "admin") -> Optional[Dict]:
-        """
-        Получает storage_state с минимальной проверкой по времени
-
-        Args:
-            role: Роль пользователя (admin, user)
-
-        Returns:
-            Optional[Dict]: Полное storage_state или None
-        """
-        logger.info(f"[DEBUG] get_valid_storage_state called for role: {role}")
-
-        # Проверка наличия и актуальности storage_state
-        is_too_old = self._is_storage_state_too_old(role)
-        logger.info(f"[DEBUG] _is_storage_state_too_old result: {is_too_old}")
-
-        if is_too_old:
-            logger.info("Storage state старше 1 часа, обновляем через Playwright")
-            result = self._perform_auth_and_get_storage_state(role)
-            logger.info(f"[DEBUG] _perform_auth_and_get_storage_state result: {result is not None}")
-            return result
-
-        logger.info("Используем существующее storage_state")
-        result = self._load_storage_state(role)
-        logger.info(f"[DEBUG] _load_storage_state result: {result is not None}")
-        return result
-
     def get_valid_cookies_list(self, role: str = "admin") -> Optional[List[Dict]]:
         """
-        Получает список кук в формате Playwright для браузерных тестов
-
-        ИСПРАВЛЕНИЕ: Теперь возвращает куки из ПОЛНОГО storage_state
-        (включая правильную sameSite политику для headless режима)
+        Получает валидный список кук для Playwright с проверкой по времени
 
         Args:
-            role: Роль пользователя (admin, user)
+            role: Роль пользователя (admin, user, moderator, expert)
 
         Returns:
-            Optional[List[Dict]]: Список кук для context.add_cookies() или None
+            Optional[List[Dict]]: Список кук в формате Playwright или None
         """
-        logger.info(f"[DEBUG] get_valid_cookies_list called for role: {role}")
-        storage_state = self.get_valid_storage_state(role)
-        logger.info(f"[DEBUG] storage_state result: {storage_state is not None}")
+        logger.info(f"[AUTH_DEBUG] get_valid_cookies_list called for role: {role}")
 
-        if storage_state and "cookies" in storage_state:
-            cookies_count = len(storage_state["cookies"])
-            logger.info(f"[DEBUG] Found {cookies_count} cookies in FULL storage_state")
+        # Проверка наличия и актуальности кук
+        is_too_old = self._is_cookies_too_old(role)
+        logger.info(f"[AUTH_DEBUG] _is_cookies_too_old result: {is_too_old}")
 
-            # ДОБАВЛЕНО: Проверяем правильность sameSite для headless режима
-            for cookie in storage_state["cookies"]:
-                if cookie.get('name') == 'test_joint_session':
-                    logger.info(f"[COOKIE_CHECK] Session cookie sameSite: {cookie.get('sameSite')}, "
-                              f"secure: {cookie.get('secure')}, domain: {cookie.get('domain')}")
+        if is_too_old:
+            logger.info("[AUTH_DEBUG] Куки старше 1 часа, запускаем обновление")
+            result = self._perform_auth_and_get_cookies(role)
+            logger.info(f"[AUTH_DEBUG] _perform_auth_and_get_cookies result: {result is not None}")
+            if result:
+                logger.info("[AUTH_DEBUG] Успешно получены новые куки")
+                return result
+            else:
+                logger.warning("[AUTH_DEBUG] Авторизация не удалась, пробуем fallback через API")
+                result = self._perform_fallback_api_auth(role)
+                logger.info(f"[AUTH_DEBUG] Fallback API авторизация result: {result is not None}")
+                if result:
+                    logger.info("[AUTH_DEBUG] Успешно получены куки через fallback API")
+                    return result
+                else:
+                    logger.error("[AUTH_DEBUG] ОШИБКА: Все методы авторизации не удались")
+                    return None
 
-            return storage_state["cookies"]
+        logger.info("[AUTH_DEBUG] Используем существующие куки")
+        result = self._load_cookies_from_json_file(role)
+        logger.info(f"[AUTH_DEBUG] _load_cookies_from_json_file result: {result is not None}")
+        if result:
+            logger.info("[AUTH_DEBUG] Успешно загружены существующие куки")
+            return result
+        else:
+            logger.warning("[AUTH_DEBUG] Не удалось загрузить существующие куки, пробуем обновить")
+            result = self._perform_auth_and_get_cookies(role)
+            logger.info(f"[AUTH_DEBUG] Fallback авторизация result: {result is not None}")
+            return result
 
-        logger.warning(f"[DEBUG] No cookies found in FULL storage_state for role {role}")
-        return None
+    def _perform_auth_and_get_cookies(self, role: str) -> Optional[List[Dict]]:
+        """
+        Выполняет авторизацию через Playwright и возвращает список кук
 
-    def _is_storage_state_too_old(self, role: str) -> bool:
+        Args:
+            role: Роль пользователя
+
+        Returns:
+            Optional[List[Dict]]: Список кук в формате Playwright или None
+        """
+        try:
+            import nest_asyncio
+            nest_asyncio.apply()
+
+            import asyncio
+            from rebrowser_playwright.async_api import async_playwright
+            from config.secrets_manager import SecretsManager
+
+            # Загружаем пользователей
+            test_users = SecretsManager.load_users_from_csv()
+            if not test_users:
+                logger.error("Нет тестовых пользователей")
+                return None
+
+            # Находим пользователя с нужной ролью
+            target_user = next(
+                (user for user in test_users if user.get('role') == role), None
+            )
+            if not target_user:
+                logger.error(f"Не найден пользователь с ролью {role}")
+                return None
+
+            logger.info(f"Выполняем Playwright авторизацию для {role}")
+
+            # Асинхронная функция авторизации
+            async def _async_auth():
+                async with async_playwright() as p:
+                    browser = await p.chromium.launch(
+                        **self.get_browser_launch_args(headless=True)
+                    )
+                    context = await browser.new_context(
+                        user_agent=(
+                            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                            "AppleWebKit/537.36 (KHTML, like Gecko) "
+                            "Chrome/120.0.0.0 Safari/537.36"
+                        ),
+                        viewport={"width": 1920, "height": 1080},
+                        locale="ru-RU",
+                        timezone_id="Europe/Minsk",
+                        ignore_https_errors=True,
+                        bypass_csp=True,
+                    )
+                    page = await context.new_page()
+
+                    # Anti-detection script
+                    await page.add_init_script("""
+                        Object.defineProperty(navigator, 'webdriver', {
+                            get: () => undefined
+                        });
+                    """)
+
+                    # Переход на страницу входа для ca.bll.by
+                    await page.goto(
+                        "https://ca.bll.by/login", wait_until="domcontentloaded"
+                    )
+
+                    # Заполнение формы с правильными селекторами
+                    try:
+                        # Логин поле
+                        await page.fill('input[name="lgn"]', target_user['login'])
+                        print(f"✅ Заполнили логин: input[name=\"lgn\"]")
+
+                        # Пароль поле
+                        await page.fill('input[name="password"]', target_user['password'])
+                        print(f"✅ Заполнили пароль: input[name=\"password\"]")
+
+                        # Кнопка входа
+                        await page.click('input[type="submit"]')
+                        print(f"✅ Нажали кнопку входа: input[type=\"submit\"]")
+
+                    except Exception as e:
+                        logger.error(f"Ошибка при заполнении формы: {e}")
+                        return None
+
+                    # Ожидание результата авторизации
+                    try:
+                        await page.wait_for_function("""
+                            () => {
+                                // Успех: URL изменился (редирект после авторизации)
+                                if (!window.location.href.includes('/login')) {
+                                    return true;
+                                }
+                                // Успех: появление элементов профиля или ошибок
+                                if (document.querySelector('.alert-danger') ||
+                                    document.querySelector('.error') ||
+                                    document.querySelector('[class*="error"]')) {
+                                    return true;
+                                }
+                                return false;
+                            }
+                        """, timeout=10000)
+
+                        logger.info("[AUTH_CHECK] Auth result detected")
+
+                    except Exception as e:
+                        logger.error(f"[AUTH_TIMEOUT] Auth check timeout: {e}")
+
+                    # Получаем куки из контекста
+                    cookies = await context.cookies()
+                    logger.info(f"[COOKIES] Captured {len(cookies)} cookies")
+
+                    await browser.close()
+                    return cookies
+
+            # Запускаем авторизацию
+            cookies = asyncio.run(_async_auth())
+
+            if cookies:
+                logger.info(f"Успешно получены куки: {len(cookies)} шт")
+
+                # Сохраняем куки в файл
+                self._save_cookies_to_file(role, cookies)
+                return cookies
+            else:
+                logger.error("Не удалось получить куки")
+                return None
+
+        except Exception as e:
+            logger.error(f"Ошибка при авторизации: {e}")
+            return None
+
+    def _is_cookies_too_old(self, role: str) -> bool:
         """
         Проверяет, старше ли куки 1 часа по времени модификации файла
 
@@ -271,14 +389,15 @@ class SmartAuthManager:
 
             project_root = Path(__file__).parent.parent.parent
             cookies_dir = project_root / "cookies"
-            cookie_file = cookies_dir / f"{role}_cookies.json"
+            cookies_file = cookies_dir / f"{role}_cookies.json"
 
-            if cookie_file.exists():
-                mod_time = os.path.getmtime(cookie_file)
+            if cookies_file.exists():
+                mod_time = os.path.getmtime(cookies_file)
                 age_hours = (time.time() - mod_time) / 3600
-                logger.info(".1f")
+                logger.info(f"[AGE_CHECK] Куки для {role} возраст: {age_hours:.1f} часов")
                 return age_hours > 1  # Старше 1 часа
 
+            logger.info(f"[AGE_CHECK] Файл с куками не найден: {cookies_file}, требуется обновление")
             return True  # Если файла нет, считаем что нужно обновить
 
         except Exception as e:
@@ -352,9 +471,9 @@ class SmartAuthManager:
                         });
                     """)
 
-                    # Переход на страницу входа для expert.bll.by
+                    # Переход на страницу входа для bll.by (основной сайт)
                     await page.goto(
-                        "https://expert.bll.by/login", wait_until="domcontentloaded"
+                        "https://bll.by/login", wait_until="domcontentloaded"
                     )
 
                     # Универсальное заполнение формы входа (работает для разных систем)
@@ -362,13 +481,14 @@ class SmartAuthManager:
                     try:
                         # Пробуем разные варианты имен полей для логина
                         login_selectors = [
-                            'input[name="lgn"]',        # ca.bll.by
-                            'input[name="login"]',      # распространённое название
-                            'input[name="email"]',      # email поле
+                            'input[name="email"]',      # bll.by основной сайт
                             'input[type="email"]',      # email тип
+                            'input[name="login"]',      # распространённое название
+                            'input[name="lgn"]',        # ca.bll.by
                             'input[placeholder*="логин" i]',
                             'input[placeholder*="login" i]',
-                            'input[placeholder*="email" i]'
+                            'input[placeholder*="email" i]',
+                            'input[placeholder*="почта" i]'
                         ]
 
                         login_filled = False
@@ -442,20 +562,30 @@ class SmartAuthManager:
                                 if (!window.location.href.includes('/login')) {
                                     return true;
                                 }
-                                // Успех: профиль появился
-                                if (document.querySelector('a[class*="top-nav__item top-nav__profile"]')) {
+                                // Успех: профиль появился (проверяем разные селекторы)
+                                if (document.querySelector('a[class*="top-nav__item top-nav__profile"]') ||
+                                    document.querySelector('a[href*="profile"]') ||
+                                    document.querySelector('.user-menu') ||
+                                    document.querySelector('[class*="profile"]')) {
+                                    return true;
+                                }
+                                // Успех: появилось сообщение об ошибке (тоже результат)
+                                if (document.querySelector('.alert-danger') ||
+                                    document.querySelector('.error') ||
+                                    document.querySelector('[class*="error"]')) {
                                     return true;
                                 }
                                 // Продолжаем проверку (функция вернет undefined, продолжая ожидание)
                                 return false;
                             }
-                        """, timeout=5000)  # Максимум 5 сек
+                        """, timeout=15000)  # Увеличен до 15 сек
 
                         logger.info("[AUTH_CHECK] Auth result detected")
 
                     except Exception as e:
                         logger.error(f"[AUTH_TIMEOUT] Auth check timeout: {e}")
-                        return None
+                        # Даже при таймауте продолжим проверку финального состояния
+                        pass
 
                     # ФИНАЛЬНАЯ ПРОВЕРКА АВТОРИЗАЦИИ
                     current_url = page.url
@@ -506,6 +636,42 @@ class SmartAuthManager:
             logger.error(f"Ошибка при авторизации: {e}")
             return None
 
+    def _perform_fallback_api_auth(self, role: str) -> Optional[List[Dict]]:
+        """
+        Fallback авторизация через API подход (mass_api_auth)
+
+        Args:
+            role: Роль пользователя
+
+        Returns:
+            Optional[List[Dict]]: Список кук или None
+        """
+        try:
+            logger.info(f"[FALLBACK_API] Начинаем fallback авторизацию через API для роли {role}")
+
+            # Используем существующий mass_api_auth подход
+            result = self._perform_mass_auth(role)
+            if not result:
+                logger.error("[FALLBACK_API] Mass auth не вернул результат")
+                return None
+
+            # Получаем куки от API авторизации
+            cookies = get_auth_cookies(role=role)
+            if not cookies:
+                logger.error("[FALLBACK_API] Не получены куки после mass auth")
+                return None
+
+            logger.info(f"[FALLBACK_API] Получены куки: {len(cookies)} шт")
+
+            # Сохраняем куки в файл
+            self._save_cookies_to_file(role, cookies)
+
+            return cookies
+
+        except Exception as e:
+            logger.error(f"[FALLBACK_API] Ошибка в fallback авторизации: {e}")
+            return None
+
     def _load_storage_state(self, role: str) -> Optional[Dict]:
         """
         Загружает ПОЛНЫЙ storage_state из файла storage/{role}_storage_state.json
@@ -545,6 +711,70 @@ class SmartAuthManager:
         except Exception as e:
             logger.error(f"Ошибка при загрузке ПОЛНОГО storage_state: {e}")
             return None
+
+    def _load_cookies_from_json_file(self, role: str) -> Optional[List[Dict]]:
+        """
+        Загружает список кук из файла cookies/{role}_cookies.json
+
+        Args:
+            role: Роль пользователя
+
+        Returns:
+            Optional[List[Dict]]: Список кук в формате Playwright или None
+        """
+        try:
+            import json
+            from pathlib import Path
+
+            project_root = Path(__file__).parent.parent.parent
+            cookies_dir = project_root / "cookies"
+            cookies_file = cookies_dir / f"{role}_cookies.json"
+
+            if cookies_file.exists():
+                with open(cookies_file, 'r', encoding='utf-8') as f:
+                    cookies = json.load(f)
+
+                if isinstance(cookies, list) and cookies:
+                    logger.info(f"Загружены куки из файла: {cookies_file} ({len(cookies)} куков)")
+                    return cookies
+
+            logger.warning(f"Файл с куками не найден: {cookies_file}")
+            return None
+
+        except Exception as e:
+            logger.error(f"Ошибка при загрузке кук из файла: {e}")
+            return None
+
+    def _save_cookies_to_file(self, role: str, cookies: List[Dict]) -> bool:
+        """
+        Сохраняет список кук в файл cookies/{role}_cookies.json
+
+        Args:
+            role: Роль пользователя
+            cookies: Список кук для сохранения
+
+        Returns:
+            bool: True если сохранение успешно
+        """
+        try:
+            import json
+            from pathlib import Path
+
+            project_root = Path(__file__).parent.parent.parent
+            cookies_dir = project_root / "cookies"
+            cookies_dir.mkdir(exist_ok=True)
+
+            cookies_file = cookies_dir / f"{role}_cookies.json"
+
+            with open(cookies_file, 'w', encoding='utf-8') as f:
+                json.dump(cookies, f, indent=2, ensure_ascii=False)
+
+            logger.info(f"Куки сохранены: {cookies_file} ({len(cookies)} куков)")
+            return True
+
+        except Exception as e:
+            logger.error(f"Ошибка при сохранении кук: {e}")
+            return False
 
     def _save_storage_state(self, role: str, storage_state: Dict) -> bool:
         """

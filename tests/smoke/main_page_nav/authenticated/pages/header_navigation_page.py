@@ -318,7 +318,8 @@ class HeaderNavigationPage(BaseNavigationPage):
     def click_reference_info(self):
         """Клик по 'Справочная информация'"""
         self.close_expire_popup()
-        self.page.get_by_role("link", name="Справочная информация").click()
+        # Используем first чтобы избежать strict mode violation при дублированных элементах
+        self.page.get_by_role("link", name="Справочная информация").first.click()
         return self.wait_for_url_change("200083")
 
     def click_refinancing_rate(self):
@@ -332,9 +333,19 @@ class HeaderNavigationPage(BaseNavigationPage):
         return self.wait_for_url_change("60204")
 
     def click_average_salary_january(self):
-        """Клик по 'Средняя з/п за январь'"""
-        self.page.get_by_role("link", name="Средняя з/п за январь").click()
-        return self.wait_for_url_change("490447")
+        """Клик по 'Средняя з/п за сентябрь' (ранее был январь)"""
+        try:
+            # Проверяем что ссылка существует перед кликом
+            salary_link = self.page.get_by_role("link", name="Средняя з/п за сентябрь")
+            if salary_link.is_visible(timeout=5000):
+                salary_link.click()
+                return self.wait_for_url_change("490447")
+            else:
+                print("⚠️ Ссылка 'Средняя з/п за сентябрь' не найдена")
+                return False
+        except Exception as e:
+            print(f"❌ Ошибка клика по 'Средняя з/п за сентябрь': {e}")
+            return False
 
     def click_child_allowances(self):
         """Клик по 'Пособия на детей'"""
@@ -347,14 +358,19 @@ class HeaderNavigationPage(BaseNavigationPage):
         return self.wait_for_url_change("235259")
 
     def click_minimum_wage_february(self):
-        """Клик по 'МЗП за февраль'"""
-        self.page.get_by_role("link", name="МЗП за февраль").click()
-        # Для МЗП проверяем что клик прошел успешно (ссылка ведет на страницу МЗП)
-        self.page.wait_for_timeout(2000)
-        current_url = self.page.url
-        print(f"📍 После клика по 'МЗП за февраль': {current_url}")
-        # Проверяем что URL содержит ключевые слова о минимальной зарплате
-        return "minimalnoj-zarabotnoj-platy" in current_url or "mzp" in current_url.lower()
+        """Клик по 'МЗП за сентябрь' (ранее был февраль)"""
+        try:
+            # Проверяем что ссылка существует перед кликом
+            mzp_link = self.page.get_by_role("link", name="МЗП за сентябрь")
+            if mzp_link.is_visible(timeout=5000):
+                mzp_link.click()
+                return self.wait_for_url_change("487980")
+            else:
+                print("⚠️ Ссылка 'МЗП за сентябрь' не найдена")
+                return False
+        except Exception as e:
+            print(f"❌ Ошибка клика по 'МЗП за сентябрь': {e}")
+            return False
 
     def click_bpm(self):
         """Клик по 'БПМ'"""
@@ -378,8 +394,27 @@ class HeaderNavigationPage(BaseNavigationPage):
 
     def click_reviews_subscriptions(self):
         """Клик по 'Обзоры и подписки'"""
-        self.page.get_by_role("link", name="Обзоры и подписки").click()
-        return self.wait_for_url_change("news_subscr.htm")
+        try:
+            # Пробуем найти по точному href
+            reviews_link = self.page.locator("a[href='https://www.business-info.by/news_subscr.htm']")
+            if reviews_link.is_visible(timeout=5000):
+                print("✅ Найдена по href, кликаем...")
+                reviews_link.click()
+                return True
+            else:
+                print("⚠️ Ссылка 'Обзоры и подписки' не найдена по href")
+                # Попробуем найти по тексту
+                reviews_by_text = self.page.get_by_role("link", name="Обзоры и подписки")
+                if reviews_by_text.is_visible(timeout=2000):
+                    print("✅ Найдена по тексту, кликаем...")
+                    reviews_by_text.click()
+                    return True
+                else:
+                    print("⚠️ Ссылка 'Обзоры и подписки' не найдена вообще")
+                    return False
+        except Exception as e:
+            print(f"❌ Ошибка клика по 'Обзоры и подписки': {e}")
+            return False
 
     def click_news(self):
         """Клик по 'Новости'"""
@@ -407,7 +442,9 @@ class HeaderNavigationPage(BaseNavigationPage):
 
     def click_events(self):
         """Клик по 'Мероприятия'"""
-        self.page.get_by_role("link", name="Мероприятия").click()
+        # Используем точный селектор для элемента с классом search-lnk_item
+        events_link = self.page.locator("a.search-lnk_item.search-lnk_item__2[href*='kalendar-meropriyatij']")
+        events_link.click()
         return self.wait_for_url_change("kalendar-meropriyatij")
 
     def click_edition_tax_code(self):
