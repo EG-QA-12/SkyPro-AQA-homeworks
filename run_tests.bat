@@ -1,3 +1,0 @@
-@echo off
-echo 🚀 Быстрый запуск тестов...
-call scripts\run_tests_quick.bat 

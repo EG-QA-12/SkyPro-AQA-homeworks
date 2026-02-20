@@ -1,1 +1,0 @@
-# tests/smoke/main_page_nav/authenticated/__init__.py
