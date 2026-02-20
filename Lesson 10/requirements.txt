@@ -1,0 +1,26 @@
+# Selenium для UI тестов
+selenium==4.15.2
+
+# Pytest для запуска тестов
+pytest==7.4.3
+
+# Allure для красивых отчетов
+allure-pytest==2.13.2
+
+# Faker для генерации тестовых данных
+faker==20.1.0
+
+# SQLAlchemy для работы с БД
+SQLAlchemy==2.0.23
+
+# Psycopg2 для PostgreSQL
+psycopg2-binary==2.9.9
+
+# Webdriver-manager для автоматического управления драйверами
+webdriver-manager==4.0.1
+
+# Python-dotenv для работы с переменными окружения
+python-dotenv==1.0.0
+
+# Pytest-xdist для параллельного запуска тестов
+pytest-xdist==3.5.0
